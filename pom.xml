@@ -64,6 +64,13 @@
 			<scope>compile</scope>
 		</dependency>
 
+		<!-- Database -->
+		<dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

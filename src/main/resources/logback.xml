@@ -5,8 +5,8 @@
 			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
 		</encoder>
 	</appender>
-	<logger name="yoan.shopping" level="error" />
-	<root level="error">
+	<logger name="yoan.shopping" level="warn" />
+	<root level="warn">
 		<appender-ref ref="STDOUT" />
 	</root>
 	<!-- sends logs to logback-beagle -->

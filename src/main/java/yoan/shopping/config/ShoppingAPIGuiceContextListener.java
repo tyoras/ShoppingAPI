@@ -9,6 +9,7 @@ import java.util.Map;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import yoan.shopping.config.filter.ApiOriginFilter;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -36,6 +37,7 @@ public class ShoppingAPIGuiceContextListener extends GuiceServletContextListener
             protected void configureServlets() {
                 bind(ServletContainer.class).in(Singleton.class);
                 bind(ApiOriginFilter.class).in(Singleton.class);
+                bind(MongoDbConnectionFactory.class).in(Singleton.class);
 
                 Map<String, String> props = new HashMap<String, String>();
                 props.put("javax.ws.rs.Application", Application.class.getName());

@@ -9,6 +9,13 @@ import javax.ws.rs.core.Response;
 
 import jersey.repackaged.com.google.common.collect.Lists;
 
+import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -19,6 +26,7 @@ import com.wordnik.swagger.annotations.ApiResponses;
 @Api(value = "/test", description = "Test operations")
 @Produces({ "application/json", "application/xml" })
 public class TestResource {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestResource.class); 
 	
 	@GET
 	@Path("/{testId}")
@@ -29,6 +37,9 @@ public class TestResource {
 	public Response getTestyId(
 			@ApiParam(value = "ID that needs to be fetched", allowableValues = "range[1,5]", required = true) @PathParam("testId") String testId)
 			throws NotFoundException {
+		Document doc = new Document("x", testId);
+		MongoDbConnectionFactory.getCollection(Dbs.SHOPPING, "test").insertOne(doc);
+		LOGGER.info("inserted : " + doc.toJson());
 		TestObject testObj = new TestObject();
 		testObj.setId(42);
 		testObj.setName("name1");
