@@ -16,7 +16,7 @@ import com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider;
 public class Application extends ResourceConfig {
 	public Application() {
 		packages("com.wordnik.swagger.jaxrs.json").
-	    packages("yoan.shopping.tmp");
+	    packages("yoan.shopping");
 	    register(ApiListingResourceJSON.class).
 	    register(JerseyApiDeclarationProvider.class).
 	    register(JerseyResourceListingProvider.class);

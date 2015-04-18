@@ -26,7 +26,7 @@
 	$(function() {
 		window.swaggerUi = new SwaggerUi(
 				{
-					url : "http://localhost:8080/ShoppingAPI/api/api-docs",
+					url : "http://localhost:8080/shopping/api/api-docs",
 					dom_id : "swagger-ui-container",
 					supportedSubmitMethods : [ 'get', 'post', 'put', 'delete' ],
 					onComplete : function(swaggerApi, swaggerUi) {
@@ -74,12 +74,8 @@
 			<a id="logo" href="http://swagger.io">swagger</a>
 			<form id='api_selector'>
 				<div class='input icon-btn'>
-					<img id="show-pet-store-icon" src="images/pet_store_api.png"
-						title="Show Swagger Petstore Example Apis">
-				</div>
-				<div class='input icon-btn'>
-					<img id="show-wordnik-dev-icon" src="images/wordnik_api.png"
-						title="Show Wordnik Developer Apis">
+					<img id="show-shopping-icon" src="images/shopping_cart.png"
+						title="Show Shopping Apis">
 				</div>
 				<div class='input'>
 					<input placeholder="http://example.com/api" id="input_baseUrl"

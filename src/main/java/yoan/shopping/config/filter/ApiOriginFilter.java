@@ -1,4 +1,4 @@
-package yoan.shopping.tmp;
+package yoan.shopping.config.filter;
 
 import java.io.IOException;
 

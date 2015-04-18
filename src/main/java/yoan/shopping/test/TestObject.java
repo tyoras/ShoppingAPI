@@ -1,4 +1,4 @@
-package yoan.shopping.tmp;
+package yoan.shopping.test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +9,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
-@XmlRootElement(name = "Pet")
-public class Pet {
+@XmlRootElement(name = "TestObject")
+public class TestObject {
 	private long id;
 	private String name;
-	private List<String> photoUrls = new ArrayList<String>();
+	private List<String> list = new ArrayList<String>();
 	private String status;
 
 	@XmlElement(name = "id")
@@ -34,18 +34,18 @@ public class Pet {
 		this.name = name;
 	}
 
-	@XmlElementWrapper(name = "photoUrls")
-	@XmlElement(name = "photoUrl")
-	public List<String> getPhotoUrls() {
-		return photoUrls;
+	@XmlElementWrapper(name = "list")
+	@XmlElement(name = "elem")
+	public List<String> getList() {
+		return list;
 	}
 
-	public void setPhotoUrls(List<String> photoUrls) {
-		this.photoUrls = photoUrls;
+	public void setList(List<String> list) {
+		this.list = list;
 	}
 
 	@XmlElement(name = "status")
-	@ApiModelProperty(value = "pet status in the store", allowableValues = "available,pending,sold")
+	@ApiModelProperty(value = "value object status", allowableValues = "ok,nok,maybe")
 	public String getStatus() {
 		return status;
 	}
