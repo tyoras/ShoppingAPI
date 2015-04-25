@@ -3,11 +3,28 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
 
+    <display-name>Shopping API</display-name>
+    
+    <context-param>
+        <param-name>resteasy.guice.modules</param-name>
+        <param-value>yoan.shopping.infra.config.guice.ShoppingModule</param-value>
+    </context-param>
+    
 	<listener>
-		<listener-class>yoan.shopping.infra.config.guice.ShoppingAPIGuiceContextListener</listener-class>
+		<listener-class>org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener</listener-class>
 	</listener>
 
-	<filter>
+	<servlet>
+        <servlet-name>Resteasy</servlet-name>
+        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    </servlet>
+    
+	<servlet-mapping>
+        <servlet-name>Resteasy</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    
+	<!--  <filter>
 		<filter-name>guiceFilter</filter-name>
 		<filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
 	</filter>
@@ -15,5 +32,5 @@
 	<filter-mapping>
 		<filter-name>guiceFilter</filter-name>
 		<url-pattern>/api/*</url-pattern>
-	</filter-mapping>
+	</filter-mapping>-->
 </web-app>

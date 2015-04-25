@@ -3,6 +3,8 @@
  */
 package yoan.shopping.user.repository;
 
+import java.util.UUID;
+
 import yoan.shopping.user.User;
 
 /**
@@ -22,4 +24,10 @@ public abstract class UserRepository {
 	 * @param userToCreate
 	 */
 	public abstract void create(User userToCreate);
+	
+	/**
+	 * get a user by its Idr
+	 * @param userId
+	 */
+	public abstract User getById(UUID userId);
 }

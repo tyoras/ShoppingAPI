@@ -14,8 +14,6 @@ import java.util.UUID;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import jersey.repackaged.com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +23,9 @@ import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.util.ApplicationException;
 import yoan.shopping.user.User;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
+
 /**
  * User Rest Representation
  * @author yoan
@@ -32,13 +33,17 @@ import yoan.shopping.user.User;
 @XmlRootElement(name = "user")
 public class UserRepresentation extends BasicRepresentation {
 	/** User unique ID */
-	private final UUID id;
+	private UUID id;
 	/** User last name */
-	private final String name;
+	private String name;
 	/** User email */
-	private final String email;
+	private String email;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRepresentation.class);
+	
+	public UserRepresentation() {
+		super();
+	}
 	
 	public UserRepresentation(UUID id, String name, String email, List<Link> links) {
 		super(links);
@@ -53,7 +58,7 @@ public class UserRepresentation extends BasicRepresentation {
 		Objects.requireNonNull(user, "Unable to create representation from null User");
 		URL selfURL;
 		try {
-			selfURL = new URL("http://localhost:8080");
+			selfURL = new URL("http://localhost:8080/shopping/user/" + user.getId().toString());
 			List<Link> links = Lists.newArrayList(Link.self(selfURL));
 			return new UserRepresentation(user.getId(), user.getName(), user.getEmail(), links);
 		} catch (MalformedURLException e) {
@@ -90,5 +95,44 @@ public class UserRepresentation extends BasicRepresentation {
 	@XmlElement(name = "email")
 	public String getEmail() {
 		return email;
+	}
+	
+	public void setId(UUID id) {
+		this.id = id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, email);
+	}
+
+	@Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        UserRepresentation that = (UserRepresentation) obj;
+        return Objects.equals(this.id, that.id)
+                && Objects.equals(this.name, that.name)
+                && Objects.equals(this.email, that.email);
+    }
+	
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("id", id)
+											   .add("name", name)
+											   .add("email", email)
+											   .toString();
 	}
 }

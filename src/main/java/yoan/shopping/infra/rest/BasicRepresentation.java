@@ -14,7 +14,11 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public abstract class BasicRepresentation {
 	//TODO ajouter self link + utilisation
 	protected final List<Link> links;
-
+	
+	public BasicRepresentation() {
+		links = null;
+	}
+	
 	protected BasicRepresentation(List<Link> links) {
 		this.links = links;
 	}

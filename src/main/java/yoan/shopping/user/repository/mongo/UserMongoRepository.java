@@ -3,6 +3,8 @@
  */
 package yoan.shopping.user.repository.mongo;
 
+import java.util.UUID;
+
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,4 +50,14 @@ public class UserMongoRepository extends UserRepository {
 		}
 	}
 
+	@Override
+	public User getById(UUID userId) {
+		if (userId == null) {
+			return null;
+		}
+		Document filter = new Document("_id", userId.toString());
+		Document result = userCollection.find().filter(filter).first();
+		
+		return userConverter.fromDocument(result);
+	}
 }

@@ -43,7 +43,7 @@ public class UserMongoConverter implements MongoDocumentConverter<User> {
 			return new Document();
 		}
 		
-		return new Document(FIELD_ID, user.getId())
+		return new Document(FIELD_ID, user.getId().toString())
 				.append(FIELD_NAME, user.getName())
 				.append(FIELD_EMAIL, user.getEmail());
 	}
