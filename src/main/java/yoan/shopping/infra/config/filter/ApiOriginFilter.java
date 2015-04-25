@@ -1,4 +1,4 @@
-package yoan.shopping.config.filter;
+package yoan.shopping.infra.config.filter;
 
 import java.io.IOException;
 
@@ -9,6 +9,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class ApiOriginFilter implements javax.servlet.Filter {
 	
 	@Override

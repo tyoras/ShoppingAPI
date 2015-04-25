@@ -1,11 +1,10 @@
 package yoan.shopping.infra.db.mongo;
 
-import javax.inject.Singleton;
-
 import org.bson.Document;
 
 import yoan.shopping.infra.db.Dbs;
 
+import com.google.inject.Singleton;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;

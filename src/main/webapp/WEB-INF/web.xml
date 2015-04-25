@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
 
 	<listener>
-		<listener-class>yoan.shopping.config.ShoppingAPIGuiceContextListener</listener-class>
+		<listener-class>yoan.shopping.infra.config.guice.ShoppingAPIGuiceContextListener</listener-class>
 	</listener>
 
 	<filter>

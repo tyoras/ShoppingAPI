@@ -1,7 +1,7 @@
 /**
  * 
  */
-package yoan.shopping.config;
+package yoan.shopping.infra.config;
 
 import org.glassfish.jersey.server.ResourceConfig;
 

@@ -1,15 +1,15 @@
 /**
  * 
  */
-package yoan.shopping.config;
+package yoan.shopping.infra.config.guice;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import yoan.shopping.config.filter.ApiOriginFilter;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+import yoan.shopping.infra.config.Application;
+import yoan.shopping.infra.config.filter.ApiOriginFilter;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -32,17 +32,15 @@ public class ShoppingAPIGuiceContextListener extends GuiceServletContextListener
 
 	@Override
 	protected Injector getInjector() {
-		return Guice.createInjector(new ServletModule() {
+		return Guice.createInjector(new ShoppingModule(), new ServletModule() {
             @Override
             protected void configureServlets() {
                 bind(ServletContainer.class).in(Singleton.class);
-                bind(ApiOriginFilter.class).in(Singleton.class);
-                bind(MongoDbConnectionFactory.class).in(Singleton.class);
 
-                Map<String, String> props = new HashMap<String, String>();
-                props.put("javax.ws.rs.Application", Application.class.getName());
-                props.put("jersey.config.server.wadl.disableWadl", "true");
-                serve("/api/*").with(ServletContainer.class, props);
+                Map<String, String> initParams = new HashMap<>();
+                initParams.put("javax.ws.rs.Application", Application.class.getName());
+                initParams.put("jersey.config.server.wadl.disableWadl", "true");
+                serve("/api/*").with(ServletContainer.class, initParams);
                 
                 bootstrapSwagger();
                 
