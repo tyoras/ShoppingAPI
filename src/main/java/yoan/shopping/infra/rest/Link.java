@@ -20,6 +20,11 @@ public class Link {
 	private final URL href;
     private final String rel;
     
+    public Link() { 
+    	href = null;
+    	rel = null;
+    }
+    
     public Link(String rel, URL href) {
         this.href = Objects.requireNonNull(href);
         this.rel = Objects.requireNonNull(rel);
