@@ -64,7 +64,7 @@ public class UserResource {
 	@Path("/{userId}")
 	@ApiOperation(value = "Get user by Id", notes = "This will can only be done by the logged in user.", position = 2)
 	public Response createUser(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
-		UUID userId = UUID.fromString("userIdStr");
+		UUID userId = UUID.fromString(userIdStr);
 		User foundUser = userRepo.getById(userId);
 		
 		if (foundUser == null) {

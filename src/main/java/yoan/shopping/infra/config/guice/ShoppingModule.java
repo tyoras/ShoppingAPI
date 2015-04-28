@@ -3,10 +3,6 @@
  */
 package yoan.shopping.infra.config.guice;
 
-import yoan.shopping.test.DefaultGreeter;
-import yoan.shopping.test.Greeter;
-import yoan.shopping.test.HelloResource;
-import yoan.shopping.test.TestResource;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.repository.mongo.UserMongoRepository;
@@ -40,9 +36,6 @@ public class ShoppingModule extends AbstractModule {
 		bind(ApiDeclarationProvider.class);
 		bind(ResourceListingProvider.class);
 		
-		bind(HelloResource.class);
-	    bind(Greeter.class).to(DefaultGreeter.class);
-		bind(TestResource.class);
 		bind(UserResource.class);
 		bind(UserRepository.class).to(UserMongoRepository.class);
 		//FIXME faire marcher le named sur user
@@ -57,7 +50,7 @@ public class ShoppingModule extends AbstractModule {
         SwaggerConfig config = ConfigFactory.config();
         config.setApiVersion("1.0.0");
         
-        String basePath = "http://localhost:8080/shopping";
+        String basePath = "http://localhost:8080/shopping/api";
         if (System.getProperties().contains("swagger.basePath")) {
             basePath = System.getProperty("swagger.basePath");
         }

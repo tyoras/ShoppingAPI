@@ -9,7 +9,7 @@ import javax.ws.rs.Path;
  *
  * @author yoan
  */
-@Path("/")
+//@Path("/")
 public class RootResource {
 
 }
