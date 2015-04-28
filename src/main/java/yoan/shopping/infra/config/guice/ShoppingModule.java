@@ -28,15 +28,21 @@ import com.wordnik.swagger.reader.ClassReaders;
  */
 public class ShoppingModule extends AbstractModule {
 	public static final String CONNECTED_USER = "connectedUser";
+	private static final String SWAGGER_BASE_PATH_PROPERTY = "swagger.basePath";
+	private static final String SWAGGER_DEFAULT_BASE_PATH = "http://localhost:8080/shopping/api";
 	
 	@Override
 	protected void configure() {
+		//Swagger resources & providers
 		bind(ApiListingResourceJSON.class);
 		bind(JacksonJsonProvider.class);
 		bind(ApiDeclarationProvider.class);
 		bind(ResourceListingProvider.class);
 		
+		//resources
 		bind(UserResource.class);
+		
+		//bindings
 		bind(UserRepository.class).to(UserMongoRepository.class);
 		//FIXME faire marcher le named sur user
 		bind(User.class).annotatedWith(Names.named(CONNECTED_USER)).toInstance(User.DEFAULT);
@@ -50,9 +56,9 @@ public class ShoppingModule extends AbstractModule {
         SwaggerConfig config = ConfigFactory.config();
         config.setApiVersion("1.0.0");
         
-        String basePath = "http://localhost:8080/shopping/api";
-        if (System.getProperties().contains("swagger.basePath")) {
-            basePath = System.getProperty("swagger.basePath");
+        String basePath = SWAGGER_DEFAULT_BASE_PATH;
+        if (System.getProperties().contains(SWAGGER_BASE_PATH_PROPERTY)) {
+            basePath = System.getProperty(SWAGGER_BASE_PATH_PROPERTY);
         }
         config.setBasePath(basePath);
         ConfigFactory.setConfig(config);
