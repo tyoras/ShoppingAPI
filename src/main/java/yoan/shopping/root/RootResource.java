@@ -12,4 +12,5 @@ import javax.ws.rs.Path;
 //@Path("/")
 public class RootResource {
 
+	//TODO implémenter la RootResource
 }

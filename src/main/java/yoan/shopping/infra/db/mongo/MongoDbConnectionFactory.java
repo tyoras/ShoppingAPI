@@ -13,6 +13,7 @@ import com.mongodb.client.MongoDatabase;
 @Singleton
 public class MongoDbConnectionFactory {
 	
+	//TODO gérer les credentials
 	private static final MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017/"));
 	
 	

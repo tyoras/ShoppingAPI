@@ -74,5 +74,9 @@ public class UserResource {
 		return Response.ok().entity(createdUserRepresentation).build();
 	}
 	
-	//TODO ajouter des opérations de lectures, update et suppression
+	//TODO implémenter update
+	
+	//TODO implementer delete
+	
+	//TODO implémenter root
 }
