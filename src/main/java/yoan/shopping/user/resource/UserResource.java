@@ -3,6 +3,10 @@
  */
 package yoan.shopping.user.resource;
 
+import static yoan.shopping.infra.rest.error.Level.INFO;
+import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
+
 import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
@@ -18,6 +22,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.representation.UserRepresentation;
@@ -62,13 +67,15 @@ public class UserResource {
 	
 	@GET
 	@Path("/{userId}")
-	@ApiOperation(value = "Get user by Id", notes = "This will can only be done by the logged in user.", position = 2)
+	@ApiOperation(value = "Get user by Id", notes = "This will can only be done by the logged in user.", response=UserRepresentation.class, position = 2)
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "User not found") })
 	public Response createUser(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
 		UUID userId = UUID.fromString(userIdStr);
 		User foundUser = userRepo.getById(userId);
 		
 		if (foundUser == null) {
-			return Response.status(Status.NOT_FOUND).build();
+			throw new WebApiException(Status.NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
 		}
 		UserRepresentation createdUserRepresentation = UserRepresentation.fromUser(foundUser);
 		return Response.ok().entity(createdUserRepresentation).build();

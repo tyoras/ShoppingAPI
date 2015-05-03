@@ -3,7 +3,6 @@
  */
 package yoan.shopping.root;
 
-import javax.ws.rs.Path;
 
 /**
  *
