@@ -3,6 +3,7 @@
  */
 package yoan.shopping.infra.config.guice;
 
+import yoan.shopping.infra.rest.error.GlobalExceptionMapper;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.repository.mongo.UserMongoRepository;
@@ -41,6 +42,9 @@ public class ShoppingModule extends AbstractModule {
 		
 		//resources
 		bind(UserResource.class);
+		
+		//providers
+		bind(GlobalExceptionMapper.class);
 		
 		//bindings
 		bind(UserRepository.class).to(UserMongoRepository.class);

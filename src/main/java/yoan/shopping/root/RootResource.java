@@ -3,7 +3,6 @@
  */
 package yoan.shopping.root;
 
-import javax.ws.rs.Path;
 
 /**
  *
@@ -12,4 +11,5 @@ import javax.ws.rs.Path;
 //@Path("/")
 public class RootResource {
 
+	//TODO implémenter la RootResource
 }

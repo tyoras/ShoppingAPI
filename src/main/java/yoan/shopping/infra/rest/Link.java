@@ -3,8 +3,7 @@
  */
 package yoan.shopping.infra.rest;
 
-import java.net.URL;
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Link {
 	public static final String SELF_REL = "self";
 	
-	private final URL href;
+	private final String href;
     private final String rel;
     
     public Link() { 
@@ -25,13 +24,13 @@ public class Link {
     	rel = null;
     }
     
-    public Link(String rel, URL href) {
-        this.href = Objects.requireNonNull(href);
-        this.rel = Objects.requireNonNull(rel);
+    public Link(String rel, String href) {
+        this.href = requireNonNull(href);
+        this.rel = requireNonNull(rel);
     }
 
     @XmlElement(name = "href")
-	public URL getHref() {
+	public String getHref() {
 		return href;
 	}
 
@@ -40,7 +39,7 @@ public class Link {
 		return rel;
 	}
     
-    public static Link self(URL url) {
+    public static Link self(String url) {
         return new Link(SELF_REL, url);
     }
 }

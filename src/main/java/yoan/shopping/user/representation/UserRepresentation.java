@@ -4,6 +4,9 @@
 package yoan.shopping.user.representation;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static yoan.shopping.infra.rest.error.Level.ERROR;
+import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
+import static yoan.shopping.infra.util.error.CommonErrorMessage.PROBLEM_WITH_URL;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import yoan.shopping.infra.rest.BasicRepresentation;
 import yoan.shopping.infra.rest.Link;
-import yoan.shopping.infra.util.ApplicationException;
+import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
 
 import com.google.common.base.MoreObjects;
@@ -59,11 +62,11 @@ public class UserRepresentation extends BasicRepresentation {
 		URL selfURL;
 		try {
 			selfURL = new URL("http://localhost:8080/shopping/user/" + user.getId().toString());
-			List<Link> links = Lists.newArrayList(Link.self(selfURL));
+			List<Link> links = Lists.newArrayList(Link.self(selfURL.toString()));
 			return new UserRepresentation(user.getId(), user.getName(), user.getEmail(), links);
 		} catch (MalformedURLException e) {
 			LOGGER.error("Problem with self URL", e);
-			throw new ApplicationException("Problem with self URL", e);
+			throw new ApplicationException(ERROR, APPLICATION_ERROR, PROBLEM_WITH_URL.getHumanReadableMessage("self"), e);
 		}
 	}
 	

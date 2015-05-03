@@ -3,16 +3,20 @@
  */
 package yoan.shopping.user.repository.mongo;
 
+import static yoan.shopping.infra.config.guice.ShoppingModule.CONNECTED_USER;
+import static yoan.shopping.infra.rest.error.Level.ERROR;
+import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
+import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
+
 import java.util.UUID;
 
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static yoan.shopping.infra.config.guice.ShoppingModule.*;
 import yoan.shopping.infra.db.Dbs;
 import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-import yoan.shopping.infra.util.ApplicationException;
+import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 
@@ -22,7 +26,7 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 
 /**
- *
+ * Mongo implementation of the user repository
  * @author yoan
  */
 public class UserMongoRepository extends UserRepository {
@@ -45,8 +49,9 @@ public class UserMongoRepository extends UserRepository {
 		try {
 			userCollection.insertOne(doc);
 		} catch(MongoException e) {
-			LOGGER.error("Error while creating user : " + e.getMessage(), e);
-			throw new ApplicationException("Error while creating user : " + e.getMessage(), e);
+			String message = PROBLEM_CREATION_USER.getHumanReadableMessage(e.getMessage());
+			LOGGER.error(message, e);
+			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
 		}
 	}
 
