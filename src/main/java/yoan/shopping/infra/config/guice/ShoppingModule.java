@@ -3,7 +3,11 @@
  */
 package yoan.shopping.infra.config.guice;
 
+import yoan.shopping.infra.config.jackson.JacksonConfigProvider;
 import yoan.shopping.infra.rest.error.GlobalExceptionMapper;
+import yoan.shopping.root.repository.BuildInfoRepository;
+import yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository;
+import yoan.shopping.root.resource.RootResource;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.repository.mongo.UserMongoRepository;
@@ -36,18 +40,21 @@ public class ShoppingModule extends AbstractModule {
 	protected void configure() {
 		//Swagger resources & providers
 		bind(ApiListingResourceJSON.class);
-		bind(JacksonJsonProvider.class);
+		//bind(JacksonJsonProvider.class); //removed because it was messing with my JacksonConfigProvider
 		bind(ApiDeclarationProvider.class);
 		bind(ResourceListingProvider.class);
 		
 		//resources
+		bind(RootResource.class);
 		bind(UserResource.class);
 		
 		//providers
 		bind(GlobalExceptionMapper.class);
+		bind(JacksonConfigProvider.class);
 		
 		//bindings
 		bind(UserRepository.class).to(UserMongoRepository.class);
+		bind(BuildInfoRepository.class).to(BuildInfoPropertiesRepository.class);
 		//FIXME faire marcher le named sur user
 		bind(User.class).annotatedWith(Names.named(CONNECTED_USER)).toInstance(User.DEFAULT);
 		bootstrapSwagger();

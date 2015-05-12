@@ -1,29 +1,31 @@
-/**
- * 
- */
 package yoan.shopping.infra.rest;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.google.common.collect.Lists;
 
 /**
  * Basic representation with the minimum fields
  * @author yoan
  */
-public abstract class BasicRepresentation {
-	//TODO ajouter self link + utilisation
+@XmlRootElement(name = "root")
+public class RestRepresentation {
 	protected final List<Link> links;
 	
-	public BasicRepresentation() {
-		links = null;
+	public RestRepresentation() {
+		links = Lists.newArrayList();
 	}
 	
-	protected BasicRepresentation(List<Link> links) {
+	public RestRepresentation(List<Link> links) {
 		this.links = links;
 	}
 	
 	@XmlElementWrapper(name = "links")
+	@XmlElement(name = "link")
 	public List<Link> getLinks() {
 		return links;
 	}

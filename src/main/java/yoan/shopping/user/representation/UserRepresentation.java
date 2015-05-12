@@ -21,8 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.infra.rest.BasicRepresentation;
 import yoan.shopping.infra.rest.Link;
+import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
 
@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
  * @author yoan
  */
 @XmlRootElement(name = "user")
-public class UserRepresentation extends BasicRepresentation {
+public class UserRepresentation extends RestRepresentation {
 	/** User unique ID */
 	private UUID id;
 	/** User last name */
@@ -65,8 +65,9 @@ public class UserRepresentation extends BasicRepresentation {
 			List<Link> links = Lists.newArrayList(Link.self(selfURL.toString()));
 			return new UserRepresentation(user.getId(), user.getName(), user.getEmail(), links);
 		} catch (MalformedURLException e) {
-			LOGGER.error("Problem with self URL", e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, PROBLEM_WITH_URL.getHumanReadableMessage("self"), e);
+			String message = PROBLEM_WITH_URL.getHumanReadableMessage("self");
+			LOGGER.error(message, e);
+			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
 		}
 	}
 	

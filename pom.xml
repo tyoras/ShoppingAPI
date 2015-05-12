@@ -67,6 +67,11 @@
 			<artifactId>resteasy-jackson2-provider</artifactId>
 			<version>3.0.11.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+			<version>2.5.3</version>
+		</dependency>
 
 		<!-- Dependency Injection -->
 		<dependency>
@@ -199,10 +204,20 @@
 				<version>2.1</version>
 			</plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>version.properties</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
 	<properties>
 		<logback-version>1.0.1</logback-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<swagger-ui-version>2.0.24</swagger-ui-version>
+		<timestamp>${maven.build.timestamp}</timestamp>
 	</properties>
 </project>
