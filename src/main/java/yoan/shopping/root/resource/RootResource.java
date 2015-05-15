@@ -61,7 +61,7 @@ public class RootResource implements RestAPI {
 		List<Link> links = getRootLinks();
 		BuildInfo buildInfo = buildInfoRepository.getCurrentBuildInfos();
 		
-		RootRepresentation root = new RootRepresentation(buildInfo, links);
+		RootRepresentation root = new RootRepresentation(buildInfo, connectedUser.getId(), links);
 		
 		return Response.ok(root).build();
 	}

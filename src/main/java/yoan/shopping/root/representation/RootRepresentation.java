@@ -6,6 +6,7 @@ package yoan.shopping.root.representation;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -13,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.root.BuildInfo;
+import yoan.shopping.user.User;
 
 import com.google.common.base.MoreObjects;
 
@@ -26,19 +28,23 @@ public class RootRepresentation extends RestRepresentation {
 	private String version;
 	/** Maven build date */
 	private LocalDateTime buildDate;
+	/** Connected user Id */
+	private UUID connectedUserId;
 	
 	public RootRepresentation() {
 		super();
 		this.version = "version";
 		this.buildDate = LocalDateTime.now();
+		this.connectedUserId = User.DEFAULT_ID;
 	}
 	
-	public RootRepresentation(BuildInfo buildInfo, List<Link> links) {
+	public RootRepresentation(BuildInfo buildInfo, UUID connectedUserId, List<Link> links) {
 		super(links);
 		if (buildInfo != null) {
 			this.version = buildInfo.getVersion();
 			this.buildDate = buildInfo.getBuildDate();
 		}
+		this.connectedUserId = connectedUserId;
 	}
 
 	@XmlElement(name = "version")
@@ -49,6 +55,11 @@ public class RootRepresentation extends RestRepresentation {
 	@XmlElement(name = "buildDate")
 	public LocalDateTime getBuildDate() {
 		return buildDate;
+	}
+	
+	@XmlElement(name = "connectedUserId")
+	public UUID getConnectedUserId() {
+		return connectedUserId;
 	}
 	
 	@Override
@@ -66,13 +77,15 @@ public class RootRepresentation extends RestRepresentation {
         }
         RootRepresentation that = (RootRepresentation) obj;
         return super.equals(obj) && Objects.equals(this.version, that.version)
-                && Objects.equals(this.buildDate, that.buildDate);
+                && Objects.equals(this.buildDate, that.buildDate)
+                && Objects.equals(this.connectedUserId, that.connectedUserId);
     }
 	
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("version", version)
 											   .add("buildDate", buildDate)
+										   	   .add("connectedUserId", connectedUserId)
 											   .toString();
 	}
 }

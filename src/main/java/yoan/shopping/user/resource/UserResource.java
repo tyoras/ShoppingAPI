@@ -117,5 +117,4 @@ public class UserResource implements RestAPI {
 	
 	//TODO implementer delete
 	
-	//TODO implémenter root
 }
