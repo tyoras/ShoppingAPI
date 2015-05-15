@@ -39,9 +39,9 @@ public class User {
 	
 	private User(UUID id, String name, String email) {
 		this.id = Objects.requireNonNull(id);
-		checkArgument(StringUtils.isNotBlank(name));
+		checkArgument(StringUtils.isNotBlank(name), "Invalid user name");
 		this.name = name;
-		checkArgument(StringUtils.isNotBlank(email));
+		checkArgument(StringUtils.isNotBlank(email), "Invalid user email");
 		this.email = email;
 	}
 	

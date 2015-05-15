@@ -12,8 +12,10 @@ import yoan.shopping.infra.util.error.ErrorMessage;
  * @author yoan
  */
 public enum UserResourceErrorMessage  implements ErrorMessage {
-	/** USER_NOT_FOUND */
-	USER_NOT_FOUND("User not found");
+	/** User not found */
+	USER_NOT_FOUND("User not found"),
+	/** User Id is a mandatory field to update an user */
+	MISSING_USER_ID_FOR_UPDATE("User Id is a mandatory field to update an user");
 
 	private String message;
 	

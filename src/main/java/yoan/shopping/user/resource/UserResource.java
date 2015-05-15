@@ -4,9 +4,12 @@
 package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
 
 import java.net.URI;
@@ -14,8 +17,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -29,6 +34,7 @@ import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
+import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.representation.UserRepresentation;
@@ -84,12 +90,17 @@ public class UserResource implements RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create user", notes = "This will can only be done by the logged in user.", position = 1)
+	@ApiOperation(value = "Create user", notes = "This will can only be done by the logged in user.", position = 2)
 	@ApiResponses(value = {
-		@ApiResponse(code = 201, message = "User created") })
+		@ApiResponse(code = 201, message = "User created"),
+		@ApiResponse(code = 400, message = "Invalid User")})
 	public Response create(@ApiParam(value = "User to create", required = true) UserRepresentation userToCreate) {
 		//its id field is already generated
 		User userCreated = UserRepresentation.toUser(userToCreate);
+		//if the Id was not provided we generate one
+		if (userCreated.getId().equals(User.DEFAULT_ID)) {
+			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
+		}
 		userRepo.create(userCreated);
 		UserRepresentation createdUserRepresentation = UserRepresentation.fromUser(userCreated);
 		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
@@ -99,22 +110,56 @@ public class UserResource implements RestAPI {
 	
 	@GET
 	@Path("/{userId}")
-	@ApiOperation(value = "Get user by Id", notes = "This will can only be done by the logged in user.", response = UserRepresentation.class, position = 2)
+	@ApiOperation(value = "Get user by Id", notes = "This will can only be done by the logged in user.", response = UserRepresentation.class, position = 3)
 	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "Found user"),
+		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response getById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
-		UUID userId = UUID.fromString(userIdStr);
+		User foundUser = findUser(userIdStr);
+		UserRepresentation foundUserRepresentation = UserRepresentation.fromUser(foundUser);
+		return Response.ok().entity(foundUserRepresentation).build();
+	}
+	
+	@PUT
+	@ApiOperation(value = "Update", notes = "This will can only be done by the logged in user.", response = UserRepresentation.class, position = 4)
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "Found user"),
+		@ApiResponse(code = 400, message = "Invalid user Id"),
+		@ApiResponse(code = 404, message = "User not found") })
+	public Response update(@ApiParam(value = "User to update", required = true) UserRepresentation userToUpdate) {
+		User userUpdated = UserRepresentation.toUser(userToUpdate);
+		//if the Id was not provided we generate one
+		if (userUpdated.getId().equals(User.DEFAULT_ID)) {
+			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
+		}
+		userRepo.update(userUpdated);
+		UserRepresentation updatedUserRepresentation = UserRepresentation.fromUser(userUpdated);
+		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+        URI location = ub.path(userUpdated.getId().toString()).build();
+		return Response.created(location).entity(updatedUserRepresentation).build();
+	}
+	
+	@DELETE
+	@Path("/{userId}")
+	@ApiOperation(value = "Delete user by Id", notes = "This will can only be done by the logged in user.", position = 5)
+	@ApiResponses(value = {
+		@ApiResponse(code = 400, message = "Invalid user Id"),
+		@ApiResponse(code = 404, message = "User not found") })
+	public Response deleteById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
+		User foundUser = findUser(userIdStr);
+		userRepo.deleteById(foundUser.getId());
+		return Response.ok().build();
+	}
+	
+	private User findUser(String userIdStr) {
+		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
 		User foundUser = userRepo.getById(userId);
 		
 		if (foundUser == null) {
 			throw new WebApiException(Status.NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
 		}
-		UserRepresentation createdUserRepresentation = UserRepresentation.fromUser(foundUser);
-		return Response.ok().entity(createdUserRepresentation).build();
+		
+		return foundUser;
 	}
-	
-	//TODO implémenter update
-	
-	//TODO implementer delete
-	
 }

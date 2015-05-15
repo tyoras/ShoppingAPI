@@ -12,7 +12,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  */
 public enum CommonErrorMessage implements ErrorMessage {
 	/** Problem with %s URL */
-	PROBLEM_WITH_URL("Problem with %s URL");
+	PROBLEM_WITH_URL("Problem with %s URL"),
+	/** Invalid */
+	INVALID("Invalid %s");
 
 	private String message;
 	

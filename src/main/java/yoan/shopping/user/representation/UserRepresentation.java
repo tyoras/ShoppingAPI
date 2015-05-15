@@ -4,9 +4,13 @@
 package yoan.shopping.user.representation;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
+import static yoan.shopping.infra.rest.error.Level.INFO;
+import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorMessage.PROBLEM_WITH_URL;
+import static yoan.shopping.infra.util.error.CommonErrorMessage.*;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -23,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
+import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
 
@@ -58,7 +64,7 @@ public class UserRepresentation extends RestRepresentation {
 	}
 	
 	public static UserRepresentation fromUser(User user) {
-		Objects.requireNonNull(user, "Unable to create representation from null User");
+		requireNonNull(user, "Unable to create representation from null User");
 		URL selfURL;
 		try {
 			selfURL = new URL("http://localhost:8080/shopping/user/" + user.getId().toString());
@@ -72,18 +78,25 @@ public class UserRepresentation extends RestRepresentation {
 	}
 	
 	public static User toUser(UserRepresentation representation) {
-		Objects.requireNonNull(representation, "Unable to create User from null UserRepresentation");
+		requireNonNull(representation, "Unable to create User from null UserRepresentation");
 		
-		User.Builder user = User.Builder.createDefault()
+		User.Builder userBuilder = User.Builder.createDefault()
 						   .withName(representation.name)
 						   .withEmail(representation.email);
-		//if no ID provided, we generate one
-		if (representation.id == null) {
-			user.withRandomId();
-		} else {
-			user.withId(representation.id);
+		//if no ID provided, we let the default one
+		if (representation.id != null) {
+			userBuilder.withId(representation.id);
 		}
-		return user.build();
+		
+		User user;
+		try {
+			user = userBuilder.build();
+		} catch (IllegalArgumentException e) {
+			String message = INVALID.getHumanReadableMessage("user") + " : " + e.getMessage();
+			LOGGER.error(message, e);
+			throw new WebApiException(Status.BAD_REQUEST, ERROR, API_RESPONSE, message, e);
+		}
+		return user;
 	}
 
 	@XmlElement(name = "id")

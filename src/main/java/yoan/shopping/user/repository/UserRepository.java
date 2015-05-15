@@ -20,14 +20,26 @@ public abstract class UserRepository {
 	}
 	
 	/**
-	 * Creates a new User
+	 * Create a new User
 	 * @param userToCreate
 	 */
 	public abstract void create(User userToCreate);
 	
 	/**
-	 * get a user by its Idr
+	 * Get a user by its Id
 	 * @param userId
 	 */
 	public abstract User getById(UUID userId);
+	
+	/**
+	 * Update a new User
+	 * @param userToUpdate
+	 */
+	public abstract void update(User userToUpdate);
+	
+	/**
+	 * Delete a user by its Id
+	 * @param userId
+	 */
+	public abstract void deleteById(UUID userId);
 }

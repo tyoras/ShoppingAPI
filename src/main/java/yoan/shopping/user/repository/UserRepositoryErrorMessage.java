@@ -13,7 +13,9 @@ import yoan.shopping.infra.util.error.ErrorMessage;
  */
 public enum UserRepositoryErrorMessage implements ErrorMessage {
 	/** Error while creating user : %s */
-	PROBLEM_CREATION_USER("Error while creating user : %s");
+	PROBLEM_CREATION_USER("Error while creating user : %s"),
+	/** Error while updating user : %s */
+	PROBLEM_UPDATE_USER("Error while updating user : %s");
 
 	private String message;
 	
