@@ -3,7 +3,7 @@
  */
 package yoan.shopping.user.repository.mongo;
 
-import static yoan.shopping.infra.config.guice.ShoppingModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;

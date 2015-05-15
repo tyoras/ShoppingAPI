@@ -4,7 +4,7 @@
 package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
-import static yoan.shopping.infra.config.guice.ShoppingModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;

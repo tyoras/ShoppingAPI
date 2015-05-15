@@ -20,20 +20,24 @@ import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 @Provider
 @Produces("application/json")
 public class JacksonConfigProvider implements ContextResolver<ObjectMapper> {
+	/** ObjectMapper shared by the whole application */
     private final ObjectMapper objectMapper;
 
     public JacksonConfigProvider() {
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JSR310Module());
+        //serializer ignore null fields
         objectMapper.getSerializationConfig().withSerializationInclusion(Include.NON_NULL);
-        // Currently it is not possible to configure the LocaleDate serializationformat with JSR310Module
-//        objectMapper.getSerializationConfig().with(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss"));
-//        objectMapper.setDateFormat(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss"));
-//        objectMapper.getDeserializationConfig().with(new SimpleDateFormat("dd/MM/yyyy hh:mm:ss"));
-		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        //deserializer must no fail on unknown object
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        configureDateFormat();
     }
 
+    private void configureDateFormat() {
+    	objectMapper.registerModule(new JSR310Module());
+    	objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    	// Currently it is not possible to configure the LocaleDate serializationformat with JSR310Module
+    }
+    
     @Override
     public ObjectMapper getContext(Class<?> arg0) {
         return objectMapper;

@@ -5,7 +5,6 @@ package yoan.shopping.root.repository.properties;
 
 import static yoan.shopping.infra.logging.Markers.CONFIG;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;

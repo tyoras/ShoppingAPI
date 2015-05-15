@@ -7,7 +7,7 @@
 
 	<context-param>
 		<param-name>resteasy.guice.modules</param-name>
-		<param-value>yoan.shopping.infra.config.guice.ShoppingModule</param-value>
+		<param-value>yoan.shopping.infra.config.guice.ShoppingModule, yoan.shopping.infra.config.guice.ShoppingWebModule</param-value>
 	</context-param>
 	<context-param>
 		<param-name>resteasy.servlet.mapping.prefix</param-name>
@@ -17,18 +17,18 @@
 	<listener>
 		<listener-class>org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener</listener-class>
 	</listener>
+	
+	<!-- <listener>
+		<listener-class>yoan.shopping.infra.config.guice.MyGuiceServletConfig</listener-class>
+	</listener> -->
 
-	<servlet>
-		<servlet-name>Resteasy</servlet-name>
-		<servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>Resteasy</servlet-name>
+	<filter>
+		<filter-name>guiceFilter</filter-name>
+		<filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+	</filter> 
+	<filter-mapping>
+		<filter-name>guiceFilter</filter-name>
 		<url-pattern>/api/*</url-pattern>
-	</servlet-mapping>
-
-	<!-- <filter> <filter-name>guiceFilter</filter-name> <filter-class>com.google.inject.servlet.GuiceFilter</filter-class> 
-		</filter> <filter-mapping> <filter-name>guiceFilter</filter-name> <url-pattern>/api/*</url-pattern> 
-		</filter-mapping> -->
+	</filter-mapping>
+		
 </web-app>

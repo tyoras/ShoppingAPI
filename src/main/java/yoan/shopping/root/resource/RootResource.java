@@ -4,7 +4,7 @@
 package yoan.shopping.root.resource;
 
 import static java.util.Objects.requireNonNull;
-import static yoan.shopping.infra.config.guice.ShoppingModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.root.RootKey.USER;
 
 import java.util.List;
@@ -37,7 +37,7 @@ import com.wordnik.swagger.annotations.ApiResponses;
  * @author yoan
  */
 @Path("/")
-@Api(value = "/", description = "API Root")
+@Api(value = "/root", description = "API Root")
 @Produces({ "application/json", "application/xml" })
 public class RootResource implements RestAPI {
 	@Context
@@ -49,8 +49,8 @@ public class RootResource implements RestAPI {
 	
 	@Inject
 	public RootResource(@Named(CONNECTED_USER) User connectedUser, BuildInfoRepository buildInfoRepo) {
-		this.connectedUser = requireNonNull(connectedUser);
 		this.buildInfoRepository = requireNonNull(buildInfoRepo);
+		this.connectedUser = requireNonNull(connectedUser);
 	}
 	
 	@GET

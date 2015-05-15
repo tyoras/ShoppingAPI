@@ -31,6 +31,12 @@ public class User {
 	
 	//TODO ajouter les champs manquants
 	
+	public User() {
+		id = null;
+		name = null;
+		email = null;
+	}
+	
 	private User(UUID id, String name, String email) {
 		this.id = Objects.requireNonNull(id);
 		checkArgument(StringUtils.isNotBlank(name));
