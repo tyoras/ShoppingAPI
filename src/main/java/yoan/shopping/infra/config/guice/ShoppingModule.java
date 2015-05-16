@@ -1,5 +1,8 @@
 package yoan.shopping.infra.config.guice;
 
+import yoan.shopping.infra.config.api.Config;
+import yoan.shopping.infra.config.api.repository.ConfigRepository;
+import yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesRepository;
 import yoan.shopping.infra.config.jackson.JacksonConfigProvider;
 import yoan.shopping.infra.rest.error.GlobalExceptionMapper;
 import yoan.shopping.root.repository.BuildInfoRepository;
@@ -26,8 +29,12 @@ import com.wordnik.swagger.reader.ClassReaders;
  * @author yoan
  */
 public class ShoppingModule extends AbstractModule {
-	private static final String SWAGGER_BASE_PATH_PROPERTY = "swagger.basePath";
-	private static final String SWAGGER_DEFAULT_BASE_PATH = "http://localhost:8080/shopping/api";
+	private static final Config configAppli;
+	
+	static {
+		ConfigRepository configRepo = new ConfigPropertiesRepository();
+		configAppli = configRepo.readConfig();
+	}
 	
 	@Override
 	protected void configure() {
@@ -46,8 +53,10 @@ public class ShoppingModule extends AbstractModule {
 		bind(JacksonConfigProvider.class);
 		
 		//bindings
+		bind(Config.class).toInstance(configAppli);
 		bind(UserRepository.class).to(UserMongoRepository.class);
 		bind(BuildInfoRepository.class).to(BuildInfoPropertiesRepository.class);
+		bind(ConfigRepository.class).to(ConfigPropertiesRepository.class);
 		
 		bootstrapSwagger();
 	}
@@ -59,10 +68,7 @@ public class ShoppingModule extends AbstractModule {
         SwaggerConfig config = ConfigFactory.config();
         config.setApiVersion("1.0.0");
         
-        String basePath = SWAGGER_DEFAULT_BASE_PATH;
-        if (System.getProperties().contains(SWAGGER_BASE_PATH_PROPERTY)) {
-            basePath = System.getProperty(SWAGGER_BASE_PATH_PROPERTY);
-        }
+        String basePath = "http://" + configAppli.getApiHost() + ":" + configAppli.getApiPort() + configAppli.getSwaggerBasePath(); 
         config.setBasePath(basePath);
         ConfigFactory.setConfig(config);
 

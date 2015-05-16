@@ -6,11 +6,10 @@ package yoan.shopping.user.representation;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
-import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorMessage.*;
-import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
+import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
+import static yoan.shopping.infra.util.error.CommonErrorMessage.PROBLEM_WITH_URL;
 
 import java.net.MalformedURLException;
 import java.net.URL;

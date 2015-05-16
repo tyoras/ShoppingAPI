@@ -6,7 +6,7 @@
 		</encoder>
 	</appender>
 	<logger name="yoan.shopping" level="warn" />
-	<root level="warn">
+	<root level="info">
 		<appender-ref ref="STDOUT" />
 	</root>
 	<!-- sends logs to logback-beagle -->

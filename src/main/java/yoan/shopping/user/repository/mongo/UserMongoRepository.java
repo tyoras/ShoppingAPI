@@ -36,13 +36,14 @@ public class UserMongoRepository extends UserRepository {
 	public static final String USER_COLLECTION = "users";
 	
 	private final UserMongoConverter userConverter;
-	private final MongoCollection<Document> userCollection = MongoDbConnectionFactory.getCollection(Dbs.SHOPPING ,USER_COLLECTION);
+	private final MongoCollection<Document> userCollection;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserMongoRepository.class);
 	
 	@Inject
-	public UserMongoRepository(@Named(CONNECTED_USER) User connectedUser) {
+	public UserMongoRepository(@Named(CONNECTED_USER) User connectedUser, MongoDbConnectionFactory mongoConnectionFactory) {
 		super(connectedUser);
+		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING ,USER_COLLECTION);
 		userConverter = new UserMongoConverter();
 	}
 	
