@@ -89,6 +89,8 @@ public class UserResource implements RestAPI {
 		return links;
 	}
 	
+	
+	
 	@POST
 	@ApiOperation(value = "Create user", notes = "This will can only be done by the logged in user.", position = 2)
 	@ApiResponses(value = {
@@ -102,7 +104,7 @@ public class UserResource implements RestAPI {
 			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
 		}
 		userRepo.create(userCreated);
-		UserRepresentation createdUserRepresentation = UserRepresentation.fromUser(userCreated);
+		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, uriInfo);
 		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
         URI location = ub.path(userCreated.getId().toString()).build();
 		return Response.created(location).entity(createdUserRepresentation).build();
@@ -117,7 +119,7 @@ public class UserResource implements RestAPI {
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response getById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
 		User foundUser = findUser(userIdStr);
-		UserRepresentation foundUserRepresentation = UserRepresentation.fromUser(foundUser);
+		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, uriInfo);
 		return Response.ok().entity(foundUserRepresentation).build();
 	}
 	
@@ -128,15 +130,15 @@ public class UserResource implements RestAPI {
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response update(@ApiParam(value = "User to update", required = true) UserRepresentation userToUpdate) {
-		User userUpdated = UserRepresentation.toUser(userToUpdate);
+		User updatedUser = UserRepresentation.toUser(userToUpdate);
 		//if the Id was not provided we generate one
-		if (userUpdated.getId().equals(User.DEFAULT_ID)) {
+		if (updatedUser.getId().equals(User.DEFAULT_ID)) {
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
 		}
-		userRepo.update(userUpdated);
-		UserRepresentation updatedUserRepresentation = UserRepresentation.fromUser(userUpdated);
+		userRepo.update(updatedUser);
+		UserRepresentation updatedUserRepresentation = new UserRepresentation(updatedUser, uriInfo);
 		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
-        URI location = ub.path(userUpdated.getId().toString()).build();
+        URI location = ub.path(updatedUser.getId().toString()).build();
 		return Response.created(location).entity(updatedUserRepresentation).build();
 	}
 	

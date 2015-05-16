@@ -7,16 +7,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
-import static yoan.shopping.infra.util.error.CommonErrorMessage.PROBLEM_WITH_URL;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,11 +26,10 @@ import org.slf4j.LoggerFactory;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
-import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
+import yoan.shopping.user.resource.UserResource;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.Lists;
 
 /**
  * User Rest Representation
@@ -62,18 +59,13 @@ public class UserRepresentation extends RestRepresentation {
 		this.email = email;
 	}
 	
-	public static UserRepresentation fromUser(User user) {
-		requireNonNull(user, "Unable to create representation from null User");
-		URL selfURL;
-		try {
-			selfURL = new URL("http://localhost:8080/shopping/user/" + user.getId().toString());
-			List<Link> links = Lists.newArrayList(Link.self(selfURL.toString()));
-			return new UserRepresentation(user.getId(), user.getName(), user.getEmail(), links);
-		} catch (MalformedURLException e) {
-			String message = PROBLEM_WITH_URL.getHumanReadableMessage("self");
-			LOGGER.error(message, e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
-		}
+	public UserRepresentation(User user, UriInfo uriInfo) {
+		super();
+		URI selfURI = uriInfo.getAbsolutePathBuilder().path(UserResource.class, "getById").build(user.getId().toString());
+		this.links.add(Link.self(selfURI));
+		this.id = user.getId();
+		this.name = user.getName();
+		this.email = user.getEmail();
 	}
 	
 	public static User toUser(UserRepresentation representation) {

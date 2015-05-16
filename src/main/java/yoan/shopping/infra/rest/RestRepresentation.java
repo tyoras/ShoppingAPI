@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
  */
 @XmlRootElement(name = "root")
 public class RestRepresentation {
+	
 	protected final List<Link> links;
 	
 	public RestRepresentation() {
@@ -29,4 +30,5 @@ public class RestRepresentation {
 	public List<Link> getLinks() {
 		return links;
 	}
+	
 }

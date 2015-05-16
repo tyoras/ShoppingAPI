@@ -5,7 +5,7 @@
 			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
 		</encoder>
 	</appender>
-	<logger name="yoan.shopping" level="warn" />
+	<logger name="yoan.shopping" level="info" />
 	<root level="info">
 		<appender-ref ref="STDOUT" />
 	</root>
