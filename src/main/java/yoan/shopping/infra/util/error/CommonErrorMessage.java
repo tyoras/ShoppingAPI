@@ -11,10 +11,14 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * @author yoan
  */
 public enum CommonErrorMessage implements ErrorMessage {
+	/** Invalid %s */
+	INVALID("Invalid %s"),
+	/** Missing %s */
+	MISSING("Missing %s"),
 	/** Problem with %s URL */
 	PROBLEM_WITH_URL("Problem with %s URL"),
-	/** Invalid */
-	INVALID("Invalid %s");
+	/** Unknown %s */
+	UNKNOWN("Unknown %s");
 
 	private String message;
 	

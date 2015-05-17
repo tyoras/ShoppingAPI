@@ -14,7 +14,9 @@ import org.slf4j.MarkerFactory;
  * @author yoan
  */
 public enum Markers {
-	/** Marker for all configuration operation */
+	/** Authentication trace */
+	AUTHENTICATION("Auth"),
+	/** Configuration trace */
 	CONFIG("Config");
 	
 	private final Marker marker;

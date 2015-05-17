@@ -11,13 +11,7 @@ import yoan.shopping.user.User;
  * User repository
  * @author yoan
  */
-public abstract class UserRepository {
-	
-	protected final User connectedUser;
-	
-	protected UserRepository(User connectedUser) {
-		this.connectedUser = connectedUser;
-	}
+public interface UserRepository {
 	
 	/**
 	 * Create a new User

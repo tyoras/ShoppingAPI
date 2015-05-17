@@ -3,7 +3,6 @@
  */
 package yoan.shopping.user.repository.mongo;
 
-import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
@@ -23,7 +22,6 @@ import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -32,7 +30,7 @@ import com.mongodb.client.model.Filters;
  * Mongo implementation of the user repository
  * @author yoan
  */
-public class UserMongoRepository extends UserRepository {
+public class UserMongoRepository implements UserRepository {
 	public static final String USER_COLLECTION = "users";
 	
 	private final UserMongoConverter userConverter;
@@ -41,8 +39,7 @@ public class UserMongoRepository extends UserRepository {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserMongoRepository.class);
 	
 	@Inject
-	public UserMongoRepository(@Named(CONNECTED_USER) User connectedUser, MongoDbConnectionFactory mongoConnectionFactory) {
-		super(connectedUser);
+	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
 		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING ,USER_COLLECTION);
 		userConverter = new UserMongoConverter();
 	}
