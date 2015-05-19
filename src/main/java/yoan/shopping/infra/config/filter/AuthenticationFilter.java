@@ -43,7 +43,7 @@ import com.google.inject.name.Names;
 @Singleton
 public class AuthenticationFilter implements Filter {
 	
-	private static final String USER_ID_HEADER = "USER-ID";
+	public static final String USER_ID_HEADER = "USER-ID";
 	private final UserRepository userRepository;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);

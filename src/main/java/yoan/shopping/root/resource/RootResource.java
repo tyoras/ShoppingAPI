@@ -36,7 +36,7 @@ import com.wordnik.swagger.annotations.ApiResponses;
  * Root Resource
  * @author yoan
  */
-@Path("/")
+@Path("/api")
 @Api(value = "/root", description = "API Root")
 @Produces({ "application/json", "application/xml" })
 public class RootResource implements RestAPI {

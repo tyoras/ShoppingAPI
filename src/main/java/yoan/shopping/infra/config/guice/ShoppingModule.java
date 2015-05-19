@@ -1,5 +1,7 @@
 package yoan.shopping.infra.config.guice;
 
+import org.reflections.Reflections;
+
 import yoan.shopping.infra.config.api.Config;
 import yoan.shopping.infra.config.api.repository.ConfigRepository;
 import yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesRepository;
@@ -13,16 +15,6 @@ import yoan.shopping.user.repository.mongo.UserMongoRepository;
 import yoan.shopping.user.resource.UserResource;
 
 import com.google.inject.AbstractModule;
-import com.wordnik.swagger.config.ConfigFactory;
-import com.wordnik.swagger.config.ScannerFactory;
-import com.wordnik.swagger.config.SwaggerConfig;
-import com.wordnik.swagger.jaxrs.config.ReflectiveJaxrsScanner;
-import com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider;
-import com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON;
-import com.wordnik.swagger.jaxrs.listing.ResourceListingProvider;
-import com.wordnik.swagger.jaxrs.reader.DefaultJaxrsApiReader;
-import com.wordnik.swagger.model.ApiInfo;
-import com.wordnik.swagger.reader.ClassReaders;
 
 /**
  * Guice Module to configure bindings
@@ -38,11 +30,7 @@ public class ShoppingModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {
-		//Swagger resources & providers
-		bind(ApiListingResourceJSON.class);
-		//bind(JacksonJsonProvider.class); //removed because it was messing with my JacksonConfigProvider
-		bind(ApiDeclarationProvider.class);
-		bind(ResourceListingProvider.class);
+		install(new SwaggerModule(new Reflections("yoan.shopping"), configAppli));
 		
 		//resources
 		bind(RootResource.class);
@@ -57,34 +45,5 @@ public class ShoppingModule extends AbstractModule {
 		bind(UserRepository.class).to(UserMongoRepository.class);
 		bind(BuildInfoRepository.class).to(BuildInfoPropertiesRepository.class);
 		bind(ConfigRepository.class).to(ConfigPropertiesRepository.class);
-		
-		bootstrapSwagger();
 	}
-	
-	private void bootstrapSwagger() {
-		ReflectiveJaxrsScanner scanner = new ReflectiveJaxrsScanner();
-        scanner.setResourcePackage("yoan.shopping");
-        ScannerFactory.setScanner(scanner);
-        SwaggerConfig config = ConfigFactory.config();
-        config.setApiVersion("1.0.0");
-        
-        String basePath = "http://" + configAppli.getApiHost() + ":" + configAppli.getApiPort() + configAppli.getSwaggerBasePath(); 
-        config.setBasePath(basePath);
-        ConfigFactory.setConfig(config);
-
-        //FilterFactory.setFilter(new ApiAuthorizationFilterImpl());
-        //ScannerFactory.setScanner(new DefaultJaxrsScanner());
-        ClassReaders.setReader(new DefaultJaxrsApiReader());
-        
-        ApiInfo info = new ApiInfo(
-                "Shopping API",                             /* title */
-                "API to manage and share a shopping list",
-                "https://github.com/tyoras/ShoppingAPI",    /* TOS URL */
-                "tyoras@gmail.com",                         /* Contact */
-                "No license for the moment",                /* license */
-                "https://github.com/tyoras/ShoppingAPI"		/* license URL */
-        );
-
-        ConfigFactory.config().setApiInfo(info);
-    }
 }

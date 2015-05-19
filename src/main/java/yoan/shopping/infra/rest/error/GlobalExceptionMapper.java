@@ -6,6 +6,7 @@ package yoan.shopping.infra.rest.error;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 
@@ -101,8 +102,10 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 	 * @return API formated response
 	 */
 	private ResponseBuilder toResponse(WebApplicationException webAppException) {
-		LOGGER.error("WebApplicationException", webAppException);
 		int responseStatus = webAppException.getResponse().getStatus();
+		if (responseStatus != NOT_FOUND.getStatusCode()) {
+			LOGGER.error("WebApplicationException", webAppException);
+		}
 		ErrorRepresentation error = new ErrorRepresentation(Level.ERROR, getCodeFromHttpStatus(responseStatus), webAppException.getMessage());
 		return Response.status(responseStatus).entity(error);
 	}

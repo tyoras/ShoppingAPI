@@ -52,7 +52,7 @@ import com.wordnik.swagger.annotations.ApiResponses;
  * User Resource
  * @author yoan
  */
-@Path("/user")
+@Path("/api/user")
 @Api(value = "/user", description = "Operations on Users")
 @Produces({ "application/json", "application/xml" })
 public class UserResource implements RestAPI {

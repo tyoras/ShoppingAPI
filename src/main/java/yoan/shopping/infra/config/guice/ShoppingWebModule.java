@@ -24,13 +24,14 @@ public class ShoppingWebModule extends ServletModule {
 	
 	@Override
 	protected void configureServlets() {
-		
 		//using Resteasy servlet dispatcher
 		bind(HttpServletDispatcher.class).in(Singleton.class);
-		serve("/api/*").with(HttpServletDispatcher.class);
-				
+		serve("/rest").with(HttpServletDispatcher.class);
+		serve("/rest/*").with(HttpServletDispatcher.class);
+		
 		//filtering to authenticate the current user
-		filter("/api/*").through(AuthenticationFilter.class);
+		filter("/rest/api").through(AuthenticationFilter.class);
+		filter("/rest/api/*").through(AuthenticationFilter.class);
 	}
 	
 	@Provides
