@@ -24,7 +24,7 @@ import com.wordnik.swagger.models.Scheme;
 import com.wordnik.swagger.models.Swagger;
 
 /**
- *
+ * Guice Module to bootstrap swagger
  * @author yoan
  */
 public class SwaggerModule extends AbstractModule {

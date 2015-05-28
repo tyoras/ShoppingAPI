@@ -9,6 +9,8 @@ import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
+
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.error.CommonErrorCode;
 
@@ -23,10 +25,18 @@ public class ResourceUtil {
 		UUID id;
 		try {
 			id = UUID.fromString(param);
-		} catch(IllegalArgumentException e) {
-			String message = INVALID.getHumanReadableMessage("param named " + paramName + " : " + param);
+		} catch(IllegalArgumentException | NullPointerException e) {
+			String message = INVALID.getHumanReadableMessage(getParamNameMessage(paramName) + " : " + param);
 			throw new WebApiException(BAD_REQUEST, ERROR, CommonErrorCode.API_RESPONSE, message, e);
 		}
 		return id;
+	}
+	
+	private static String getParamNameMessage(String paramName) {
+		if (StringUtils.isBlank(paramName)) {
+			return "Unknown param";
+		} else {
+			return "Param named " + paramName;
+		}
 	}
 }

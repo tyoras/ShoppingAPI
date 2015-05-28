@@ -60,15 +60,15 @@ public class AuthenticationFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		User connectedUser = User.DEFAULT;
 		try {
 			UUID connectedUserId = extractUserIdFromHeaders(httpRequest);
-			User connectedUser = findConnectedUser(connectedUserId);
-			//we add the authenticated user infos to the request
-			httpRequest.setAttribute(Key.get(User.class, Names.named(CONNECTED_USER)).toString(), connectedUser);
+			connectedUser = findConnectedUser(connectedUserId);
 		} catch(WebApiException wae) {
 			httpResponse.sendError(wae.getStatus().getStatusCode(), wae.getMessage());
-			httpRequest.setAttribute(Key.get(User.class, Names.named(CONNECTED_USER)).toString(), User.DEFAULT);
 		} finally {
+			//we add the authenticated user infos to the request
+			httpRequest.setAttribute(Key.get(User.class, Names.named(CONNECTED_USER)).toString(), connectedUser);
 			chain.doFilter(httpRequest, httpResponse);
 		}
 	}

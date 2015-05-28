@@ -29,7 +29,7 @@ public class ErrorRepresentation {
 	
 	public ErrorRepresentation(Level level, String code, String message) {
 		this.level = requireNonNull(level, "ErrorRepresentation must have a criticity level");
-		checkArgument(StringUtils.isNotBlank(message), "ErrorRepresentation must have an error code");
+		checkArgument(StringUtils.isNotBlank(code), "ErrorRepresentation must have an error code");
 		this.code = code;
 		checkArgument(StringUtils.isNotBlank(message), "ErrorRepresentation must have a human readable error message");
 		this.message = message;

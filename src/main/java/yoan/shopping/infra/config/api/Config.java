@@ -3,9 +3,13 @@ package yoan.shopping.infra.config.api;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 
 import yoan.shopping.infra.util.GenericBuilder;
+
+import com.google.common.base.MoreObjects;
 
 /**
  * Application configuration
@@ -13,6 +17,7 @@ import yoan.shopping.infra.util.GenericBuilder;
  */
 public class Config {
 	
+	public static final Config DEFAULT = Builder.createDefault().build();
 	private final String apiHost;
 	private final Integer apiPort;
 	
@@ -43,14 +48,14 @@ public class Config {
 		private Integer mongoPort = 27017;
 		private String mongoUser = null;
 		private String mongoPass = null;
-		private String swaggerBasePath = "/shopping/api";
+		private String swaggerBasePath = "/shopping/rest";
 		
 		private Builder() { }
 		
 		/**
          * The default Config
          *
-         * @return DEFAULT User
+         * @return DEFAULT Config
          */
         public static Builder createDefault() {
             return new Builder();
@@ -77,7 +82,7 @@ public class Config {
         }
         
         /**
-         * Get a builder based on an existing User instance
+         * Get a builder based on an existing Config instance
          *
          * @param user
          * @return builder
@@ -161,5 +166,40 @@ public class Config {
 
 	public String getSwaggerBasePath() {
 		return swaggerBasePath;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(apiHost, apiPort, mongoHost, mongoPort, mongoUser, mongoPass, swaggerBasePath);
+	}
+
+	@Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Config that = (Config) obj;
+        return Objects.equals(this.apiHost, that.apiHost)
+                && Objects.equals(this.apiPort, that.apiPort)
+                && Objects.equals(this.mongoHost, that.mongoHost)
+                && Objects.equals(this.mongoPort, that.mongoPort)
+                && Objects.equals(this.mongoUser, that.mongoUser)
+                && Objects.equals(this.mongoPass, that.mongoPass)
+                && Objects.equals(this.swaggerBasePath, that.swaggerBasePath);
+    }
+	
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("apiHost", apiHost)
+											   .add("apiPort", apiPort)
+											   .add("mongoHost", mongoHost)
+											   .add("mongoPort", mongoPort)
+											   .add("mongoUser", mongoUser)
+											   .add("mongoPass", mongoPass)
+											   .add("swaggerBasePath", swaggerBasePath)
+											   .toString();
 	}
 }

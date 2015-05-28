@@ -44,7 +44,7 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionMapper.class);
 	
-	/** The current request **/
+	/** The current HTTP request **/
 	@Context
 	private HttpServletRequest request;
 	
@@ -125,7 +125,7 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 	 * Get the media type to use for the reponse
 	 * @return
 	 */
-	private String getResponseMediaType() {
+	protected String getResponseMediaType() {
 		String acceptHeader = request.getHeader("Accept");
 		//if the Accept header is present
 		if (StringUtils.isNotBlank(acceptHeader) && acceptHeader.contains("xml")) {

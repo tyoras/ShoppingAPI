@@ -1,5 +1,7 @@
 package yoan.shopping.infra.rest;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -14,7 +16,7 @@ import com.google.common.collect.Lists;
  */
 @XmlRootElement(name = "root")
 public class RestRepresentation {
-	
+	/** Rest navigation links */
 	protected final List<Link> links;
 	
 	public RestRepresentation() {
@@ -22,7 +24,7 @@ public class RestRepresentation {
 	}
 	
 	public RestRepresentation(List<Link> links) {
-		this.links = links;
+		this.links = requireNonNull(links, "A rest representation should always have navigation links");
 	}
 	
 	@XmlElementWrapper(name = "links")

@@ -31,7 +31,7 @@ public class MongoDbConnectionFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongoDbConnectionFactory.class);
 	
 	@Inject
-	private MongoDbConnectionFactory(Config config) {
+	protected MongoDbConnectionFactory(Config config) {
 		this.config = requireNonNull(config);
 		mongoClient = new MongoClient(getServerAdress(), getCredentials());
 	}
@@ -50,7 +50,7 @@ public class MongoDbConnectionFactory {
 		return new ServerAddress(host, port);
 	}
 	
-	private List<MongoCredential> getCredentials() {
+	protected List<MongoCredential> getCredentials() {
 		String user = config.getMongoUser();
 		String password = config.getMongoPass();
 		if (StringUtils.isBlank(user) || StringUtils.isBlank(password)) {

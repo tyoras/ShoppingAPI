@@ -15,15 +15,14 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Singleton;
 
 import yoan.shopping.infra.config.api.Config;
 import yoan.shopping.infra.config.api.repository.ConfigRepository;
 import yoan.shopping.infra.util.error.ApplicationException;
+
+import com.google.inject.Singleton;
 
 /**
  * Properties file based implementation of the API config repository
@@ -52,14 +51,10 @@ public class ConfigPropertiesRepository extends ConfigRepository {
 	}
 
 	private InputStream getInputStreamOnConfFile(String configLocation) {
-		InputStream configFileStream;
-		if (StringUtils.isBlank(configLocation)) {
-			configFileStream = getInputStreamFromDefaultConfig();
-		} else {
-			configFileStream = getInputStreamFromFileSystem(configLocation);
+		if (DEFAULT_CONFIG_PROPERTIES_FILE_NAME.equals(configLocation)) {
+			return getInputStreamFromDefaultConfig();
 		}
-		LOGGER.info(CONFIG.getMarker(), "Loaded config file is " + getConfigLocationName(configLocation));
-		return configFileStream;
+		return getInputStreamFromFileSystem(configLocation);
 	}
 	
 	private InputStream getInputStreamFromDefaultConfig() {
@@ -101,10 +96,8 @@ public class ConfigPropertiesRepository extends ConfigRepository {
 		}
 	}
 	
-	private String getConfigLocationName(String configLocation) {
-		if (StringUtils.isBlank(configLocation)) {
-			return "Default (src/mai/resources/" + DEFAULT_CONFIG_PROPERTIES_FILE_NAME + ")";
-		}
-		return "Env defined (" + CONFIG_LOCATION_ENV_VARIABLE + " : " + configLocation +")";
+	@Override
+	protected String getDefaultConfigPath() {
+		return DEFAULT_CONFIG_PROPERTIES_FILE_NAME;
 	}
 }
