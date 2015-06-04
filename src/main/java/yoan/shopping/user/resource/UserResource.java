@@ -5,6 +5,7 @@ package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
@@ -24,11 +25,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
@@ -55,15 +53,14 @@ import com.wordnik.swagger.annotations.ApiResponses;
 @Path("/api/user")
 @Api(value = "/user", description = "Operations on Users")
 @Produces({ "application/json", "application/xml" })
-public class UserResource implements RestAPI {
-	@Context
-	private UriInfo uriInfo;
+public class UserResource extends RestAPI {
 	/** Currently connected user */
 	private final User connectedUser;
 	private final UserRepository userRepo;
 	
 	@Inject
 	public UserResource(@Named(CONNECTED_USER) User connectedUser, UserRepository userRepo) {
+		super();
 		this.connectedUser = requireNonNull(connectedUser);
 		this.userRepo = Objects.requireNonNull(userRepo);
 	}
@@ -79,11 +76,11 @@ public class UserResource implements RestAPI {
 	
 	@Override
 	public List<Link> getRootLinks() {
-		List<Link> links = Lists.newArrayList(Link.self(uriInfo));
+		List<Link> links = Lists.newArrayList(Link.self(getUriInfo()));
 		
-		URI createURI = uriInfo.getAbsolutePath();
+		URI createURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("create", createURI));
-		URI getByIdURI = uriInfo.getAbsolutePathBuilder().path(UserResource.class, "getById").build(connectedUser.getId().toString());
+		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getById").build(connectedUser.getId().toString());
 		links.add(new Link("getById", getByIdURI));
 		
 		return links;
@@ -104,8 +101,8 @@ public class UserResource implements RestAPI {
 			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
 		}
 		userRepo.create(userCreated);
-		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, uriInfo);
-		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, getUriInfo());
+		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
         URI location = ub.path(userCreated.getId().toString()).build();
 		return Response.created(location).entity(createdUserRepresentation).build();
 	}
@@ -119,7 +116,7 @@ public class UserResource implements RestAPI {
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response getById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
 		User foundUser = findUser(userIdStr);
-		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, uriInfo);
+		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, getUriInfo());
 		return Response.ok().entity(foundUserRepresentation).build();
 	}
 	
@@ -136,8 +133,8 @@ public class UserResource implements RestAPI {
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
 		}
 		userRepo.update(updatedUser);
-		UserRepresentation updatedUserRepresentation = new UserRepresentation(updatedUser, uriInfo);
-		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+		UserRepresentation updatedUserRepresentation = new UserRepresentation(updatedUser, getUriInfo());
+		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
         URI location = ub.path(updatedUser.getId().toString()).build();
 		return Response.created(location).entity(updatedUserRepresentation).build();
 	}
@@ -159,7 +156,7 @@ public class UserResource implements RestAPI {
 		User foundUser = userRepo.getById(userId);
 		
 		if (foundUser == null) {
-			throw new WebApiException(Status.NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
+			throw new WebApiException(NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
 		}
 		
 		return foundUser;

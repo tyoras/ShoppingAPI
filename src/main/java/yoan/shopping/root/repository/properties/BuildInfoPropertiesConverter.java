@@ -5,8 +5,9 @@ package yoan.shopping.root.repository.properties;
 
 import static yoan.shopping.infra.logging.Markers.CONFIG;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Properties;
 
@@ -20,8 +21,8 @@ import yoan.shopping.root.BuildInfo;
  * @author yoan
  */
 public class BuildInfoPropertiesConverter {
-	private static final String BUILD_VERSION_FIELD = "version";
-	private static final String BUILD_DATE_FIELD = "build.date";
+	protected static final String BUILD_VERSION_FIELD = "version";
+	protected static final String BUILD_DATE_FIELD = "build.date";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(BuildInfoPropertiesConverter.class);
 	
@@ -30,7 +31,8 @@ public class BuildInfoPropertiesConverter {
 		String buildDateStr = properties.getProperty(BUILD_DATE_FIELD);
 		LocalDateTime buildDate = null;
 		try {
-			buildDate = LocalDateTime.parse(buildDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+			Instant instant = Instant.parse(buildDateStr);
+			buildDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 		} catch(DateTimeParseException dtpe) {
 			if (!"${maven.build.timestamp}".equals(buildDateStr)) {
 				LOGGER.warn(CONFIG.getMarker(), "Unable to parse date found in properties file", dtpe);

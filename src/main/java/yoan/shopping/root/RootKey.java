@@ -40,7 +40,9 @@ public enum RootKey {
 	}
 	
 	public Link getlink(UriInfo uriInfo) {
-		URI apiURI = uriInfo.getBaseUriBuilder().path(resourceClass).build();
+		URI apiURI = uriInfo.getBaseUriBuilder()
+				.path(resourceClass)
+				.build();
 		return new Link(key, apiURI);
 	}
 }

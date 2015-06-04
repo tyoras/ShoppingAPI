@@ -12,9 +12,7 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
@@ -39,9 +37,7 @@ import com.wordnik.swagger.annotations.ApiResponses;
 @Path("/api")
 @Api(value = "/root", description = "API Root")
 @Produces({ "application/json", "application/xml" })
-public class RootResource implements RestAPI {
-	@Context
-	private UriInfo uriInfo;
+public class RootResource extends RestAPI {
 	/** Currently connected user */
 	private final User connectedUser;
 	/** Repository to get the build informations */
@@ -49,6 +45,7 @@ public class RootResource implements RestAPI {
 	
 	@Inject
 	public RootResource(@Named(CONNECTED_USER) User connectedUser, BuildInfoRepository buildInfoRepo) {
+		super();
 		this.buildInfoRepository = requireNonNull(buildInfoRepo);
 		this.connectedUser = requireNonNull(connectedUser);
 	}
@@ -68,9 +65,9 @@ public class RootResource implements RestAPI {
 	
 	@Override
 	public List<Link> getRootLinks() {
-		List<Link> links = Lists.newArrayList(Link.self(uriInfo));
+		List<Link> links = Lists.newArrayList(Link.self(getUriInfo()));
 		
-		links.add(USER.getlink(uriInfo));
+		links.add(USER.getlink(getUriInfo()));
 		
 		return links;
 	}

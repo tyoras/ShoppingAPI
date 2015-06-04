@@ -1,5 +1,7 @@
 package yoan.shopping.infra.config.guice;
 
+import static yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository.BUILD_INFO_DEFAULT_PROPERTIES_FILE_NAME;
+
 import org.reflections.Reflections;
 
 import yoan.shopping.infra.config.api.Config;
@@ -15,6 +17,7 @@ import yoan.shopping.user.repository.mongo.UserMongoRepository;
 import yoan.shopping.user.resource.UserResource;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 
 /**
  * Guice Module to configure bindings
@@ -43,7 +46,11 @@ public class ShoppingModule extends AbstractModule {
 		//bindings
 		bind(Config.class).toInstance(configAppli);
 		bind(UserRepository.class).to(UserMongoRepository.class);
-		bind(BuildInfoRepository.class).to(BuildInfoPropertiesRepository.class);
 		bind(ConfigRepository.class).to(ConfigPropertiesRepository.class);
+	}
+	
+	@Provides
+	BuildInfoRepository provideBuildInfoRepository() {
+		return new BuildInfoPropertiesRepository(BUILD_INFO_DEFAULT_PROPERTIES_FILE_NAME);
 	}
 }

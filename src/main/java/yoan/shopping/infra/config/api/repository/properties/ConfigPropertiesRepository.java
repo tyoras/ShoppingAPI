@@ -31,7 +31,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class ConfigPropertiesRepository extends ConfigRepository {
 	/** Properties file name located in src/main/resources */
-	private static final String DEFAULT_CONFIG_PROPERTIES_FILE_NAME = "/config/defaultConfigAPI.properties";
+	private static final String DEFAULT_CONFIG_PROPERTIES_FILE_NAME = "config/defaultConfigAPI.properties";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigPropertiesRepository.class);
 	
@@ -58,7 +58,7 @@ public class ConfigPropertiesRepository extends ConfigRepository {
 	}
 	
 	private InputStream getInputStreamFromDefaultConfig() {
-		ClassLoader currentClassLoader = ConfigPropertiesRepository.class.getClassLoader();
+		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
 		return currentClassLoader.getResourceAsStream(DEFAULT_CONFIG_PROPERTIES_FILE_NAME);
 	}
 	
