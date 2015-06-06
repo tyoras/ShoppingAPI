@@ -30,7 +30,7 @@ import com.mongodb.client.model.Filters;
  * Mongo implementation of the user repository
  * @author yoan
  */
-public class UserMongoRepository implements UserRepository {
+public class UserMongoRepository extends UserRepository {
 	public static final String USER_COLLECTION = "users";
 	
 	private final UserMongoConverter userConverter;
@@ -45,7 +45,7 @@ public class UserMongoRepository implements UserRepository {
 	}
 	
 	@Override
-	public void create(User user) {
+	public void createImpl(User user) {
 		Document doc = userConverter.toDocument(user);
 		try {
 			userCollection.insertOne(doc);
@@ -57,10 +57,7 @@ public class UserMongoRepository implements UserRepository {
 	}
 
 	@Override
-	public User getById(UUID userId) {
-		if (userId == null) {
-			return null;
-		}
+	public User getByIdImpl(UUID userId) {
 		Bson filter = Filters.eq("_id", userId.toString());
 		Document result = userCollection.find().filter(filter).first();
 		
@@ -68,11 +65,7 @@ public class UserMongoRepository implements UserRepository {
 	}
 	
 	@Override
-	public void update(User user) {
-		if (user == null) {
-			LOGGER.warn("User update asked with null user");
-			return;
-		}
+	public void upsertImpl(User user) {
 		Bson filter = Filters.eq("_id", user.getId().toString());
 		Document doc = userConverter.toDocument(user);
 		try {
@@ -85,11 +78,7 @@ public class UserMongoRepository implements UserRepository {
 	}
 	
 	@Override
-	public void deleteById(UUID userId) {
-		if (userId == null) {
-			LOGGER.warn("User Deletion asked with null Id");
-			return;
-		}
+	public void deleteByIdImpl(UUID userId) {
 		Bson filter = Filters.eq("_id", userId.toString());
 		userCollection.deleteOne(filter);
 	}

@@ -4,7 +4,8 @@
 package yoan.shopping.infra.util;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
+import static yoan.shopping.infra.rest.error.Level.INFO;
+import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
 import java.util.UUID;
@@ -12,7 +13,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 
 import yoan.shopping.infra.rest.error.WebApiException;
-import yoan.shopping.infra.util.error.CommonErrorCode;
 
 /**
  *
@@ -27,7 +27,7 @@ public class ResourceUtil {
 			id = UUID.fromString(param);
 		} catch(IllegalArgumentException | NullPointerException e) {
 			String message = INVALID.getHumanReadableMessage(getParamNameMessage(paramName) + " : " + param);
-			throw new WebApiException(BAD_REQUEST, ERROR, CommonErrorCode.API_RESPONSE, message, e);
+			throw new WebApiException(BAD_REQUEST, INFO, API_RESPONSE, message, e);
 		}
 		return id;
 	}

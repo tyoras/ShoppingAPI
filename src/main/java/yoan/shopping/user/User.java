@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import yoan.shopping.infra.util.GenericBuilder;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * User of the application
  * @author yoan
@@ -37,8 +39,8 @@ public class User {
 		email = null;
 	}
 	
-	private User(UUID id, String name, String email) {
-		this.id = Objects.requireNonNull(id);
+	protected User(UUID id, String name, String email) {
+		this.id = Objects.requireNonNull(id, "User Id is mandatory");
 		checkArgument(StringUtils.isNotBlank(name), "Invalid user name");
 		this.name = name;
 		checkArgument(StringUtils.isNotBlank(email), "Invalid user email");
@@ -70,6 +72,7 @@ public class User {
         public static Builder createFrom(final Builder otherBuilder) {
             Builder builder = new Builder();
 
+            builder.id = otherBuilder.id;
             builder.name = otherBuilder.name;
             builder.email = otherBuilder.email;
 
@@ -85,6 +88,7 @@ public class User {
         public static Builder createFrom(final User user) {
             Builder builder = new Builder();
 
+            builder.id = user.id;
             builder.name = user.name;
             builder.email = user.email;
 
@@ -132,5 +136,32 @@ public class User {
 
 	public String getEmail() {
 		return email;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, email);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        User that = (User) obj;
+        return Objects.equals(this.id, that.id)
+                && Objects.equals(this.name, that.name)
+        		&& Objects.equals(this.email, that.email);
+    }
+	
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("id", id)
+											   .add("name", name)
+											   .add("email", email)
+											   .toString();
 	}
 }

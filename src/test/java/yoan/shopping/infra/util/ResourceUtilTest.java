@@ -2,7 +2,7 @@ package yoan.shopping.infra.util;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
+import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 import static yoan.shopping.test.TestHelper.assertWebApiException;
@@ -40,7 +40,7 @@ public class ResourceUtilTest {
 			ResourceUtil.getIdfromParam(null, invalidParam);
 		} catch(WebApiException wae) {
 		//then
-			assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -56,7 +56,7 @@ public class ResourceUtilTest {
 			ResourceUtil.getIdfromParam("  ", invalidParam);
 		} catch(WebApiException wae) {
 		//then
-			assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -72,7 +72,7 @@ public class ResourceUtilTest {
 			ResourceUtil.getIdfromParam(paramName, null);
 		} catch(WebApiException wae) {
 		//then
-			assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -88,7 +88,7 @@ public class ResourceUtilTest {
 			ResourceUtil.getIdfromParam(paramName, "  ");
 		} catch(WebApiException wae) {
 		//then
-			assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -104,7 +104,7 @@ public class ResourceUtilTest {
 			ResourceUtil.getIdfromParam("paramName", invalidParam);
 		} catch(WebApiException wae) {
 		//then
-			assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}

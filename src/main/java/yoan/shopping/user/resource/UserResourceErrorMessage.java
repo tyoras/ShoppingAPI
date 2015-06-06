@@ -15,7 +15,9 @@ public enum UserResourceErrorMessage  implements ErrorMessage {
 	/** User not found */
 	USER_NOT_FOUND("User not found"),
 	/** User Id is a mandatory field to update an user */
-	MISSING_USER_ID_FOR_UPDATE("User Id is a mandatory field to update an user");
+	MISSING_USER_ID_FOR_UPDATE("User Id is a mandatory field to update an user"),
+	/** User with Id : %s aready exists */
+	ALREADY_EXISTING_USER("User with Id : %s aready exists");
 
 	private String message;
 	

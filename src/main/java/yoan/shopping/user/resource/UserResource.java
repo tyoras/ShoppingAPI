@@ -5,11 +5,13 @@ package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
 
@@ -86,13 +88,12 @@ public class UserResource extends RestAPI {
 		return links;
 	}
 	
-	
-	
 	@POST
 	@ApiOperation(value = "Create user", notes = "This will can only be done by the logged in user.", position = 2)
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
-		@ApiResponse(code = 400, message = "Invalid User")})
+		@ApiResponse(code = 400, message = "Invalid User"),
+		@ApiResponse(code = 409, message = "Already existing user")})
 	public Response create(@ApiParam(value = "User to create", required = true) UserRepresentation userToCreate) {
 		//its id field is already generated
 		User userCreated = UserRepresentation.toUser(userToCreate);
@@ -100,6 +101,8 @@ public class UserResource extends RestAPI {
 		if (userCreated.getId().equals(User.DEFAULT_ID)) {
 			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
 		}
+		
+		ensureUserNotExists(userCreated.getId());
 		userRepo.create(userCreated);
 		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, getUriInfo());
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -132,11 +135,13 @@ public class UserResource extends RestAPI {
 		if (updatedUser.getId().equals(User.DEFAULT_ID)) {
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
 		}
-		userRepo.update(updatedUser);
-		UserRepresentation updatedUserRepresentation = new UserRepresentation(updatedUser, getUriInfo());
+		//ensuring user exist before updating it
+		findUser(userToUpdate.getId().toString());
+		userRepo.upsert(updatedUser);
+
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
         URI location = ub.path(updatedUser.getId().toString()).build();
-		return Response.created(location).entity(updatedUserRepresentation).build();
+		return Response.noContent().location(location).build();
 	}
 	
 	@DELETE
@@ -160,5 +165,13 @@ public class UserResource extends RestAPI {
 		}
 		
 		return foundUser;
+	}
+	
+	private void ensureUserNotExists(UUID userId) {
+		User foundUser = userRepo.getById(userId);
+		
+		if (foundUser != null) {
+			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getHumanReadableMessage(userId));
+		}
 	}
 }

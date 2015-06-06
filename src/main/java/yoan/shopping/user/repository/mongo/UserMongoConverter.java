@@ -11,7 +11,6 @@ import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
 import yoan.shopping.user.User;
 
 /**
- *
  * @author yoan
  */
 public class UserMongoConverter implements MongoDocumentConverter<User> {

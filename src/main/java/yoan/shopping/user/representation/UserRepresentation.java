@@ -3,8 +3,8 @@
  */
 package yoan.shopping.user.representation;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
@@ -15,11 +15,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,17 +48,19 @@ public class UserRepresentation extends RestRepresentation {
 		super();
 	}
 	
+	/** Test Purpose only */
+	@Deprecated 
 	public UserRepresentation(UUID id, String name, String email, List<Link> links) {
 		super(links);
 		this.id = id;
-		checkArgument(StringUtils.isNotBlank(name));
 		this.name = name;
-		checkArgument(StringUtils.isNotBlank(email));
 		this.email = email;
 	}
 	
 	public UserRepresentation(User user, UriInfo uriInfo) {
 		super();
+		requireNonNull(user);
+		requireNonNull(uriInfo);
 		URI selfURI = uriInfo.getAbsolutePathBuilder().path(UserResource.class, "getById").build(user.getId().toString());
 		this.links.add(Link.self(selfURI));
 		this.id = user.getId();
@@ -82,10 +82,10 @@ public class UserRepresentation extends RestRepresentation {
 		User user;
 		try {
 			user = userBuilder.build();
-		} catch (IllegalArgumentException e) {
+		} catch (NullPointerException | IllegalArgumentException e) {
 			String message = INVALID.getHumanReadableMessage("user") + " : " + e.getMessage();
 			LOGGER.error(message, e);
-			throw new WebApiException(Status.BAD_REQUEST, ERROR, API_RESPONSE, message, e);
+			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, message, e);
 		}
 		return user;
 	}
