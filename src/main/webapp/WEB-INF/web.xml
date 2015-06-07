@@ -6,21 +6,13 @@
 	<display-name>Shopping API</display-name>
 
 	<context-param>
-		<param-name>resteasy.guice.modules</param-name>
-		<param-value>yoan.shopping.infra.config.guice.ShoppingModule, yoan.shopping.infra.config.guice.ShoppingWebModule</param-value>
-	</context-param>
-	<context-param>
 		<param-name>resteasy.servlet.mapping.prefix</param-name>
 		<param-value>/rest</param-value>
 	</context-param>
-
-	<listener>
-		<listener-class>org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener</listener-class>
-	</listener>
 	
-	<!-- <listener>
-		<listener-class>yoan.shopping.infra.config.guice.MyGuiceServletConfig</listener-class>
-	</listener> -->
+	<listener>
+		<listener-class>yoan.shopping.infra.config.guice.BootstrapServletContextListener</listener-class>
+	</listener>
 
 	<filter>
 		<filter-name>guiceFilter</filter-name>
