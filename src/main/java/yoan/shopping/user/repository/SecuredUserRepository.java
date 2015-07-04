@@ -10,7 +10,7 @@ import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_P
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.crypto.hash.Sha1Hash;
+import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public abstract class SecuredUserRepository {
 	}
 	
 	public String hashPassword(String password, Object salt) {
-		return new Sha1Hash(password, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
+		return new Sha256Hash(password, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
 	}
 	
 	/**

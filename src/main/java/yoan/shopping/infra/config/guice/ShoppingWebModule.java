@@ -31,12 +31,12 @@ public class ShoppingWebModule extends ServletModule {
 		serve("/rest").with(HttpServletDispatcher.class);
 		serve("/rest/*").with(HttpServletDispatcher.class);
 		
+		filter("/rest/api").through(GuiceShiroFilter.class);
+		filter("/rest/api/*").through(GuiceShiroFilter.class);
+		
 		//filtering to authenticate the current user
 		filter("/rest/api").through(AuthenticationFilter.class);
 		filter("/rest/api/*").through(AuthenticationFilter.class);
-		
-		filter("/rest/api").through(GuiceShiroFilter.class);
-		filter("/rest/api/*").through(GuiceShiroFilter.class);
 	}
 	
 	@Provides
