@@ -30,7 +30,9 @@ import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
+import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
+import yoan.shopping.user.representation.SecuredUserRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
 
 import com.google.common.collect.Lists;
@@ -41,8 +43,11 @@ public class UserResourceTest {
 	@Mock
 	UserRepository mockedUserRepo;
 	
+	@Mock
+	SecuredUserRepository mockedSecuredUserRepo;
+	
 	private UserResource getUserResource(User connectedUser) {
-		UserResource testedResource = new UserResource(connectedUser, mockedUserRepo);
+		UserResource testedResource = new UserResource(connectedUser, mockedUserRepo, mockedSecuredUserRepo);
 		return spy(testedResource);
 	}
 	
@@ -90,7 +95,7 @@ public class UserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		UserRepresentation representation = new UserRepresentation(expectedID, expectedName, expectedMail, Lists.newArrayList());
+		SecuredUserRepresentation representation = new SecuredUserRepresentation(expectedID, expectedName, expectedMail, Lists.newArrayList(), "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -114,7 +119,7 @@ public class UserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		UserRepresentation representationwithoutId = new UserRepresentation(null, expectedName, expectedMail, Lists.newArrayList());
+		SecuredUserRepresentation representationwithoutId = new SecuredUserRepresentation(null, expectedName, expectedMail, Lists.newArrayList(), "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -137,7 +142,7 @@ public class UserResourceTest {
 		//given
 		UUID alreadyExistingUserId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		UserRepresentation representation = new UserRepresentation(alreadyExistingUserId, "name", "mail", Lists.newArrayList());
+		SecuredUserRepresentation representation = new SecuredUserRepresentation(alreadyExistingUserId, "name", "mail", Lists.newArrayList(), "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		when(mockedUserRepo.getById(alreadyExistingUserId)).thenReturn(User.Builder.createDefault().withId(alreadyExistingUserId).build());
 		String expectedMessage = ALREADY_EXISTING_USER.getHumanReadableMessage(alreadyExistingUserId);

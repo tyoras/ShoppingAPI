@@ -30,7 +30,7 @@ public abstract class SecuredUserRepository {
 	 * Create a new User
 	 * @param userToCreate
 	 */
-	public final void create(User userToCreate, String password) {
+	public void create(User userToCreate, String password) {
 		if (userToCreate == null) {
 			LOGGER.warn("Secured user creation asked with null user");
 			return;
