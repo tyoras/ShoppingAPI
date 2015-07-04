@@ -15,7 +15,7 @@ import yoan.shopping.user.repository.SecuredUserRepository;
  */
 public class SecuredUserFakeRepository extends SecuredUserRepository {
 	@Override
-	protected void createImpl(SecuredUser userToCreate) { }
+	protected void processCreate(SecuredUser userToCreate) { }
 
 	@Override
 	protected SecuredUser processGetById(UUID userId) {

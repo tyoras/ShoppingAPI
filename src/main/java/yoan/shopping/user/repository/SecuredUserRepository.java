@@ -51,7 +51,7 @@ public abstract class SecuredUserRepository {
 	}
 	
 	protected Object generateSalt() {
-		return UUID.randomUUID();
+		return UUID.randomUUID().toString();
 	}
 	
 	protected void ensurePasswordValidity(String password) {
@@ -66,7 +66,7 @@ public abstract class SecuredUserRepository {
 		return StringUtils.isNotBlank(password);
 	}
 	
-	protected String hashPassword(String password, Object salt) {
+	public String hashPassword(String password, Object salt) {
 		return new Sha1Hash(password, salt, 2).toBase64();
 	}
 	

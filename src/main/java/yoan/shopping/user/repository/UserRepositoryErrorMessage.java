@@ -17,7 +17,9 @@ public enum UserRepositoryErrorMessage implements ErrorMessage {
 	/** Error while updating user : %s */
 	PROBLEM_UPDATE_USER("Error while updating user : %s"),
 	/** Password does not comply to the minimum security level */
-	PROBLEM_PASSWORD_VALIDITY("Password does not comply to the minimum security level");
+	PROBLEM_PASSWORD_VALIDITY("Password does not comply to the minimum security level")
+	/** Unable to convert unsecure user : %s */,
+	UNABLE_TO_CONVERT_UNSECURE_USER("Unable to convert unsecure user : %s");
 	
 	private String message;
 	

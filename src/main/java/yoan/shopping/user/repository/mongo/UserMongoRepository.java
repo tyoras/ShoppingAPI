@@ -45,7 +45,7 @@ public class UserMongoRepository extends UserRepository {
 	}
 	
 	@Override
-	public void createImpl(User user) {
+	protected void createImpl(User user) {
 		Document doc = userConverter.toDocument(user);
 		try {
 			userCollection.insertOne(doc);
@@ -57,7 +57,7 @@ public class UserMongoRepository extends UserRepository {
 	}
 
 	@Override
-	public User getByIdImpl(UUID userId) {
+	protected User getByIdImpl(UUID userId) {
 		Bson filter = Filters.eq("_id", userId.toString());
 		Document result = userCollection.find().filter(filter).first();
 		
@@ -65,7 +65,7 @@ public class UserMongoRepository extends UserRepository {
 	}
 	
 	@Override
-	public void upsertImpl(User user) {
+	protected void upsertImpl(User user) {
 		Bson filter = Filters.eq("_id", user.getId().toString());
 		Document doc = userConverter.toDocument(user);
 		try {
@@ -78,7 +78,7 @@ public class UserMongoRepository extends UserRepository {
 	}
 	
 	@Override
-	public void deleteByIdImpl(UUID userId) {
+	protected void deleteByIdImpl(UUID userId) {
 		Bson filter = Filters.eq("_id", userId.toString());
 		userCollection.deleteOne(filter);
 	}

@@ -24,10 +24,10 @@ public class UserMongoConverter implements MongoDocumentConverter<User> {
 			return null;
 		}
 		
-		String idStr = (String) doc.get(FIELD_ID);
+		String idStr = doc.getString(FIELD_ID);
         UUID id = UUID.fromString(idStr);
-        String name = (String) doc.get(FIELD_NAME);
-        String email = (String) doc.get(FIELD_EMAIL);
+        String name = doc.getString(FIELD_NAME);
+        String email = doc.getString(FIELD_EMAIL);
         
         return User.Builder.createDefault()
         				   .withId(id)

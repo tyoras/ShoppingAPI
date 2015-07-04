@@ -93,7 +93,7 @@ public class SecuredUser extends User {
         }
         
         public Builder withSalt(Object salt) {
-            this.salt = Objects.requireNonNull(salt);
+            this.salt = salt;
             return this;
         }
 

@@ -39,7 +39,7 @@ public class SecuredUserRepositoryTest {
 		testedRepo.create(nullUser, "password");
 		
 		//then
-		verify(testedRepo, never()).createImpl(any());
+		verify(testedRepo, never()).processCreate(any());
 	}
 	
 	@Test(expected = ApplicationException.class)
@@ -53,7 +53,7 @@ public class SecuredUserRepositoryTest {
 			testedRepo.create(user, nullPassword);
 		} catch(ApplicationException ae) {
 			//then
-			verify(testedRepo, never()).createImpl(any());
+			verify(testedRepo, never()).processCreate(any());
 			assertApplicationException(ae, ERROR, APPLICATION_ERROR, PROBLEM_PASSWORD_VALIDITY);
 			throw ae;
 		}
@@ -70,7 +70,7 @@ public class SecuredUserRepositoryTest {
 			testedRepo.create(user, blankPassword);
 		} catch(ApplicationException ae) {
 			//then
-			verify(testedRepo, never()).createImpl(any());
+			verify(testedRepo, never()).processCreate(any());
 			assertApplicationException(ae, ERROR, APPLICATION_ERROR, PROBLEM_PASSWORD_VALIDITY);
 			throw ae;
 		}

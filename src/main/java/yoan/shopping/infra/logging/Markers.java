@@ -17,7 +17,9 @@ public enum Markers {
 	/** Authentication trace */
 	AUTHENTICATION("Auth"),
 	/** Configuration trace */
-	CONFIG("Config");
+	CONFIG("Config"),
+	/** Security related trace */
+	SECURITY("Security");
 	
 	private final Marker marker;
 	
