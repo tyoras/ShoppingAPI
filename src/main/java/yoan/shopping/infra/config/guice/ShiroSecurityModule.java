@@ -20,6 +20,7 @@ import com.google.inject.name.Names;
  */
 public class ShiroSecurityModule extends ShiroWebModule {
 	public static final String SHA1 = "SHA1";
+	public static final int NB_HASH_ITERATION = 2;
 	
 	public ShiroSecurityModule(ServletContext servletContext) {
 		super(servletContext);
@@ -32,12 +33,19 @@ public class ShiroSecurityModule extends ShiroWebModule {
 		//using expose because it is a private module
 		expose(CacheManager.class);
 		
-		bind(HashedCredentialsMatcher.class).annotatedWith(Names.named(SHA1)).toInstance(new HashedCredentialsMatcher(SHA1));
+		
+		bind(HashedCredentialsMatcher.class).annotatedWith(Names.named(SHA1)).toInstance(getHashedCredentialsMatcher(SHA1));
 		expose(HashedCredentialsMatcher.class).annotatedWith(Names.named(SHA1));
 		
 		bindRealm().to(UserRealm.class);
 		
 		addFilterChain("/rest/api/**", config(NO_SESSION_CREATION, "true"), AUTHC_BASIC);
+	}
+	
+	private HashedCredentialsMatcher getHashedCredentialsMatcher(String alorithmName) {
+		HashedCredentialsMatcher credentialMatcher = new HashedCredentialsMatcher(alorithmName);
+		credentialMatcher.setHashIterations(NB_HASH_ITERATION);
+		return credentialMatcher;
 	}
 
 }

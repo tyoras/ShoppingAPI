@@ -14,6 +14,7 @@ import org.apache.shiro.crypto.hash.Sha1Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yoan.shopping.infra.config.guice.ShiroSecurityModule;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
@@ -67,7 +68,7 @@ public abstract class SecuredUserRepository {
 	}
 	
 	public String hashPassword(String password, Object salt) {
-		return new Sha1Hash(password, salt, 2).toBase64();
+		return new Sha1Hash(password, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
 	}
 	
 	/**
