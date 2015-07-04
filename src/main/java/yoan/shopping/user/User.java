@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import yoan.shopping.infra.util.GenericBuilder;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
  * User of the application
@@ -30,8 +31,6 @@ public class User {
 	private final String name;
 	/** User email */
 	private final String email;
-	
-	//TODO ajouter les champs manquants
 	
 	public User() {
 		id = null;
@@ -91,7 +90,7 @@ public class User {
             builder.id = user.id;
             builder.name = user.name;
             builder.email = user.email;
-
+            
             return builder;
         }
         
@@ -157,11 +156,14 @@ public class User {
         		&& Objects.equals(this.email, that.email);
     }
 	
-	@Override
-	public String toString() {
+	protected ToStringHelper toStringHelper() {
 		return MoreObjects.toStringHelper(this).add("id", id)
-											   .add("name", name)
-											   .add("email", email)
-											   .toString();
-	}
+				   .add("name", name)
+				   .add("email", email);
+	   }
+
+	   @Override
+	   public final String toString() {
+	     return toStringHelper().toString();
+	   }
 }

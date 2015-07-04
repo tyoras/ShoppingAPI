@@ -37,20 +37,4 @@ public class UserTest {
 			throw iae;
 		}
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void user_should_fail_with_blank_mail() {
-		//given
-		String blankMail = "  ";
-		
-		//when
-		try {
-			new User(UUID.randomUUID(), "name", blankMail);
-		} catch(IllegalArgumentException iae) {
-		//then
-			assertThat(iae.getMessage()).isEqualTo("Invalid user email");
-			throw iae;
-		}
-	}
-	
 }

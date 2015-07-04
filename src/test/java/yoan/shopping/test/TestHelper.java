@@ -22,6 +22,7 @@ import yoan.shopping.infra.rest.error.Level;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.ErrorCode;
+import yoan.shopping.infra.util.error.ErrorMessage;
 import yoan.shopping.user.User;
 
 /**
@@ -35,6 +36,10 @@ public class TestHelper {
 		assertThat(ae.getLevel()).isEqualTo(expectedLevel);
 		assertThat(ae.getErrorCode()).isEqualTo(expectedErrorCode);
 		assertThat(ae.getMessage()).as("message").isEqualTo(expectedMessage);
+	}
+	
+	public static void assertApplicationException(ApplicationException ae, Level expectedLevel, ErrorCode expectedErrorCode, ErrorMessage expectedMessage) {
+		assertApplicationException(ae, expectedLevel, expectedErrorCode, expectedMessage.getHumanReadableMessage());
 	}
 	
 	public static void assertWebApiException(WebApiException wae, Status expectedStatus, Level expectedLevel, ErrorCode expectedErrorCode, String expectedMessage) {
