@@ -46,5 +46,4 @@ public class UserMongoConverter implements MongoDocumentConverter<User> {
 				.append(FIELD_NAME, user.getName())
 				.append(FIELD_EMAIL, user.getEmail());
 	}
-
 }

@@ -15,8 +15,10 @@ public enum UserRepositoryErrorMessage implements ErrorMessage {
 	/** Error while creating user : %s */
 	PROBLEM_CREATION_USER("Error while creating user : %s"),
 	/** Error while updating user : %s */
-	PROBLEM_UPDATE_USER("Error while updating user : %s");
-
+	PROBLEM_UPDATE_USER("Error while updating user : %s"),
+	/** Password does not comply to the minimum security level */
+	PROBLEM_PASSWORD_VALIDITY("Password does not comply to the minimum security level");
+	
 	private String message;
 	
 	private UserRepositoryErrorMessage(String message) {
