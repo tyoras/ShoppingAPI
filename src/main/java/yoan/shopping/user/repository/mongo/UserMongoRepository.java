@@ -22,6 +22,7 @@ import yoan.shopping.user.User;
 import yoan.shopping.user.repository.UserRepository;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -30,6 +31,7 @@ import com.mongodb.client.model.Filters;
  * Mongo implementation of the user repository
  * @author yoan
  */
+@Singleton
 public class UserMongoRepository extends UserRepository {
 	public static final String USER_COLLECTION = "users";
 	
