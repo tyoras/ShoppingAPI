@@ -17,7 +17,7 @@ import yoan.shopping.authentication.realm.UserRealm;
 import com.google.inject.name.Names;
 
 /**
- * 
+ * Guice module to configure Shiro
  * @author yoan
  */
 public class ShiroSecurityModule extends ShiroWebModule {

@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 /**
- *
+ * Authentication realm using the application credentials
  * @author yoan
  */
 public class UserRealm extends AuthenticatingRealm {
