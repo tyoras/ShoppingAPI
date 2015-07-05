@@ -27,12 +27,12 @@ public enum UserResourceErrorMessage  implements ErrorMessage {
 	}
 	
 	@Override
-	public String getHumanReadableMessage() {
+	public String getDevReadableMessage() {
 		return message;
 	}
 
 	@Override
-	public String getHumanReadableMessage(Object... params) {
+	public String getDevReadableMessage(Object... params) {
 		return String.format(message, params);
 	}
 

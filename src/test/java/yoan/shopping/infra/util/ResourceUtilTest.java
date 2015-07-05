@@ -33,7 +33,7 @@ public class ResourceUtilTest {
 	public void getIdfromParam_should_fail_with_clean_WebApiException_when_null_paramName_and_invalid_param() {
 		//given
 		String invalidParam = "invalid param";
-		String expectedMessage = INVALID.getHumanReadableMessage("Unknown param : " + invalidParam);
+		String expectedMessage = INVALID.getDevReadableMessage("Unknown param : " + invalidParam);
 		
 		//when
 		try {
@@ -49,7 +49,7 @@ public class ResourceUtilTest {
 	public void getIdfromParam_should_fail_with_clean_WebApiException_when_blank_paramName_and_invalid_param() {
 		//given
 		String invalidParam = "invalid param";
-		String expectedMessage = INVALID.getHumanReadableMessage("Unknown param : " + invalidParam);
+		String expectedMessage = INVALID.getDevReadableMessage("Unknown param : " + invalidParam);
 		
 		//when
 		try {
@@ -65,7 +65,7 @@ public class ResourceUtilTest {
 	public void getIdfromParam_should_fail_with_null_param() {
 		//given
 		String paramName = "nullParam";
-		String expectedMessage = INVALID.getHumanReadableMessage("Param named " + paramName + " : " + null);
+		String expectedMessage = INVALID.getDevReadableMessage("Param named " + paramName + " : " + null);
 		
 		//when
 		try {
@@ -81,7 +81,7 @@ public class ResourceUtilTest {
 	public void getIdfromParam_should_fail_with_blank_param() {
 		//given
 		String paramName = "blankParam";
-		String expectedMessage = INVALID.getHumanReadableMessage("Param named " + paramName + " :   ");
+		String expectedMessage = INVALID.getDevReadableMessage("Param named " + paramName + " :   ");
 		
 		//when
 		try {
@@ -97,7 +97,7 @@ public class ResourceUtilTest {
 	public void getIdfromParam_should_fail_with_invalid_param() {
 		//given
 		String invalidParam = "invalid param";
-		String expectedMessage = INVALID.getHumanReadableMessage("Param named paramName : " + invalidParam);
+		String expectedMessage = INVALID.getDevReadableMessage("Param named paramName : " + invalidParam);
 		
 		//when
 		try {

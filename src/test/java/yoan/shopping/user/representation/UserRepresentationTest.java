@@ -78,7 +78,7 @@ public class UserRepresentationTest {
 		//given
 		@SuppressWarnings("deprecation")
 		UserRepresentation invalidUserRepresentation = new UserRepresentation(UUID.randomUUID(), " ", " ", Lists.newArrayList());
-		String expectedMessage = INVALID.getHumanReadableMessage("user") + " : Invalid user name";
+		String expectedMessage = INVALID.getDevReadableMessage("user") + " : Invalid user name";
 		
 		//when
 		try {

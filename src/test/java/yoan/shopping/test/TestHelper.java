@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -22,6 +23,8 @@ import yoan.shopping.infra.rest.error.Level;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.ErrorCode;
+import yoan.shopping.infra.util.error.ErrorMessage;
+import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
 
 /**
@@ -35,6 +38,10 @@ public class TestHelper {
 		assertThat(ae.getLevel()).isEqualTo(expectedLevel);
 		assertThat(ae.getErrorCode()).isEqualTo(expectedErrorCode);
 		assertThat(ae.getMessage()).as("message").isEqualTo(expectedMessage);
+	}
+	
+	public static void assertApplicationException(ApplicationException ae, Level expectedLevel, ErrorCode expectedErrorCode, ErrorMessage expectedMessage) {
+		assertApplicationException(ae, expectedLevel, expectedErrorCode, expectedMessage.getDevReadableMessage());
 	}
 	
 	public static void assertWebApiException(WebApiException wae, Status expectedStatus, Level expectedLevel, ErrorCode expectedErrorCode, String expectedMessage) {
@@ -73,6 +80,17 @@ public class TestHelper {
 	}
 	
 	public static User generateRandomUser() {
-		return User.Builder.createDefault().withRandomId().build();
+		return User.Builder.createDefault()
+						   .withRandomId()
+						   .withName("name " + UUID.randomUUID())
+						   .build();
+	}
+	
+	public static SecuredUser generateRandomSecuredUser() {
+		User user = User.Builder.createDefault().withRandomId().build();
+		return SecuredUser.Builder.createFrom(user)
+								  .withPassword(UUID.randomUUID().toString())
+								  .withSalt(UUID.randomUUID().toString())
+								  .build();
 	}
 }

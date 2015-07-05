@@ -16,7 +16,7 @@ public class CommonErrorMessageTest {
 		String expectedMessage = "Invalid thing";
 		
 		//when
-		String result = messageWithVarargs.getHumanReadableMessage("thing");
+		String result = messageWithVarargs.getDevReadableMessage("thing");
 		
 		//then
 		assertThat(result).isNotNull();
@@ -30,7 +30,7 @@ public class CommonErrorMessageTest {
 		String expectedMessage = "Invalid %s";
 		
 		//when
-		String result = messageWithVarargs.getHumanReadableMessage();
+		String result = messageWithVarargs.getDevReadableMessage();
 		
 		//then
 		assertThat(result).isNotNull();

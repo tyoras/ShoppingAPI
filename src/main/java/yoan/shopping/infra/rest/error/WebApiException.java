@@ -12,7 +12,8 @@ import yoan.shopping.infra.util.error.ErrorCode;
 import yoan.shopping.infra.util.error.ErrorMessage;
 
 /**
- *
+ * Exception at the web API level
+ * Handled as HTTP response
  * @author yoan
  */
 public class WebApiException extends ApplicationException {
