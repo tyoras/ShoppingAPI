@@ -41,7 +41,7 @@ public class TestHelper {
 	}
 	
 	public static void assertApplicationException(ApplicationException ae, Level expectedLevel, ErrorCode expectedErrorCode, ErrorMessage expectedMessage) {
-		assertApplicationException(ae, expectedLevel, expectedErrorCode, expectedMessage.getHumanReadableMessage());
+		assertApplicationException(ae, expectedLevel, expectedErrorCode, expectedMessage.getDevReadableMessage());
 	}
 	
 	public static void assertWebApiException(WebApiException wae, Status expectedStatus, Level expectedLevel, ErrorCode expectedErrorCode, String expectedMessage) {

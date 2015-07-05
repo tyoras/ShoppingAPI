@@ -83,7 +83,7 @@ public class UserRepresentation extends RestRepresentation {
 		try {
 			user = userBuilder.build();
 		} catch (NullPointerException | IllegalArgumentException e) {
-			String message = INVALID.getHumanReadableMessage("user") + " : " + e.getMessage();
+			String message = INVALID.getDevReadableMessage("user") + " : " + e.getMessage();
 			LOGGER.error(message, e);
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, message, e);
 		}

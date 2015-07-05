@@ -57,7 +57,7 @@ public abstract class SecuredUserRepository {
 	
 	protected void ensurePasswordValidity(String password) {
 		if (!checkPasswordValidity(password)) {
-			String message = PROBLEM_PASSWORD_VALIDITY.getHumanReadableMessage();
+			String message = PROBLEM_PASSWORD_VALIDITY.getDevReadableMessage();
 			LOGGER.error(message);
 			throw new ApplicationException(ERROR, APPLICATION_ERROR, message);
 		}

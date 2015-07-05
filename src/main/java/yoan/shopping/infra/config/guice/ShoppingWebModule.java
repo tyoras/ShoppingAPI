@@ -7,7 +7,7 @@ package yoan.shopping.infra.config.guice;
 import org.apache.shiro.guice.web.GuiceShiroFilter;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 
-import yoan.shopping.infra.config.filter.AuthenticationFilter;
+import yoan.shopping.infra.config.filter.RequestScopeFilter;
 import yoan.shopping.user.User;
 
 import com.google.inject.Provides;
@@ -35,8 +35,8 @@ public class ShoppingWebModule extends ServletModule {
 		filter("/rest/api/*").through(GuiceShiroFilter.class);
 		
 		//filtering to authenticate the current user
-		filter("/rest/api").through(AuthenticationFilter.class);
-		filter("/rest/api/*").through(AuthenticationFilter.class);
+		filter("/rest/api").through(RequestScopeFilter.class);
+		filter("/rest/api/*").through(RequestScopeFilter.class);
 	}
 	
 	@Provides

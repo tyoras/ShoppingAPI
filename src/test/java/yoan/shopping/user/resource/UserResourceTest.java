@@ -145,7 +145,7 @@ public class UserResourceTest {
 		SecuredUserRepresentation representation = new SecuredUserRepresentation(alreadyExistingUserId, "name", "mail", Lists.newArrayList(), "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		when(mockedUserRepo.getById(alreadyExistingUserId)).thenReturn(User.Builder.createDefault().withId(alreadyExistingUserId).build());
-		String expectedMessage = ALREADY_EXISTING_USER.getHumanReadableMessage(alreadyExistingUserId);
+		String expectedMessage = ALREADY_EXISTING_USER.getDevReadableMessage(alreadyExistingUserId);
 		
 		//when
 		try {
@@ -242,7 +242,7 @@ public class UserResourceTest {
 		@SuppressWarnings("deprecation")
 		UserRepresentation representationWithoutId = new UserRepresentation(null, "name", "mail", Lists.newArrayList());
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
-		String expectedMessage = UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE.getHumanReadableMessage();
+		String expectedMessage = UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE.getDevReadableMessage();
 		
 		//when
 		try {

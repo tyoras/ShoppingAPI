@@ -61,7 +61,7 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 			testedRepo.create(alreadyExistingUser, "password");
 		} catch (ApplicationException ae) {
 		//then
-			assertThat(ae.getMessage()).contains(PROBLEM_CREATION_USER.getHumanReadableMessage(""));
+			assertThat(ae.getMessage()).contains(PROBLEM_CREATION_USER.getDevReadableMessage(""));
 			throw ae;
 		} finally {
 			//checking if the already existing user still exists
@@ -84,7 +84,7 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 			testedRepo.create(alreadyExistingUser, "password2");
 		} catch (ApplicationException ae) {
 		//then
-			assertThat(ae.getMessage()).contains(PROBLEM_CREATION_USER.getHumanReadableMessage(""));
+			assertThat(ae.getMessage()).contains(PROBLEM_CREATION_USER.getDevReadableMessage(""));
 			throw ae;
 		} finally {
 			//checking if the already existing user still exists

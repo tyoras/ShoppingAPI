@@ -51,7 +51,7 @@ public class SecuredUserMongoRepository extends SecuredUserRepository {
 		try {
 			userCollection.insertOne(doc);
 		} catch(MongoException e) {
-			String message = PROBLEM_CREATION_USER.getHumanReadableMessage(e.getMessage());
+			String message = PROBLEM_CREATION_USER.getDevReadableMessage(e.getMessage());
 			LOGGER.error(message, e);
 			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
 		}

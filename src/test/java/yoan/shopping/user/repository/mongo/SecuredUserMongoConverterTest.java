@@ -92,7 +92,7 @@ public class SecuredUserMongoConverterTest {
 			testedConverter.fromDocument(unsecureUserDoc);
 		} catch(ApplicationException ae) {
 		//then
-			TestHelper.assertApplicationException(ae, ERROR, APPLICATION_ERROR, UNABLE_TO_CONVERT_UNSECURE_USER.getHumanReadableMessage(expectedId));
+			TestHelper.assertApplicationException(ae, ERROR, APPLICATION_ERROR, UNABLE_TO_CONVERT_UNSECURE_USER.getDevReadableMessage(expectedId));
 			throw ae;
 		}
 	}

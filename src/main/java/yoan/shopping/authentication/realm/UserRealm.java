@@ -21,6 +21,7 @@ import org.apache.shiro.util.SimpleByteSource;
 
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.user.SecuredUser;
+import yoan.shopping.user.User;
 import yoan.shopping.user.repository.SecuredUserRepository;
 
 import com.google.inject.Inject;
@@ -52,7 +53,7 @@ public class UserRealm extends AuthenticatingRealm {
 		}
 		Sha256Hash hashedPassword = extractHashedPasswordFromUser(foundUser);
 		SimpleByteSource salt = extractSaltFromUser(foundUser);
-		SimpleAuthenticationInfo saltedCredentials = generateSaltedCredentials(userId, hashedPassword, salt);
+		SimpleAuthenticationInfo saltedCredentials = generateSaltedCredentials(foundUser, hashedPassword, salt);
 		return saltedCredentials;
 	}
 	
@@ -71,8 +72,10 @@ public class UserRealm extends AuthenticatingRealm {
 		return new SimpleByteSource(stringifiedSalt);
 	}
 	
-	private SimpleAuthenticationInfo generateSaltedCredentials(UUID userId, Sha256Hash hashedPassword, SimpleByteSource salt) {
-		SimpleAuthenticationInfo saltedCredentials = new SimpleAuthenticationInfo(userId.toString(), hashedPassword, getName());
+	private SimpleAuthenticationInfo generateSaltedCredentials(SecuredUser foundUser, Sha256Hash hashedPassword, SimpleByteSource salt) {
+		User user = User.Builder.createFrom(foundUser).build();
+		
+		SimpleAuthenticationInfo saltedCredentials = new SimpleAuthenticationInfo(user, hashedPassword, getName());
 		saltedCredentials.setCredentialsSalt(salt);
 		return saltedCredentials;
 	}

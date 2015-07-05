@@ -175,7 +175,7 @@ public class UserResource extends RestAPI {
 		User foundUser = userRepo.getById(userId);
 		
 		if (foundUser != null) {
-			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getHumanReadableMessage(userId));
+			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getDevReadableMessage(userId));
 		}
 	}
 }

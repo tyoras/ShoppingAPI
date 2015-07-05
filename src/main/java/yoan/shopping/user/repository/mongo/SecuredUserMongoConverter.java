@@ -46,8 +46,8 @@ public class SecuredUserMongoConverter extends UserMongoConverter {
 	
 	private void ensureSecurityObjectIsPresent(Document securityObject, User userToConvert) {
 		if (securityObject == null) {
-			LOGGER.error(SECURITY.getMarker(), UNABLE_TO_CONVERT_UNSECURE_USER.getHumanReadableMessage(userToConvert.toString()));
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, UNABLE_TO_CONVERT_UNSECURE_USER.getHumanReadableMessage(userToConvert.getId().toString()));
+			LOGGER.error(SECURITY.getMarker(), UNABLE_TO_CONVERT_UNSECURE_USER.getDevReadableMessage(userToConvert.toString()));
+			throw new ApplicationException(ERROR, APPLICATION_ERROR, UNABLE_TO_CONVERT_UNSECURE_USER.getDevReadableMessage(userToConvert.getId().toString()));
 		}
 	}
 

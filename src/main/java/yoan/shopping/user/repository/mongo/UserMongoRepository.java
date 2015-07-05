@@ -52,7 +52,7 @@ public class UserMongoRepository extends UserRepository {
 		try {
 			userCollection.insertOne(doc);
 		} catch(MongoException e) {
-			String message = PROBLEM_CREATION_USER.getHumanReadableMessage(e.getMessage());
+			String message = PROBLEM_CREATION_USER.getDevReadableMessage(e.getMessage());
 			LOGGER.error(message, e);
 			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
 		}
@@ -73,7 +73,7 @@ public class UserMongoRepository extends UserRepository {
 		try {
 			userCollection.replaceOne(filter, doc);
 		} catch(MongoException e) {
-			String message = PROBLEM_UPDATE_USER.getHumanReadableMessage(e.getMessage());
+			String message = PROBLEM_UPDATE_USER.getDevReadableMessage(e.getMessage());
 			LOGGER.error(message, e);
 			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
 		}
