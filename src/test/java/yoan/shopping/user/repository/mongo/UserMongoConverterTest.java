@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.bson.Document;
 import org.junit.Test;
 
+import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 
 /**
@@ -72,7 +73,7 @@ public class UserMongoConverterTest {
 	@Test
 	public void toDocument_should_work_with_valid_user() {
 		//given
-		User user = User.Builder.createDefault().withRandomId().build();
+		User user = TestHelper.generateRandomUser();
 		UserMongoConverter testedConverter = new UserMongoConverter();
 		
 		//when
@@ -81,7 +82,7 @@ public class UserMongoConverterTest {
 		//then
 		assertThat(result).isNotNull();
 		assertThat(result.get(FIELD_ID)).isEqualTo(user.getId().toString());
-		assertThat(result.get(FIELD_NAME)).isEqualTo(user.getName());
-		assertThat(result.get(FIELD_EMAIL)).isEqualTo(user.getEmail());
+		assertThat(result.getString(FIELD_NAME)).isEqualTo(user.getName());
+		assertThat(result.getString(FIELD_EMAIL)).isEqualTo(user.getEmail());
 	}
 }

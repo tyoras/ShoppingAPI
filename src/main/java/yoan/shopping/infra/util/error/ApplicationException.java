@@ -31,13 +31,13 @@ public class ApplicationException extends RuntimeException {
 	}
 	
 	public ApplicationException(Level level, ErrorCode errorCode, ErrorMessage message) {
-		super(message.getHumanReadableMessage());
+		super(message.getDevReadableMessage());
 		this.level = requireNonNull(level);
 		this.errorCode = requireNonNull(errorCode);
 	}
 
 	public ApplicationException(Level level, ErrorCode errorCode, ErrorMessage message, Throwable t) {
-		super(message.getHumanReadableMessage(), t);
+		super(message.getDevReadableMessage(), t);
 		this.level = requireNonNull(level);
 		this.errorCode = requireNonNull(errorCode);
 	}

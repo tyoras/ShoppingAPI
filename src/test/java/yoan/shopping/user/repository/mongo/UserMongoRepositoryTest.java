@@ -54,7 +54,7 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 			testedRepo.create(alreadyExistingUser);
 		} catch (ApplicationException ae) {
 		//then
-			assertThat(ae.getMessage()).contains(PROBLEM_CREATION_USER.getHumanReadableMessage(""));
+			assertThat(ae.getMessage()).contains(PROBLEM_CREATION_USER.getDevReadableMessage(""));
 			throw ae;
 		} finally {
 			//checking if the already existing user still exists

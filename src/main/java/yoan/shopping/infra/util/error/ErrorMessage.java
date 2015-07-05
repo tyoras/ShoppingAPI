@@ -12,12 +12,12 @@ public interface ErrorMessage {
 	 * Get the error message as a String
 	 * @return error message
 	 */
-	public String getHumanReadableMessage();
+	public String getDevReadableMessage();
 	
 	/**
 	 * Get the message formated with the provided params
 	 * @param params
 	 * @return formated error message
 	 */
-	public String getHumanReadableMessage(Object... params);
+	public String getDevReadableMessage(Object... params);
 }

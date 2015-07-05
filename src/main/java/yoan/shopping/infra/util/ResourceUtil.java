@@ -26,7 +26,7 @@ public class ResourceUtil {
 		try {
 			id = UUID.fromString(param);
 		} catch(IllegalArgumentException | NullPointerException e) {
-			String message = INVALID.getHumanReadableMessage(getParamNameMessage(paramName) + " : " + param);
+			String message = INVALID.getDevReadableMessage(getParamNameMessage(paramName) + " : " + param);
 			throw new WebApiException(BAD_REQUEST, INFO, API_RESPONSE, message, e);
 		}
 		return id;

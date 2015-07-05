@@ -36,7 +36,9 @@ import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.user.User;
+import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
+import yoan.shopping.user.representation.SecuredUserRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
 
 import com.google.common.collect.Lists;
@@ -59,12 +61,14 @@ public class UserResource extends RestAPI {
 	/** Currently connected user */
 	private final User connectedUser;
 	private final UserRepository userRepo;
+	private final SecuredUserRepository securedUserRepo;
 	
 	@Inject
-	public UserResource(@Named(CONNECTED_USER) User connectedUser, UserRepository userRepo) {
+	public UserResource(@Named(CONNECTED_USER) User connectedUser, UserRepository userRepo, SecuredUserRepository securedUserRepo) {
 		super();
 		this.connectedUser = requireNonNull(connectedUser);
 		this.userRepo = Objects.requireNonNull(userRepo);
+		this.securedUserRepo = Objects.requireNonNull(securedUserRepo);
 	}
 	
 	@GET
@@ -94,8 +98,8 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User"),
 		@ApiResponse(code = 409, message = "Already existing user")})
-	public Response create(@ApiParam(value = "User to create", required = true) UserRepresentation userToCreate) {
-		//its id field is already generated
+	public Response create(@ApiParam(value = "User to create", required = true) SecuredUserRepresentation userToCreate) {
+		String password = userToCreate.getPassword();
 		User userCreated = UserRepresentation.toUser(userToCreate);
 		//if the Id was not provided we generate one
 		if (userCreated.getId().equals(User.DEFAULT_ID)) {
@@ -103,7 +107,7 @@ public class UserResource extends RestAPI {
 		}
 		
 		ensureUserNotExists(userCreated.getId());
-		userRepo.create(userCreated);
+		securedUserRepo.create(userCreated, password);
 		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, getUriInfo());
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
         URI location = ub.path(userCreated.getId().toString()).build();
@@ -171,7 +175,7 @@ public class UserResource extends RestAPI {
 		User foundUser = userRepo.getById(userId);
 		
 		if (foundUser != null) {
-			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getHumanReadableMessage(userId));
+			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getDevReadableMessage(userId));
 		}
 	}
 }
