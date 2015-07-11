@@ -10,6 +10,7 @@ import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -41,6 +42,10 @@ public class UserRepresentation extends RestRepresentation {
 	private String name;
 	/** User email */
 	private String email;
+	/** user creation date */
+	private LocalDateTime creationDate;
+	/** Last time the user was updated */
+	private LocalDateTime lastUpdate;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRepresentation.class);
 	
@@ -66,6 +71,8 @@ public class UserRepresentation extends RestRepresentation {
 		this.id = user.getId();
 		this.name = user.getName();
 		this.email = user.getEmail();
+		this.creationDate = user.getCreationDate();
+		this.lastUpdate = user.getLastUpdate();
 	}
 	
 	public static User toUser(UserRepresentation representation) {
@@ -105,6 +112,16 @@ public class UserRepresentation extends RestRepresentation {
 		return email;
 	}
 	
+	@XmlElement(name = "creationDate")
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+	
+	@XmlElement(name = "lastUpdate")
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
+	}
+	
 	public void setId(UUID id) {
 		this.id = id;
 	}
@@ -117,9 +134,17 @@ public class UserRepresentation extends RestRepresentation {
 		this.email = email;
 	}
 	
+	public void setCreationDate(LocalDateTime creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public void setLastUpdate(LocalDateTime lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, email);
+		return Objects.hash(id, name, email, creationDate, lastUpdate);
 	}
 
 	@Override
@@ -133,7 +158,9 @@ public class UserRepresentation extends RestRepresentation {
         UserRepresentation that = (UserRepresentation) obj;
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
-                && Objects.equals(this.email, that.email);
+                && Objects.equals(this.email, that.email)
+                && Objects.equals(this.creationDate, that.creationDate)
+                && Objects.equals(this.lastUpdate, that.lastUpdate);
     }
 	
 	@Override
@@ -141,6 +168,8 @@ public class UserRepresentation extends RestRepresentation {
 		return MoreObjects.toStringHelper(this).add("id", id)
 											   .add("name", name)
 											   .add("email", email)
+											   .add("created", creationDate)
+											   .add("lastUpdate", lastUpdate)
 											   .toString();
 	}
 }

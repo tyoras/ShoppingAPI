@@ -41,6 +41,7 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 		Document result = userCollection.find().filter(filter).first();
 		User user = converter.fromDocument(result);
 		assertThat(user).isEqualTo(expectedUser);
+		assertThat(user.getCreationDate()).isEqualTo(user.getLastUpdate());
 	}
 	
 	@Test(expected = ApplicationException.class)
@@ -92,35 +93,26 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	public void upsert_should_work_with_existing_user() {
+	public void update_should_work_with_existing_user() {
 		//given
 		User originalUser = TestHelper.generateRandomUser();
 		testedRepo.create(originalUser);
+		originalUser = testedRepo.getById(originalUser.getId());
 		String modifiedName = "new " + originalUser.getName();
 		User modifiedUser = User.Builder.createFrom(originalUser).withName(modifiedName).build();
 
 		//when
-		testedRepo.upsert(modifiedUser);
+		testedRepo.update(modifiedUser);
 		
 		//then
 		User result = testedRepo.getById(originalUser.getId());
 		assertThat(result).isNotNull();
 		assertThat(result.getName()).isEqualTo(modifiedName);
 		assertThat(result).isEqualTo(modifiedUser);
-	}
-	
-	@Test
-	public void upsert_should_work_with_not_existing_user() {
-		//given
-		User notExistingUser = TestHelper.generateRandomUser();
-
-		//when
-		testedRepo.upsert(notExistingUser);
-		
-		//then
-		User result = testedRepo.getById(notExistingUser.getId());
-		assertThat(result).isNotNull();
-		assertThat(result).isEqualTo(notExistingUser);
+		//creation date should not change
+		assertThat(result.getCreationDate()).isEqualTo(originalUser.getCreationDate());
+		//last update date should have changed
+		assertThat(result.getLastUpdate().isAfter(originalUser.getLastUpdate())).isTrue();
 	}
 	
 	@Test

@@ -11,6 +11,7 @@ import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import static yoan.shopping.user.repository.UserRepositoryErrorCode.UNSECURE_PASSWORD;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
@@ -35,6 +36,7 @@ import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
+import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
@@ -73,7 +75,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@ApiOperation(value = "Get user API root", notes = "This will can only be done by the logged in user.", response = UserRepresentation.class, position = 1)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root") })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
 	@Override
 	public Response root() {
 		RestRepresentation rootRepresentation = new RestRepresentation(getRootLinks());
@@ -88,6 +90,12 @@ public class UserResource extends RestAPI {
 		links.add(new Link("create", createURI));
 		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getById").build(connectedUser.getId().toString());
 		links.add(new Link("getById", getByIdURI));
+		URI updateURI = getUriInfo().getAbsolutePath();
+		links.add(new Link("update", updateURI));
+		URI changePasswordURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "changePassword").build(connectedUser.getId().toString(), "{newPassword}");
+		links.add(new Link("changePassword", changePasswordURI));
+		URI deleteByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "deleteById").build(connectedUser.getId().toString());
+		links.add(new Link("deleteById", deleteByIdURI));
 		
 		return links;
 	}
@@ -107,7 +115,7 @@ public class UserResource extends RestAPI {
 		}
 		
 		ensureUserNotExists(userCreated.getId());
-		securedUserRepo.create(userCreated, password);
+		createUser(userCreated, password);
 		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, getUriInfo());
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
         URI location = ub.path(userCreated.getId().toString()).build();
@@ -128,9 +136,9 @@ public class UserResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", notes = "This will can only be done by the logged in user.", response = UserRepresentation.class, position = 4)
+	@ApiOperation(value = "Update", notes = "This will can only be done by the logged in user.", position = 4)
 	@ApiResponses(value = {
-		@ApiResponse(code = 200, message = "Found user"),
+		@ApiResponse(code = 204, message = "User updated"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response update(@ApiParam(value = "User to update", required = true) UserRepresentation userToUpdate) {
@@ -139,19 +147,36 @@ public class UserResource extends RestAPI {
 		if (updatedUser.getId().equals(User.DEFAULT_ID)) {
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
 		}
-		//ensuring user exist before updating it
-		findUser(userToUpdate.getId().toString());
-		userRepo.upsert(updatedUser);
+		userRepo.update(updatedUser);
 
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
         URI location = ub.path(updatedUser.getId().toString()).build();
 		return Response.noContent().location(location).build();
 	}
 	
+	@PUT
+	@Path("/{userId}/password/{newPassword}")
+	@ApiOperation(value = "Change password", notes = "This will can only be done by the logged in user.", position = 5)
+	@ApiResponses(value = {
+		@ApiResponse(code = 204, message = "Password changed"),
+		@ApiResponse(code = 400, message = "Invalid user Id"),
+		@ApiResponse(code = 404, message = "User not found") })
+	public Response changePassword(@PathParam("userId") @ApiParam(value = "Id of the user to update", required = true) String userIdStr, 
+								   @PathParam("newPassword") @ApiParam(value = "new password", required = true) String newPassword) {
+		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
+		
+		securedUserRepo.changePassword(userId, newPassword);
+
+		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
+        URI location = ub.path(userId.toString()).build();
+		return Response.noContent().location(location).build();
+	}
+	
 	@DELETE
 	@Path("/{userId}")
-	@ApiOperation(value = "Delete user by Id", notes = "This will can only be done by the logged in user.", position = 5)
+	@ApiOperation(value = "Delete user by Id", notes = "This will can only be done by the logged in user.", position = 6)
 	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "User deleted"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response deleteById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
@@ -176,6 +201,17 @@ public class UserResource extends RestAPI {
 		
 		if (foundUser != null) {
 			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getDevReadableMessage(userId));
+		}
+	}
+	
+	private void createUser(User userCreated, String password) {
+		try {
+			securedUserRepo.create(userCreated, password);
+		} catch (ApplicationException ae) {
+			if (ae.getErrorCode() == UNSECURE_PASSWORD) {
+				throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, ae.getMessage());
+			}
+			throw ae;
 		}
 	}
 }

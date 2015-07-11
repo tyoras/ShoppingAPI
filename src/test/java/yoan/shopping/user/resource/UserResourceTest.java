@@ -28,6 +28,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
+import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.infra.util.error.RepositoryErrorCode;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.SecuredUserRepository;
@@ -254,7 +256,7 @@ public class UserResourceTest {
 		}
 	}
 	
-	@Test(expected = WebApiException.class)
+	@Test(expected = ApplicationException.class)
 	public void update_should_return_404_with_unknown_user() {
 		//given
 		@SuppressWarnings("deprecation")
@@ -265,10 +267,44 @@ public class UserResourceTest {
 		//when
 		try {
 			testedResource.update(representation);
+		} catch(ApplicationException ae) {
+		//then
+			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);
+			throw ae;
+		}
+	}
+	
+	@Test(expected = WebApiException.class)
+	public void changePassword_should_return_400_with_invalid_Id() {
+		//given
+		String invalidId = "invalid ID";
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		String expectedMessage = "Invalid Param named userId : invalid ID";
+		
+		//when
+		try {
+			testedResource.changePassword(invalidId, "new password");
 		} catch(WebApiException wae) {
 		//then
-			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
+		}
+	}
+	
+	@Test(expected = ApplicationException.class)
+	public void changePassword_should_return_404_with_unknown_user() {
+		//given
+		User user = TestHelper.generateRandomUser();
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		String expectedMessage = "User not found";
+		
+		//when
+		try {
+			testedResource.changePassword(user.getId().toString(), "new password");
+		} catch(ApplicationException ae) {
+		//then
+			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);
+			throw ae;
 		}
 	}
 	

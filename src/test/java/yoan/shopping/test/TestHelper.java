@@ -70,7 +70,7 @@ public class TestHelper {
 		when(uriBuilder.path(any(Class.class))).thenReturn(uriBuilder);
 		when(uriBuilder.path(any(Class.class), anyString())).thenReturn(uriBuilder);
 		when(uriBuilder.build()).thenReturn(URI.create(expectedURL));
-		when(uriBuilder.build(any())).thenReturn(URI.create(expectedURL));
+		when(uriBuilder.build(anyVararg())).thenReturn(URI.create(expectedURL));
 		UriInfo mockedUriInfo = mock(UriInfo.class);
 		when(mockedUriInfo.getAbsolutePath()).thenReturn(URI.create(expectedURL));
 		when(mockedUriInfo.getBaseUriBuilder()).thenReturn(uriBuilder);

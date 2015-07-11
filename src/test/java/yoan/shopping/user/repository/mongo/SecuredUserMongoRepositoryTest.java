@@ -126,4 +126,25 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 		assertThat(result.getPassword()).isEqualTo(hash);
 	}
 	
+	@Test
+	public void changePassword_should_work_with_existing_user() {
+		//given
+		User originalUser = TestHelper.generateRandomUser();
+		String originalPassword = "originalPW";
+		testedRepo.create(originalUser, originalPassword);
+		SecuredUser originalSecuredUser = testedRepo.getById(originalUser.getId());
+		String newPassword = "newPW";
+
+		//when
+		testedRepo.changePassword(originalUser.getId(), newPassword);
+		
+		//then
+		SecuredUser result = testedRepo.getById(originalUser.getId());
+		assertThat(result).isNotNull();
+		assertThat(User.Builder.createFrom(result).build()).isEqualTo(User.Builder.createFrom(originalSecuredUser).build());
+		//creation date should not change
+		assertThat(result.getCreationDate()).isEqualTo(originalSecuredUser.getCreationDate());
+		//last update date should have changed
+		assertThat(result.getLastUpdate().isAfter(originalSecuredUser.getLastUpdate())).isTrue();
+	}
 }
