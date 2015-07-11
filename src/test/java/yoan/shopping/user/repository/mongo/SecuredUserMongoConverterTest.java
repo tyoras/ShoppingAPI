@@ -7,16 +7,21 @@ import static yoan.shopping.user.repository.UserRepositoryErrorMessage.UNABLE_TO
 import static yoan.shopping.user.repository.mongo.SecuredUserMongoConverter.FIELD_PASSWORD;
 import static yoan.shopping.user.repository.mongo.SecuredUserMongoConverter.FIELD_SALT;
 import static yoan.shopping.user.repository.mongo.SecuredUserMongoConverter.FIELD_SECURITY;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_CREATED;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_EMAIL;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_ID;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_LAST_UPDATE;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_NAME;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 import org.bson.Document;
 import org.junit.Test;
 
 import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
@@ -41,11 +46,15 @@ public class SecuredUserMongoConverterTest {
 		UUID expectId = UUID.randomUUID();
 		String expectedName = "name";
 		String expectedMail = "mail";
+		LocalDateTime expectedCreationDate = LocalDateTime.now();
+		LocalDateTime expectedLastUpdate = LocalDateTime.now();
 		String expectedPassword = "password";
 		Object expectedSalt = UUID.randomUUID().toString();
 		Document doc = new Document(FIELD_ID, expectId.toString())
 							.append(FIELD_NAME, expectedName)
 							.append(FIELD_EMAIL, expectedMail)
+							.append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
+							.append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedLastUpdate))
 							.append(FIELD_SECURITY , new Document(FIELD_PASSWORD, expectedPassword)
 														  .append(FIELD_SALT, expectedSalt));
 		
@@ -59,6 +68,8 @@ public class SecuredUserMongoConverterTest {
 		assertThat(result.getId()).isEqualTo(expectId);
 		assertThat(result.getName()).isEqualTo(expectedName);
 		assertThat(result.getEmail()).isEqualTo(expectedMail);
+		assertThat(result.getCreationDate()).isEqualTo(expectedCreationDate);
+		assertThat(result.getLastUpdate()).isEqualTo(expectedLastUpdate);
 		assertThat(result.getPassword()).isEqualTo(expectedPassword);
 		assertThat(result.getSalt()).isEqualTo(expectedSalt);
 	}
@@ -83,7 +94,9 @@ public class SecuredUserMongoConverterTest {
 		String expectedId = UUID.randomUUID().toString();
 		Document unsecureUserDoc = new Document(FIELD_ID, expectedId)
 										.append(FIELD_NAME, "name")
-										.append(FIELD_EMAIL, "mail");
+										.append(FIELD_EMAIL, "mail")
+										.append(FIELD_LAST_UPDATE, new Date())
+										.append(FIELD_CREATED, new Date());
 		
 		SecuredUserMongoConverter testedConverter = new SecuredUserMongoConverter();
 		
@@ -112,7 +125,27 @@ public class SecuredUserMongoConverterTest {
 		assertThat(result.get(FIELD_ID)).isEqualTo(securedUser.getId().toString());
 		assertThat(result.get(FIELD_NAME)).isEqualTo(securedUser.getName());
 		assertThat(result.get(FIELD_EMAIL)).isEqualTo(securedUser.getEmail());
+		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_CREATED))).isEqualTo(user.getCreationDate());
+		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_LAST_UPDATE))).isEqualTo(user.getLastUpdate());
 		assertThat(result.get(FIELD_SECURITY, Document.class).getString(FIELD_PASSWORD)).isEqualTo(securedUser.getPassword());
 		assertThat(result.get(FIELD_SECURITY, Document.class).get(FIELD_SALT)).isEqualTo(securedUser.getSalt());
+	}
+	
+	@Test
+	public void getChangePasswordUpdate_should_be_correct() {
+		//given
+		SecuredUser securedUser = TestHelper.generateRandomSecuredUser();
+		SecuredUserMongoConverter testedConverter = new SecuredUserMongoConverter();
+		
+		//when
+		Document result = testedConverter.getChangePasswordUpdate(securedUser);
+		
+		//then
+		assertThat(result).isNotNull();
+		Document updateDoc = result.get("$set", Document.class);
+		assertThat(updateDoc).isNotNull();
+		assertThat(DateHelper.toLocalDateTime(updateDoc.getDate(FIELD_LAST_UPDATE))).isEqualTo(securedUser.getLastUpdate());
+		assertThat(updateDoc.get(FIELD_SECURITY, Document.class).getString(FIELD_PASSWORD)).isEqualTo(securedUser.getPassword());
+		assertThat(updateDoc.get(FIELD_SECURITY, Document.class).get(FIELD_SALT)).isEqualTo(securedUser.getSalt());
 	}
 }

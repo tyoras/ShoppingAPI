@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
 
@@ -57,7 +58,18 @@ public class SecuredUserMongoConverter extends UserMongoConverter {
 			return doc;
 		}
 		
-		Document securityObject = new Document(FIELD_PASSWORD, user.getPassword()).append(FIELD_SALT, user.getSalt());
+		Document securityObject = getSecurityObjectFromSecuredUser(user);
 		return doc.append(FIELD_SECURITY, securityObject);
+	}
+	
+	private Document getSecurityObjectFromSecuredUser(SecuredUser user) {
+		return new Document(FIELD_PASSWORD, user.getPassword()).append(FIELD_SALT, user.getSalt());
+	}
+	
+	public Document getChangePasswordUpdate(SecuredUser userToUpdate) {
+		Document securityObject = getSecurityObjectFromSecuredUser(userToUpdate);
+		Document updateDoc = new Document(FIELD_LAST_UPDATE, DateHelper.toDate(userToUpdate.getLastUpdate()))
+									.append(FIELD_SECURITY, securityObject);
+		return new Document("$set", updateDoc);
 	}
 }

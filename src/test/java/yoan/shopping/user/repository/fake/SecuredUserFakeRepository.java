@@ -21,4 +21,7 @@ public class SecuredUserFakeRepository extends SecuredUserRepository {
 	protected SecuredUser processGetById(UUID userId) {
 		return null;
 	}
+
+	@Override
+	protected void processChangePassword(SecuredUser userToUpdate) { }
 }

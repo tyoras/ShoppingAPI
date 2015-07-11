@@ -6,6 +6,7 @@ package yoan.shopping.user.repository.mongo;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
+import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_UPDATE_USER_PASSWORD;
 import static yoan.shopping.user.repository.mongo.UserMongoRepository.USER_COLLECTION;
 
 import java.util.UUID;
@@ -63,5 +64,18 @@ public class SecuredUserMongoRepository extends SecuredUserRepository {
 		Document result = userCollection.find().filter(filter).first();
 		
 		return userConverter.fromDocument(result);
+	}
+
+	@Override
+	protected void processChangePassword(SecuredUser userToUpdate) {
+		Bson filter = Filters.eq("_id", userToUpdate.getId().toString());
+		Bson update = userConverter.getChangePasswordUpdate(userToUpdate);
+		try {
+			userCollection.updateOne(filter, update);
+		} catch(MongoException e) {
+			String message = PROBLEM_UPDATE_USER_PASSWORD.getDevReadableMessage(e.getMessage());
+			LOGGER.error(message, e);
+			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
+		}
 	}
 }

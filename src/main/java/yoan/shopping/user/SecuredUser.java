@@ -6,6 +6,7 @@ package yoan.shopping.user;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,8 +37,8 @@ public class SecuredUser extends User {
 		salt = null;
 	}
 	
-	protected SecuredUser(UUID id, String name, String email, String password, Object salt) {
-		super(id, name, email);
+	protected SecuredUser(UUID id, String name, String email, LocalDateTime creationDate, LocalDateTime lastUpdate, String password, Object salt) {
+		super(id, name, email, creationDate, lastUpdate);
 		checkArgument(StringUtils.isNotBlank(password), "Invalid user password");
 		this.password = password;
 		this.salt = requireNonNull(salt, "The password hash salt is mandatory");
@@ -89,7 +90,7 @@ public class SecuredUser extends User {
         
         @Override
         public SecuredUser build() {
-            return new SecuredUser(user.getId(), user.getName(), user.getEmail(), password, salt);
+            return new SecuredUser(user.getId(), user.getName(), user.getEmail(), user.getCreationDate(), user.getLastUpdate(), password, salt);
         }
         
         public Builder withSalt(Object salt) {

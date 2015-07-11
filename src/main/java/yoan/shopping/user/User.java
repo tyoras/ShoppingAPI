@@ -4,7 +4,9 @@
 package yoan.shopping.user;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,25 +33,35 @@ public class User {
 	private final String name;
 	/** User email */
 	private final String email;
+	/** user creation date */
+	private final LocalDateTime creationDate;
+	/** Last time the user was updated */
+	private final LocalDateTime lastUpdate;
 	
 	public User() {
 		id = null;
 		name = null;
 		email = null;
+		creationDate = null;
+		lastUpdate = null;
 	}
 	
-	protected User(UUID id, String name, String email) {
-		this.id = Objects.requireNonNull(id, "User Id is mandatory");
+	protected User(UUID id, String name, String email, LocalDateTime creationDate, LocalDateTime lastUpdate) {
+		this.id = requireNonNull(id, "User Id is mandatory");
 		checkArgument(StringUtils.isNotBlank(name), "Invalid user name");
 		this.name = name;
 		checkArgument(StringUtils.isNotBlank(email), "Invalid user email");
 		this.email = email;
+		this.creationDate = requireNonNull(creationDate, "Creation date is mandatory");
+		this.lastUpdate = requireNonNull(lastUpdate, "Last update date is mandatory");
 	}
 	
 	public static class Builder implements GenericBuilder<User> {
 		private UUID id = DEFAULT_ID;
 		private String name = "Default name";
 		private String email = "default@default.com";
+		private LocalDateTime creationDate = LocalDateTime.now();
+		private LocalDateTime lastUpdate = LocalDateTime.now();
 		
 		private Builder() { }
 		
@@ -74,6 +86,8 @@ public class User {
             builder.id = otherBuilder.id;
             builder.name = otherBuilder.name;
             builder.email = otherBuilder.email;
+            builder.creationDate = otherBuilder.creationDate;
+            builder.lastUpdate = otherBuilder.lastUpdate;
 
             return builder;
         }
@@ -90,13 +104,15 @@ public class User {
             builder.id = user.id;
             builder.name = user.name;
             builder.email = user.email;
+            builder.creationDate = user.creationDate;
+            builder.lastUpdate = user.lastUpdate;
             
             return builder;
         }
         
         @Override
         public User build() {
-            return new User(id, name, email);
+            return new User(id, name, email, creationDate, lastUpdate);
         }
         
         public Builder withId(UUID id) {
@@ -123,6 +139,16 @@ public class User {
             this.email = email;
             return this;
         }
+        
+        public Builder withCreationDate(LocalDateTime creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+        
+        public Builder withLastUpdate(LocalDateTime lastUpdate) {
+            this.lastUpdate = lastUpdate;
+            return this;
+        }
 	}
 	
 	public UUID getId() {
@@ -137,6 +163,14 @@ public class User {
 		return email;
 	}
 	
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, name, email);
@@ -157,13 +191,16 @@ public class User {
     }
 	
 	protected ToStringHelper toStringHelper() {
-		return MoreObjects.toStringHelper(this).add("id", id)
-				   .add("name", name)
-				   .add("email", email);
-	   }
+		return MoreObjects.toStringHelper(this)
+					.add("id", id)
+					.add("name", name)
+					.add("email", email)
+					.add("created", creationDate)
+					.add("lastUpdate", lastUpdate);
+   }
 
-	   @Override
-	   public final String toString() {
-	     return toStringHelper().toString();
-	   }
+	@Override
+	public final String toString() {
+		return toStringHelper().toString();
+	}
 }

@@ -4,9 +4,13 @@
 package yoan.shopping.user.repository;
 
 import static yoan.shopping.infra.rest.error.Level.ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
+import static yoan.shopping.infra.rest.error.Level.INFO;
+import static yoan.shopping.infra.util.error.RepositoryErrorCode.NOT_FOUND;
+import static yoan.shopping.user.repository.UserRepositoryErrorCode.UNSECURE_PASSWORD;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_PASSWORD_VALIDITY;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,21 +35,30 @@ public abstract class SecuredUserRepository {
 	 * Create a new User
 	 * @param userToCreate
 	 */
-	public void create(User userToCreate, String password) {
-		if (userToCreate == null) {
+	public void create(User askedUserToCreate, String password) {
+		if (askedUserToCreate == null) {
 			LOGGER.warn("Secured user creation asked with null user");
 			return;
 		}
 		ensurePasswordValidity(password);
 		
+		User userToCreate = forceCreationDate(askedUserToCreate);
 		SecuredUser securedUserToCreate = generateSecuredUser(userToCreate, password);
 		processCreate(securedUserToCreate);
 	}
 	
-	private SecuredUser generateSecuredUser(User userToCreate, String password) {
+	private User forceCreationDate(User user) {
+		LocalDateTime creationDate = LocalDateTime.now();
+		return User.Builder.createFrom(user)
+			.withCreationDate(creationDate)
+			.withLastUpdate(creationDate)
+			.build();
+	}
+	
+	private SecuredUser generateSecuredUser(User basicUserInfos, String password) {
 		Object salt = generateSalt();
 		String hashedPassword = hashPassword(password, salt);
-		return SecuredUser.Builder.createFrom(userToCreate)
+		return SecuredUser.Builder.createFrom(basicUserInfos)
 								   .withPassword(hashedPassword)
 								   .withSalt(salt)
 								   .build();
@@ -59,7 +72,7 @@ public abstract class SecuredUserRepository {
 		if (!checkPasswordValidity(password)) {
 			String message = PROBLEM_PASSWORD_VALIDITY.getDevReadableMessage();
 			LOGGER.error(message);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message);
+			throw new ApplicationException(ERROR, UNSECURE_PASSWORD, message);
 		}
 	}
 	
@@ -74,12 +87,53 @@ public abstract class SecuredUserRepository {
 	/**
 	 * Get a user by its Id
 	 * @param userId
+	 * @return found user with security infos
 	 */
 	public final SecuredUser getById(UUID userId) {
 		if (userId == null) {
 			return null;
 		}
 		return processGetById(userId);
+	}
+	
+	/**
+	 * Get a user by its Id and fail if it does not exist
+	 * @param userId
+	 * @return found user
+	 * @throws ApplicationException if user not found
+	 */
+	public final User findUser(UUID userId) {
+		SecuredUser foundUser = getById(userId);
+		
+		if (foundUser == null) {
+			throw new ApplicationException(INFO, NOT_FOUND, USER_NOT_FOUND);
+		}
+		
+		return foundUser;
+	}
+	
+	/**
+	 * Change user password
+	 * @param userId
+	 * @param newPassword
+	 */
+	public final void changePassword(UUID userId, String newPassword) {
+		if (userId == null) {
+			LOGGER.warn("Password update asked with null user");
+			return;
+		}
+		ensurePasswordValidity(newPassword);
+		
+		User existingUser = findUser(userId);
+		existingUser = forceLastUpdateDate(existingUser);
+		SecuredUser securedUserToUpdate = generateSecuredUser(existingUser, newPassword);
+		processChangePassword(securedUserToUpdate);
+	}
+	
+	private User forceLastUpdateDate(User user) {
+		return User.Builder.createFrom(user)
+			.withLastUpdate(LocalDateTime.now())
+			.build();
 	}
 	
 	/**
@@ -93,4 +147,10 @@ public abstract class SecuredUserRepository {
 	 * @param userId
 	 */
 	protected abstract SecuredUser processGetById(UUID userId);
+	
+	/**
+	 * Update password
+	 * @param userToUpdate
+	 */
+	protected abstract void processChangePassword(SecuredUser userToUpdate);
 }

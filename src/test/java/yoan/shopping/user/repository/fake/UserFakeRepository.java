@@ -13,17 +13,17 @@ import yoan.shopping.user.repository.UserRepository;
 public class UserFakeRepository extends UserRepository {
 
 	@Override
-	protected void createImpl(User userToCreate) { }
+	protected void processCreate(User userToCreate) { }
 
 	@Override
-	protected User getByIdImpl(UUID userId) {
+	protected User processGetById(UUID userId) {
 		return null;
 	}
 
 	@Override
-	protected void upsertImpl(User userToUpdate) { }
+	protected void processUpdate(User userToUpdate) { }
 
 	@Override
-	protected void deleteByIdImpl(UUID userId) { }
+	protected void processDeleteById(UUID userId) { }
 
 }
