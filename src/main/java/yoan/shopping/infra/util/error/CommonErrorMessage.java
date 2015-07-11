@@ -17,6 +17,8 @@ public enum CommonErrorMessage implements ErrorMessage {
 	MISSING("Missing %s"),
 	/** Problem with %s URL */
 	PROBLEM_WITH_URL("Problem with %s URL"),
+	/** Unable to find %s from : %s */
+	UNABLE_TO_FIND("Unable to find %s from : %s"),
 	/** Unknown %s */
 	UNKNOWN("Unknown %s");
 
