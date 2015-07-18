@@ -8,16 +8,21 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentWrapper;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
+
+import yoan.shopping.infra.db.WithId;
+import yoan.shopping.infra.util.GenericBuilder;
 
 import com.google.common.base.MoreObjects;
-
-import yoan.shopping.infra.util.GenericBuilder;
 
 /**
  * Shopping item
  * @author yoan
  */
-public class ShoppingItem {
+public class ShoppingItem implements Bson, WithId {
 	/** Default item ID */
 	public static final UUID DEFAULT_ID = UUID.fromString("ced72f58-26fd-493f-9126-b8c122dfeeae");
 	/** Default shopping item */
@@ -128,6 +133,7 @@ public class ShoppingItem {
         }
 	}
 
+	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -171,5 +177,10 @@ public class ShoppingItem {
 			.add("quantity", quantity)
 			.add("state", state)
 			.toString();
+	}
+
+	@Override
+	public <TDocument> BsonDocument toBsonDocument(Class<TDocument> documentClass, CodecRegistry codecRegistry) {
+		return new BsonDocumentWrapper<ShoppingItem>(this, codecRegistry.get(ShoppingItem.class));
 	}
 }

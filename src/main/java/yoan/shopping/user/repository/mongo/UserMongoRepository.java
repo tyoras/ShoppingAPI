@@ -42,7 +42,8 @@ public class UserMongoRepository extends UserRepository {
 	
 	@Inject
 	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
-		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING ,USER_COLLECTION);
+		//TODO Use codec
+		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION);
 		userConverter = new UserMongoConverter();
 	}
 	

@@ -13,7 +13,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentWrapper;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
 
+import yoan.shopping.infra.db.WithId;
 import yoan.shopping.infra.util.GenericBuilder;
 import yoan.shopping.user.User;
 
@@ -24,7 +29,7 @@ import com.google.common.collect.ImmutableList;
  * Shopping list
  * @author yoan
  */
-public class ShoppingList {
+public class ShoppingList implements Bson, WithId {
 	/** Default list ID */
 	public static final UUID DEFAULT_ID = UUID.fromString("da8c92f3-0c95-4879-b892-47015e694ead");
 	/** Default empty list instance instance */
@@ -168,6 +173,7 @@ public class ShoppingList {
         }
 	}
 	
+	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -220,5 +226,10 @@ public class ShoppingList {
 			.add("lastUpdate", lastUpdate)
 			.add("itemList", itemList)
 			.toString();
+	}
+	
+	@Override
+	public <TDocument> BsonDocument toBsonDocument(Class<TDocument> documentClass, CodecRegistry codecRegistry) {
+		return new BsonDocumentWrapper<ShoppingList>(this, codecRegistry.get(ShoppingList.class));
 	}
 }

@@ -8,20 +8,39 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.bson.Document;
+import org.bson.codecs.Codec;
 
 import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
 import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.user.User;
 
 /**
+ * MongoDb codec to convert user to BSON
  * @author yoan
  */
-public class UserMongoConverter implements MongoDocumentConverter<User> {
-	public static final String FIELD_ID = "_id";
+public class UserMongoConverter extends MongoDocumentConverter<User> {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_CREATED = "created";
     public static final String FIELD_LAST_UPDATE = "lastUpdate";
+    
+    public UserMongoConverter() {
+		super();
+	}
+	
+    public UserMongoConverter(Codec<Document> codec) {
+		super(codec);
+	}
+	
+    @Override
+	public Class<User> getEncoderClass() {
+		return User.class;
+	}
+	
+	@Override
+	public User generateIdIfAbsentFromDocument(User user) {
+		return documentHasId(user) ? User.Builder.createFrom(user).withRandomId().build() : user;
+	}
 	
 	@Override
 	public User fromDocument(Document doc) {

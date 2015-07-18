@@ -13,8 +13,8 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 
 import yoan.shopping.infra.util.error.ApplicationException;
-import yoan.shopping.test.FongoBackedTest;
 import yoan.shopping.test.TestHelper;
+import yoan.shopping.test.fongo.FongoBackedTest;
 import yoan.shopping.user.User;
 
 import com.mongodb.client.MongoCollection;

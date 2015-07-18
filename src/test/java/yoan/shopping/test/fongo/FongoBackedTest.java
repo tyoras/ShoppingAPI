@@ -1,7 +1,7 @@
 /**
  * 
  */
-package yoan.shopping.test;
+package yoan.shopping.test.fongo;
 
 import org.junit.After;
 import org.junit.runner.RunWith;

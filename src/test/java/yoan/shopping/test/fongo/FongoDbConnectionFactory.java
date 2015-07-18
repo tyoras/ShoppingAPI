@@ -1,7 +1,7 @@
 /**
  * 
  */
-package yoan.shopping.test;
+package yoan.shopping.test.fongo;
 
 import static java.util.Objects.requireNonNull;
 import yoan.shopping.infra.config.api.Config;
