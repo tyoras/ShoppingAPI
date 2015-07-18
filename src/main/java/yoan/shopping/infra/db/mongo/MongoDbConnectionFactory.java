@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import yoan.shopping.infra.config.api.Config;
 import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.user.repository.mongo.SecuredUserMongoConverter;
 import yoan.shopping.user.repository.mongo.UserMongoConverter;
 
 import com.google.common.collect.ImmutableList;
@@ -86,7 +87,8 @@ public class MongoDbConnectionFactory {
 	private CodecRegistry generateCustomCodecRegistry() {
 		Codec<Document> defaultDocumentCodec = MongoClient.getDefaultCodecRegistry().get(Document.class);
 		UserMongoConverter userCodec = new UserMongoConverter(defaultDocumentCodec);
+		SecuredUserMongoConverter securedUserCodec = new SecuredUserMongoConverter(defaultDocumentCodec);
 		
-		return CodecRegistries.fromCodecs(userCodec);
+		return CodecRegistries.fromCodecs(userCodec, securedUserCodec);
 	}
 }
