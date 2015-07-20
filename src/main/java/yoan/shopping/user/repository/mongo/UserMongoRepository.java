@@ -10,7 +10,6 @@ import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_U
 
 import java.util.UUID;
 
-import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,22 +35,20 @@ public class UserMongoRepository extends UserRepository {
 	public static final String USER_COLLECTION = "users";
 	
 	private final UserMongoConverter userConverter;
-	private final MongoCollection<Document> userCollection;
+	private final MongoCollection<User> userCollection;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserMongoRepository.class);
 	
 	@Inject
 	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
-		//TODO Use codec
-		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION);
+		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
 		userConverter = new UserMongoConverter();
 	}
 	
 	@Override
 	protected void processCreate(User user) {
-		Document doc = userConverter.toDocument(user);
 		try {
-			userCollection.insertOne(doc);
+			userCollection.insertOne(user);
 		} catch(MongoException e) {
 			String message = PROBLEM_CREATION_USER.getDevReadableMessage(e.getMessage());
 			LOGGER.error(message, e);
@@ -62,9 +59,7 @@ public class UserMongoRepository extends UserRepository {
 	@Override
 	protected User processGetById(UUID userId) {
 		Bson filter = Filters.eq("_id", userId.toString());
-		Document result = userCollection.find().filter(filter).first();
-		
-		return userConverter.fromDocument(result);
+		return userCollection.find().filter(filter).first();
 	}
 	
 	@Override

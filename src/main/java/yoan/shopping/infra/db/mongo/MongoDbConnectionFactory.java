@@ -78,10 +78,14 @@ public class MongoDbConnectionFactory {
 	}
 	
 	private void addCodecsToOptions(MongoClientOptions.Builder optionsBuilder) {
-		CodecRegistry customCodecRegistry = generateCustomCodecRegistry();
-		CodecRegistry finalCodecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(), customCodecRegistry);
+		CodecRegistry finalCodecRegistry = generateFinalCodecRegistry();
 		
 		optionsBuilder.codecRegistry(finalCodecRegistry);
+	}
+	
+	protected CodecRegistry generateFinalCodecRegistry() {
+		CodecRegistry customCodecRegistry = generateCustomCodecRegistry();
+		return CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(), customCodecRegistry);
 	}
 	
 	private CodecRegistry generateCustomCodecRegistry() {

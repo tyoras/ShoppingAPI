@@ -32,16 +32,6 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
 		super(codec);
 	}
 	
-    @Override
-	public Class<User> getEncoderClass() {
-		return User.class;
-	}
-	
-	@Override
-	public User generateIdIfAbsentFromDocument(User user) {
-		return documentHasId(user) ? User.Builder.createFrom(user).withRandomId().build() : user;
-	}
-	
 	@Override
 	public User fromDocument(Document doc) {
 		if (doc == null) {
@@ -77,6 +67,16 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
 				.append(FIELD_EMAIL, user.getEmail())
 				.append(FIELD_CREATED, DateHelper.toDate(user.getCreationDate()))
 				.append(FIELD_LAST_UPDATE, DateHelper.toDate(user.getLastUpdate()));
+	}
+	
+	@Override
+	public Class<User> getEncoderClass() {
+		return User.class;
+	}
+	
+	@Override
+	public User generateIdIfAbsentFromDocument(User user) {
+		return documentHasId(user) ? user : User.Builder.createFrom(user).withRandomId().build();
 	}
 	
 	public Document getUserUpdate(User userToUpdate) {
