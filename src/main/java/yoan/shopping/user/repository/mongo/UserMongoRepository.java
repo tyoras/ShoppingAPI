@@ -58,13 +58,13 @@ public class UserMongoRepository extends UserRepository {
 
 	@Override
 	protected User processGetById(UUID userId) {
-		Bson filter = Filters.eq("_id", userId.toString());
+		Bson filter = Filters.eq("_id", userId);
 		return userCollection.find().filter(filter).first();
 	}
 	
 	@Override
 	protected void processUpdate(User user) {
-		Bson filter = Filters.eq("_id", user.getId().toString());
+		Bson filter = Filters.eq("_id", user.getId());
 		Bson update = userConverter.getUserUpdate(user);
 		try {
 			userCollection.updateOne(filter, update);
@@ -77,7 +77,7 @@ public class UserMongoRepository extends UserRepository {
 	
 	@Override
 	protected void processDeleteById(UUID userId) {
-		Bson filter = Filters.eq("_id", userId.toString());
+		Bson filter = Filters.eq("_id", userId);
 		userCollection.deleteOne(filter);
 	}
 }

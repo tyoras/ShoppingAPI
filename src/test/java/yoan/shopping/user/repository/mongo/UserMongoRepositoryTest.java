@@ -37,7 +37,7 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 		testedRepo.create(expectedUser);
 		
 		//then
-		Bson filter = Filters.eq("_id", expectedUser.getId().toString());
+		Bson filter = Filters.eq("_id", expectedUser.getId());
 		Document result = userCollection.find().filter(filter).first();
 		User user = converter.fromDocument(result);
 		assertThat(user).isEqualTo(expectedUser);
@@ -59,7 +59,7 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 			throw ae;
 		} finally {
 			//checking if the already existing user still exists
-			Bson filter = Filters.eq("_id", alreadyExistingUser.getId().toString());
+			Bson filter = Filters.eq("_id", alreadyExistingUser.getId());
 			Document result = userCollection.find().filter(filter).first();
 			User user = converter.fromDocument(result);
 			assertThat(user).isEqualTo(alreadyExistingUser);

@@ -38,8 +38,7 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
 			return null;
 		}
 		
-		String idStr = doc.getString(FIELD_ID);
-        UUID id = UUID.fromString(idStr);
+        UUID id = doc.get(FIELD_ID, UUID.class);
         String name = doc.getString(FIELD_NAME);
         String email = doc.getString(FIELD_EMAIL);
         Date created = doc.getDate(FIELD_CREATED);
@@ -62,7 +61,7 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
 			return new Document();
 		}
 		
-		return new Document(FIELD_ID, user.getId().toString())
+		return new Document(FIELD_ID, user.getId())
 				.append(FIELD_NAME, user.getName())
 				.append(FIELD_EMAIL, user.getEmail())
 				.append(FIELD_CREATED, DateHelper.toDate(user.getCreationDate()))

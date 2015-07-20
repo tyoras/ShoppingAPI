@@ -48,7 +48,7 @@ public class UserMongoConverterTest {
 		LocalDateTime expectedCreationDate = LocalDateTime.now();
 		LocalDateTime expectedLastUpdate = LocalDateTime.now();
 		
-		Document doc = new Document(FIELD_ID, expectId.toString())
+		Document doc = new Document(FIELD_ID, expectId)
 							.append(FIELD_NAME, expectedName)
 							.append(FIELD_EMAIL, expectedMail)
 							.append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
@@ -92,7 +92,7 @@ public class UserMongoConverterTest {
 		
 		//then
 		assertThat(result).isNotNull();
-		assertThat(result.get(FIELD_ID)).isEqualTo(user.getId().toString());
+		assertThat(result.get(FIELD_ID)).isEqualTo(user.getId());
 		assertThat(result.getString(FIELD_NAME)).isEqualTo(user.getName());
 		assertThat(result.getString(FIELD_EMAIL)).isEqualTo(user.getEmail());
 		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_CREATED))).isEqualTo(user.getCreationDate());

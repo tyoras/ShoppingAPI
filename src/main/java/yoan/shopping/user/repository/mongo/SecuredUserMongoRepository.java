@@ -60,7 +60,7 @@ public class SecuredUserMongoRepository extends SecuredUserRepository {
 
 	@Override
 	protected SecuredUser processGetById(UUID userId) {
-		Bson filter = Filters.eq("_id", userId.toString());
+		Bson filter = Filters.eq("_id", userId);
 		Document result = userCollection.find().filter(filter).first();
 		
 		return userConverter.fromDocument(result);
@@ -68,7 +68,7 @@ public class SecuredUserMongoRepository extends SecuredUserRepository {
 
 	@Override
 	protected void processChangePassword(SecuredUser userToUpdate) {
-		Bson filter = Filters.eq("_id", userToUpdate.getId().toString());
+		Bson filter = Filters.eq("_id", userToUpdate.getId());
 		Bson update = userConverter.getChangePasswordUpdate(userToUpdate);
 		try {
 			userCollection.updateOne(filter, update);
