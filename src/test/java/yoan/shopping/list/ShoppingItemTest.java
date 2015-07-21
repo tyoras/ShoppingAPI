@@ -48,7 +48,7 @@ public class ShoppingItemTest {
 			new ShoppingItem(UUID.randomUUID(), "name", 1, nullState);
 		} catch(NullPointerException npe) {
 		//then
-			assertThat(npe.getMessage()).isEqualTo("Item state is mandatory");
+			assertThat(npe.getMessage()).isEqualTo("Invalid item state");
 			throw npe;
 		}
 	}

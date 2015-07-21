@@ -43,7 +43,7 @@ public class ShoppingItem implements Bson, WithId {
 		checkArgument(StringUtils.isNotBlank(name), "Invalid item name");
 		this.name = name;
 		this.quantity = quantity;
-		this.state = requireNonNull(state, "Item state is mandatory");
+		this.state = requireNonNull(state, "Invalid item state");
 	}
 	
 	public static class Builder implements GenericBuilder<ShoppingItem> {
