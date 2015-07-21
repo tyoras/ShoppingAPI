@@ -13,8 +13,8 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 
 import yoan.shopping.infra.util.error.ApplicationException;
-import yoan.shopping.test.FongoBackedTest;
 import yoan.shopping.test.TestHelper;
+import yoan.shopping.test.fongo.FongoBackedTest;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
 
@@ -39,7 +39,7 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 		testedRepo.create(expectedUser, expectedPassword);
 		
 		//then
-		Bson filter = Filters.eq("_id", expectedUser.getId().toString());
+		Bson filter = Filters.eq("_id", expectedUser.getId());
 		Document result = userCollection.find().filter(filter).first();
 		SecuredUser securedUser = converter.fromDocument(result);
 		User user = User.Builder.createFrom(securedUser).build();
@@ -65,7 +65,7 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 			throw ae;
 		} finally {
 			//checking if the already existing user still exists
-			Bson filter = Filters.eq("_id", alreadyExistingUser.getId().toString());
+			Bson filter = Filters.eq("_id", alreadyExistingUser.getId());
 			Document result = userCollection.find().filter(filter).first();
 			User user = new UserMongoConverter().fromDocument(result);
 			assertThat(user).isEqualTo(alreadyExistingUser);
@@ -88,7 +88,7 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 			throw ae;
 		} finally {
 			//checking if the already existing user still exists
-			Bson filter = Filters.eq("_id", alreadyExistingUser.getId().toString());
+			Bson filter = Filters.eq("_id", alreadyExistingUser.getId());
 			Document result = userCollection.find().filter(filter).first();
 			SecuredUser securedUser = converter.fromDocument(result);
 			assertThat(securedUser).isEqualTo(alreadyExistingSecuredUser);

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.ErrorCode;
+import yoan.shopping.infra.util.error.RepositoryErrorCode;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -40,6 +41,7 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 	/** associate each error code that does not go with status 500 to the specified HTTP status */
 	private static final Map<ErrorCode, Status> CUSTOM_STATUS_BY_ERROR_CODE = ImmutableMap.<ErrorCode, Response.Status>builder()
 			.put(APPLICATION_ERROR, INTERNAL_SERVER_ERROR)
+			.put(RepositoryErrorCode.NOT_FOUND, NOT_FOUND)
 			.build();
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionMapper.class);

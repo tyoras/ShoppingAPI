@@ -8,20 +8,29 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.bson.Document;
+import org.bson.codecs.Codec;
 
 import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
 import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.user.User;
 
 /**
+ * MongoDb codec to convert user to BSON
  * @author yoan
  */
-public class UserMongoConverter implements MongoDocumentConverter<User> {
-	public static final String FIELD_ID = "_id";
+public class UserMongoConverter extends MongoDocumentConverter<User> {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_CREATED = "created";
     public static final String FIELD_LAST_UPDATE = "lastUpdate";
+    
+    public UserMongoConverter() {
+		super();
+	}
+	
+    public UserMongoConverter(Codec<Document> codec) {
+		super(codec);
+	}
 	
 	@Override
 	public User fromDocument(Document doc) {
@@ -29,8 +38,7 @@ public class UserMongoConverter implements MongoDocumentConverter<User> {
 			return null;
 		}
 		
-		String idStr = doc.getString(FIELD_ID);
-        UUID id = UUID.fromString(idStr);
+        UUID id = doc.get(FIELD_ID, UUID.class);
         String name = doc.getString(FIELD_NAME);
         String email = doc.getString(FIELD_EMAIL);
         Date created = doc.getDate(FIELD_CREATED);
@@ -53,14 +61,24 @@ public class UserMongoConverter implements MongoDocumentConverter<User> {
 			return new Document();
 		}
 		
-		return new Document(FIELD_ID, user.getId().toString())
+		return new Document(FIELD_ID, user.getId())
 				.append(FIELD_NAME, user.getName())
 				.append(FIELD_EMAIL, user.getEmail())
 				.append(FIELD_CREATED, DateHelper.toDate(user.getCreationDate()))
 				.append(FIELD_LAST_UPDATE, DateHelper.toDate(user.getLastUpdate()));
 	}
 	
-	public Document getUserUpdate(User userToUpdate) {
+	@Override
+	public Class<User> getEncoderClass() {
+		return User.class;
+	}
+	
+	@Override
+	public User generateIdIfAbsentFromDocument(User user) {
+		return documentHasId(user) ? user : User.Builder.createFrom(user).withRandomId().build();
+	}
+	
+	public static Document getUserUpdate(User userToUpdate) {
 		Document updateDoc = new Document(FIELD_LAST_UPDATE, DateHelper.toDate(userToUpdate.getLastUpdate()))
 									.append(FIELD_EMAIL, userToUpdate.getEmail())
 									.append(FIELD_NAME, userToUpdate.getName());

@@ -11,7 +11,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentWrapper;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
 
+import yoan.shopping.infra.db.WithId;
 import yoan.shopping.infra.util.GenericBuilder;
 
 import com.google.common.base.MoreObjects;
@@ -21,7 +26,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  * User of the application
  * @author yoan
  */
-public class User {
+public class User implements Bson, WithId {
 	/** Default user ID */
 	public static final UUID DEFAULT_ID = UUID.fromString("718f729c-c7ef-4f95-9f74-4a332cb82794");
 	/** Default user instance */
@@ -151,6 +156,7 @@ public class User {
         }
 	}
 	
+	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -202,5 +208,10 @@ public class User {
 	@Override
 	public final String toString() {
 		return toStringHelper().toString();
+	}
+	
+	@Override
+	public <TDocument> BsonDocument toBsonDocument(Class<TDocument> documentClass, CodecRegistry codecRegistry) {
+		return new BsonDocumentWrapper<User>(this, codecRegistry.get(User.class));
 	}
 }

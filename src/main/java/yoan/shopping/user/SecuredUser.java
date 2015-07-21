@@ -11,6 +11,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentWrapper;
+import org.bson.codecs.configuration.CodecRegistry;
 
 import yoan.shopping.infra.util.GenericBuilder;
 
@@ -134,5 +137,10 @@ public class SecuredUser extends User {
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper().add("password", password).add("salt", salt);
+	}
+	
+	@Override
+	public <TDocument> BsonDocument toBsonDocument(Class<TDocument> documentClass, CodecRegistry codecRegistry) {
+		return new BsonDocumentWrapper<SecuredUser>(this, codecRegistry.get(SecuredUser.class));
 	}
 }
