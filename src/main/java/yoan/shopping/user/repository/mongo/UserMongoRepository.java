@@ -1,8 +1,6 @@
-/**
- * 
- */
 package yoan.shopping.user.repository.mongo;
 
+import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
@@ -34,7 +32,6 @@ import com.mongodb.client.model.Filters;
 public class UserMongoRepository extends UserRepository {
 	public static final String USER_COLLECTION = "users";
 	
-	private final UserMongoConverter userConverter;
 	private final MongoCollection<User> userCollection;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserMongoRepository.class);
@@ -42,7 +39,6 @@ public class UserMongoRepository extends UserRepository {
 	@Inject
 	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
 		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
-		userConverter = new UserMongoConverter();
 	}
 	
 	@Override
@@ -58,14 +54,14 @@ public class UserMongoRepository extends UserRepository {
 
 	@Override
 	protected User processGetById(UUID userId) {
-		Bson filter = Filters.eq("_id", userId);
+		Bson filter = Filters.eq(FIELD_ID, userId);
 		return userCollection.find().filter(filter).first();
 	}
 	
 	@Override
 	protected void processUpdate(User user) {
-		Bson filter = Filters.eq("_id", user.getId());
-		Bson update = userConverter.getUserUpdate(user);
+		Bson filter = Filters.eq(FIELD_ID, user.getId());
+		Bson update = UserMongoConverter.getUserUpdate(user);
 		try {
 			userCollection.updateOne(filter, update);
 		} catch(MongoException e) {
@@ -77,7 +73,7 @@ public class UserMongoRepository extends UserRepository {
 	
 	@Override
 	protected void processDeleteById(UUID userId) {
-		Bson filter = Filters.eq("_id", userId);
+		Bson filter = Filters.eq(FIELD_ID, userId);
 		userCollection.deleteOne(filter);
 	}
 }

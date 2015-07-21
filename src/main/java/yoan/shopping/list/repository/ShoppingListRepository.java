@@ -19,7 +19,7 @@ import yoan.shopping.list.ShoppingList;
 import com.google.common.collect.ImmutableList;
 
 /**
- *
+ * Repository focused on shopping lists
  * @author yoan
  */
 public abstract class ShoppingListRepository {

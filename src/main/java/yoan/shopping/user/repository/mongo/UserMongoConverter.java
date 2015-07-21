@@ -78,7 +78,7 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
 		return documentHasId(user) ? user : User.Builder.createFrom(user).withRandomId().build();
 	}
 	
-	public Document getUserUpdate(User userToUpdate) {
+	public static Document getUserUpdate(User userToUpdate) {
 		Document updateDoc = new Document(FIELD_LAST_UPDATE, DateHelper.toDate(userToUpdate.getLastUpdate()))
 									.append(FIELD_EMAIL, userToUpdate.getEmail())
 									.append(FIELD_NAME, userToUpdate.getName());

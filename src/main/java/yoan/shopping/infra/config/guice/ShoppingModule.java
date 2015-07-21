@@ -9,6 +9,8 @@ import yoan.shopping.infra.config.api.repository.ConfigRepository;
 import yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesRepository;
 import yoan.shopping.infra.config.jackson.JacksonConfigProvider;
 import yoan.shopping.infra.rest.error.GlobalExceptionMapper;
+import yoan.shopping.list.repository.ShoppingListRepository;
+import yoan.shopping.list.repository.mongo.ShoppingListMongoRepository;
 import yoan.shopping.root.repository.BuildInfoRepository;
 import yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository;
 import yoan.shopping.root.resource.RootResource;
@@ -50,6 +52,7 @@ public class ShoppingModule extends AbstractModule {
 		bind(UserRepository.class).to(UserMongoRepository.class);
 		bind(SecuredUserRepository.class).to(SecuredUserMongoRepository.class);
 		bind(ConfigRepository.class).to(ConfigPropertiesRepository.class);
+		bind(ShoppingListRepository.class).to(ShoppingListMongoRepository.class);
 	}
 	
 	@Provides

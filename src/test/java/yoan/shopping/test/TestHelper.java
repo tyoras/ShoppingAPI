@@ -113,7 +113,7 @@ public class TestHelper {
 	}
 	
 	public static ShoppingList generateRandomShoppingList() {
-		int nbItem = generateRandomInt(0, 3);
+		int nbItem = generateRandomInt(1, 3);
 		List<ShoppingItem> itemList = new ArrayList<>();
 		for (int i = 0; i < nbItem; i++) {
 			itemList.add(generateRandomShoppingItem());
