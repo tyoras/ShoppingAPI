@@ -6,6 +6,8 @@ import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,17 +17,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
+
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.list.ItemState;
 import yoan.shopping.list.ShoppingItem;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * Shopping item Rest Representation
  * @author yoan
  */
-@XmlRootElement(name = "list")
+@XmlRootElement(name = "item")
 public class ShoppingItemRepresentation {
 	/** Item unique ID */
 	private UUID id;
@@ -81,6 +84,21 @@ public class ShoppingItemRepresentation {
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, message, e);
 		}
 		return item;
+	}
+	
+	public static List<ShoppingItem> toShoppingItemList(List<ShoppingItemRepresentation> representations) {
+		requireNonNull(representations, "Unable to create ShoppingItems from null ShoppingItemRepresentations");
+		
+		List<ShoppingItem> items = new ArrayList<>();
+		representations.forEach(representation -> items.add(toShoppingItem(representation)));
+		
+		return items;
+	}
+	
+	public static  List<ShoppingItemRepresentation> extractItemListRepresentations(ImmutableList<ShoppingItem> items) {
+		List<ShoppingItemRepresentation> itemList = new ArrayList<>();
+		items.forEach(item -> itemList.add(new ShoppingItemRepresentation(item)));
+		return itemList;
 	}
 
 	@XmlElement(name = "id")
