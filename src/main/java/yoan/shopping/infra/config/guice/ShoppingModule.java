@@ -4,11 +4,17 @@ import static yoan.shopping.root.repository.properties.BuildInfoPropertiesReposi
 
 import org.reflections.Reflections;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+
 import yoan.shopping.infra.config.api.Config;
 import yoan.shopping.infra.config.api.repository.ConfigRepository;
 import yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesRepository;
 import yoan.shopping.infra.config.jackson.JacksonConfigProvider;
 import yoan.shopping.infra.rest.error.GlobalExceptionMapper;
+import yoan.shopping.list.repository.ShoppingListRepository;
+import yoan.shopping.list.repository.mongo.ShoppingListMongoRepository;
+import yoan.shopping.list.resource.ShoppingListResource;
 import yoan.shopping.root.repository.BuildInfoRepository;
 import yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository;
 import yoan.shopping.root.resource.RootResource;
@@ -17,9 +23,6 @@ import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.repository.mongo.SecuredUserMongoRepository;
 import yoan.shopping.user.repository.mongo.UserMongoRepository;
 import yoan.shopping.user.resource.UserResource;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 
 /**
  * Guice Module to configure bindings
@@ -40,6 +43,7 @@ public class ShoppingModule extends AbstractModule {
 		//resources
 		bind(RootResource.class);
 		bind(UserResource.class);
+		bind(ShoppingListResource.class);
 		
 		//providers
 		bind(GlobalExceptionMapper.class);
@@ -50,6 +54,7 @@ public class ShoppingModule extends AbstractModule {
 		bind(UserRepository.class).to(UserMongoRepository.class);
 		bind(SecuredUserRepository.class).to(SecuredUserMongoRepository.class);
 		bind(ConfigRepository.class).to(ConfigPropertiesRepository.class);
+		bind(ShoppingListRepository.class).to(ShoppingListMongoRepository.class);
 	}
 	
 	@Provides

@@ -1,8 +1,6 @@
-/**
- * 
- */
 package yoan.shopping.user.repository.mongo;
 
+import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
@@ -10,7 +8,6 @@ import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_U
 
 import java.util.UUID;
 
-import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,22 +32,19 @@ import com.mongodb.client.model.Filters;
 public class UserMongoRepository extends UserRepository {
 	public static final String USER_COLLECTION = "users";
 	
-	private final UserMongoConverter userConverter;
-	private final MongoCollection<Document> userCollection;
+	private final MongoCollection<User> userCollection;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserMongoRepository.class);
 	
 	@Inject
 	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
-		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING ,USER_COLLECTION);
-		userConverter = new UserMongoConverter();
+		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
 	}
 	
 	@Override
-	protected void createImpl(User user) {
-		Document doc = userConverter.toDocument(user);
+	protected void processCreate(User user) {
 		try {
-			userCollection.insertOne(doc);
+			userCollection.insertOne(user);
 		} catch(MongoException e) {
 			String message = PROBLEM_CREATION_USER.getDevReadableMessage(e.getMessage());
 			LOGGER.error(message, e);
@@ -59,19 +53,17 @@ public class UserMongoRepository extends UserRepository {
 	}
 
 	@Override
-	protected User getByIdImpl(UUID userId) {
-		Bson filter = Filters.eq("_id", userId.toString());
-		Document result = userCollection.find().filter(filter).first();
-		
-		return userConverter.fromDocument(result);
+	protected User processGetById(UUID userId) {
+		Bson filter = Filters.eq(FIELD_ID, userId);
+		return userCollection.find().filter(filter).first();
 	}
 	
 	@Override
-	protected void upsertImpl(User user) {
-		Bson filter = Filters.eq("_id", user.getId().toString());
-		Document doc = userConverter.toDocument(user);
+	protected void processUpdate(User user) {
+		Bson filter = Filters.eq(FIELD_ID, user.getId());
+		Bson update = UserMongoConverter.getUserUpdate(user);
 		try {
-			userCollection.replaceOne(filter, doc);
+			userCollection.updateOne(filter, update);
 		} catch(MongoException e) {
 			String message = PROBLEM_UPDATE_USER.getDevReadableMessage(e.getMessage());
 			LOGGER.error(message, e);
@@ -80,8 +72,8 @@ public class UserMongoRepository extends UserRepository {
 	}
 	
 	@Override
-	protected void deleteByIdImpl(UUID userId) {
-		Bson filter = Filters.eq("_id", userId.toString());
+	protected void processDeleteById(UUID userId) {
+		Bson filter = Filters.eq(FIELD_ID, userId);
 		userCollection.deleteOne(filter);
 	}
 }

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>Shopping</groupId>
 	<artifactId>api</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<name>Shopping API</name>
 	<packaging>war</packaging>
 	<description>Shopping app core module</description>
@@ -85,7 +85,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongodb-driver</artifactId>
-			<version>3.0.2</version>
+			<version>3.0.3</version>
 		</dependency>
 
 		<!-- Logging -->
@@ -149,7 +149,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		  <groupId>com.github.fakemongo</groupId>
+		  	<groupId>com.github.fakemongo</groupId>
 			<artifactId>fongo</artifactId>
 			<version>2.0.1</version>
 			<scope>test</scope>

@@ -7,7 +7,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
- *
+ * Error code that can be used everywhere in the application
  * @author yoan
  */
 public enum CommonErrorCode implements ErrorCode {
@@ -25,5 +25,4 @@ public enum CommonErrorCode implements ErrorCode {
 	public String getCode() {
 		return code;
 	}
-
 }

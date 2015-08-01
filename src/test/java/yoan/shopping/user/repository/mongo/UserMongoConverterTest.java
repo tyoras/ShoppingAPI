@@ -4,15 +4,19 @@
 package yoan.shopping.user.repository.mongo;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_CREATED;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_EMAIL;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_ID;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_LAST_UPDATE;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_NAME;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.bson.Document;
 import org.junit.Test;
 
+import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 
@@ -41,9 +45,14 @@ public class UserMongoConverterTest {
 		UUID expectId = UUID.randomUUID();
 		String expectedName = "name";
 		String expectedMail = "mail";
-		Document doc = new Document(FIELD_ID, expectId.toString())
+		LocalDateTime expectedCreationDate = LocalDateTime.now();
+		LocalDateTime expectedLastUpdate = LocalDateTime.now();
+		
+		Document doc = new Document(FIELD_ID, expectId)
 							.append(FIELD_NAME, expectedName)
-							.append(FIELD_EMAIL, expectedMail);
+							.append(FIELD_EMAIL, expectedMail)
+							.append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
+							.append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedLastUpdate));
 		UserMongoConverter testedConverter = new UserMongoConverter();
 		
 		//when
@@ -54,6 +63,8 @@ public class UserMongoConverterTest {
 		assertThat(result.getId()).isEqualTo(expectId);
 		assertThat(result.getName()).isEqualTo(expectedName);
 		assertThat(result.getEmail()).isEqualTo(expectedMail);
+		assertThat(result.getCreationDate()).isEqualTo(expectedCreationDate);
+		assertThat(result.getLastUpdate()).isEqualTo(expectedLastUpdate);
 	}
 	
 	@Test
@@ -81,8 +92,10 @@ public class UserMongoConverterTest {
 		
 		//then
 		assertThat(result).isNotNull();
-		assertThat(result.get(FIELD_ID)).isEqualTo(user.getId().toString());
+		assertThat(result.get(FIELD_ID)).isEqualTo(user.getId());
 		assertThat(result.getString(FIELD_NAME)).isEqualTo(user.getName());
 		assertThat(result.getString(FIELD_EMAIL)).isEqualTo(user.getEmail());
+		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_CREATED))).isEqualTo(user.getCreationDate());
+		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_LAST_UPDATE))).isEqualTo(user.getLastUpdate());
 	}
 }

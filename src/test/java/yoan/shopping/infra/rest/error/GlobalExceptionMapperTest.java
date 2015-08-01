@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.infra.util.error.RepositoryErrorCode;
 import yoan.shopping.test.TestHelper;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -105,6 +106,19 @@ public class GlobalExceptionMapperTest {
 		
 		//then
 		TestHelper.assertErrorResponse(response, INTERNAL_SERVER_ERROR, ERROR, APPLICATION_ERROR.getCode(), expectedMessage);
+	}
+	
+	@Test
+	public void toResponse_should_handle_ApplicationException_with_NOT_FOUND_repository_error_code() {
+		//given
+		String expectedMessage = "expected message";
+		ApplicationException applException = new ApplicationException(ERROR, RepositoryErrorCode.NOT_FOUND, expectedMessage);
+		
+		//when
+		Response response = tested.toResponse(applException);
+		
+		//then
+		TestHelper.assertErrorResponse(response, NOT_FOUND, ERROR, RepositoryErrorCode.NOT_FOUND.getCode(), expectedMessage);
 	}
 	
 	@Test

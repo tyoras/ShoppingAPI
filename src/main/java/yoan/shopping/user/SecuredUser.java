@@ -6,10 +6,14 @@ package yoan.shopping.user;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentWrapper;
+import org.bson.codecs.configuration.CodecRegistry;
 
 import yoan.shopping.infra.util.GenericBuilder;
 
@@ -36,8 +40,8 @@ public class SecuredUser extends User {
 		salt = null;
 	}
 	
-	protected SecuredUser(UUID id, String name, String email, String password, Object salt) {
-		super(id, name, email);
+	protected SecuredUser(UUID id, String name, String email, LocalDateTime creationDate, LocalDateTime lastUpdate, String password, Object salt) {
+		super(id, name, email, creationDate, lastUpdate);
 		checkArgument(StringUtils.isNotBlank(password), "Invalid user password");
 		this.password = password;
 		this.salt = requireNonNull(salt, "The password hash salt is mandatory");
@@ -89,7 +93,7 @@ public class SecuredUser extends User {
         
         @Override
         public SecuredUser build() {
-            return new SecuredUser(user.getId(), user.getName(), user.getEmail(), password, salt);
+            return new SecuredUser(user.getId(), user.getName(), user.getEmail(), user.getCreationDate(), user.getLastUpdate(), password, salt);
         }
         
         public Builder withSalt(Object salt) {
@@ -133,5 +137,10 @@ public class SecuredUser extends User {
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper().add("password", password).add("salt", salt);
+	}
+	
+	@Override
+	public <TDocument> BsonDocument toBsonDocument(Class<TDocument> documentClass, CodecRegistry codecRegistry) {
+		return new BsonDocumentWrapper<SecuredUser>(this, codecRegistry.get(SecuredUser.class));
 	}
 }

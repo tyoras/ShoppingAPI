@@ -7,12 +7,16 @@ import static yoan.shopping.infra.logging.Markers.SECURITY;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.UNABLE_TO_CONVERT_UNSECURE_USER;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_LAST_UPDATE;
 
 import org.bson.Document;
+import org.bson.codecs.Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
 import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
 
@@ -20,15 +24,27 @@ import yoan.shopping.user.User;
  * 
  * @author yoan
  */
-public class SecuredUserMongoConverter extends UserMongoConverter {
+public class SecuredUserMongoConverter extends MongoDocumentConverter<SecuredUser> {
 	public static final String FIELD_SECURITY = "security";
 	public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_SALT = "salt";
     
+    private UserMongoConverter userConverter;
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(SecuredUserMongoConverter.class);
 	
+    public SecuredUserMongoConverter() {
+		super();
+		userConverter = new UserMongoConverter();
+	}
+	
+    public SecuredUserMongoConverter(Codec<Document> codec) {
+		super(codec);
+		userConverter = new UserMongoConverter(codec);
+	}
+    
 	public SecuredUser fromDocument(Document doc) {
-		User user = super.fromDocument(doc);
+		User user = userConverter.fromDocument(doc);
 		if (user == null) {
 			return null;
 		}
@@ -52,12 +68,38 @@ public class SecuredUserMongoConverter extends UserMongoConverter {
 	}
 
 	public Document toDocument(SecuredUser user) {
-		Document doc = super.toDocument(user);
+		Document doc = userConverter.toDocument(user);
 		if (doc.isEmpty()) {
 			return doc;
 		}
 		
-		Document securityObject = new Document(FIELD_PASSWORD, user.getPassword()).append(FIELD_SALT, user.getSalt());
+		Document securityObject = getSecurityObjectFromSecuredUser(user);
 		return doc.append(FIELD_SECURITY, securityObject);
+	}
+	
+	private Document getSecurityObjectFromSecuredUser(SecuredUser user) {
+		return new Document(FIELD_PASSWORD, user.getPassword()).append(FIELD_SALT, user.getSalt());
+	}
+	
+	public Document getChangePasswordUpdate(SecuredUser userToUpdate) {
+		Document securityObject = getSecurityObjectFromSecuredUser(userToUpdate);
+		Document updateDoc = new Document(FIELD_LAST_UPDATE, DateHelper.toDate(userToUpdate.getLastUpdate()))
+									.append(FIELD_SECURITY, securityObject);
+		return new Document("$set", updateDoc);
+	}
+	
+	@Override
+	public Class<SecuredUser> getEncoderClass() {
+		return SecuredUser.class;
+	}
+	
+	@Override
+	public SecuredUser generateIdIfAbsentFromDocument(SecuredUser securedUser) {
+		User user = User.Builder.createFrom(securedUser).withRandomId().build();
+		return documentHasId(securedUser) ? SecuredUser.Builder.createFrom(user)
+																.withPassword(securedUser.getPassword())
+																.withSalt(securedUser.getSalt())
+																.build() 
+											: securedUser;
 	}
 }

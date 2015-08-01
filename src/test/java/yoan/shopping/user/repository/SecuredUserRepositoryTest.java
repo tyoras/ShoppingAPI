@@ -5,8 +5,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
+import static yoan.shopping.infra.rest.error.Level.INFO;
+import static yoan.shopping.infra.util.error.RepositoryErrorCode.NOT_FOUND;
 import static yoan.shopping.test.TestHelper.assertApplicationException;
+import static yoan.shopping.user.repository.UserRepositoryErrorCode.UNSECURE_PASSWORD;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_PASSWORD_VALIDITY;
 
 import java.util.UUID;
@@ -54,7 +56,7 @@ public class SecuredUserRepositoryTest {
 		} catch(ApplicationException ae) {
 			//then
 			verify(testedRepo, never()).processCreate(any());
-			assertApplicationException(ae, ERROR, APPLICATION_ERROR, PROBLEM_PASSWORD_VALIDITY);
+			assertApplicationException(ae, ERROR, UNSECURE_PASSWORD, PROBLEM_PASSWORD_VALIDITY);
 			throw ae;
 		}
 	}
@@ -71,7 +73,7 @@ public class SecuredUserRepositoryTest {
 		} catch(ApplicationException ae) {
 			//then
 			verify(testedRepo, never()).processCreate(any());
-			assertApplicationException(ae, ERROR, APPLICATION_ERROR, PROBLEM_PASSWORD_VALIDITY);
+			assertApplicationException(ae, ERROR, UNSECURE_PASSWORD, PROBLEM_PASSWORD_VALIDITY);
 			throw ae;
 		}
 	}
@@ -137,5 +139,51 @@ public class SecuredUserRepositoryTest {
 		//then
 		assertThat(result).isNull();
 		verify(testedRepo, never()).processGetById(any());
+	}
+	
+	@Test
+	public void changePassword_should_do_nothing_with_null_user_Id() {
+		//given
+		UUID nullUserId = null;
+
+		//when
+		testedRepo.changePassword(nullUserId, "password");
+		
+		//then
+		verify(testedRepo, never()).processChangePassword(any());
+	}
+	
+	@Test(expected = ApplicationException.class)
+	public void changePassword_should_fail_with_not_existing_user() {
+		//given
+		UUID notExistingUserId = UUID.randomUUID();
+
+		//when
+		try {
+			testedRepo.changePassword(notExistingUserId, "password");
+		} catch (ApplicationException ae) {
+		//then
+			assertApplicationException(ae, INFO, NOT_FOUND, "User not found");
+			throw ae;
+		} finally {
+			verify(testedRepo, never()).processChangePassword(any());
+		}
+	}
+	
+	@Test(expected = ApplicationException.class)
+	public void changePassword_should_fail_with_blank_password() {
+		//given
+		UUID userId = UUID.randomUUID();
+		String blankPassword = "  ";
+		
+		//when
+		try {
+			testedRepo.changePassword(userId, blankPassword);
+		} catch(ApplicationException ae) {
+			//then
+			verify(testedRepo, never()).processChangePassword(any());
+			assertApplicationException(ae, ERROR, UNSECURE_PASSWORD, PROBLEM_PASSWORD_VALIDITY);
+			throw ae;
+		}
 	}
 }
