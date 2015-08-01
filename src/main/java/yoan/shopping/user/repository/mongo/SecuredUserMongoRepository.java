@@ -3,30 +3,28 @@
  */
 package yoan.shopping.user.repository.mongo;
 
-import static yoan.shopping.infra.rest.error.Level.ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
+import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_READ_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_UPDATE_USER_PASSWORD;
 import static yoan.shopping.user.repository.mongo.UserMongoRepository.USER_COLLECTION;
 
 import java.util.UUID;
 
-import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-import yoan.shopping.infra.util.error.ApplicationException;
-import yoan.shopping.user.SecuredUser;
-import yoan.shopping.user.repository.SecuredUserRepository;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
+import yoan.shopping.user.SecuredUser;
+import yoan.shopping.user.repository.SecuredUserRepository;
 
 /**
  * Mongo implementation of the user with security information repository 
@@ -36,34 +34,36 @@ import com.mongodb.client.model.Filters;
 public class SecuredUserMongoRepository extends SecuredUserRepository {
 
 	private final SecuredUserMongoConverter userConverter;
-	private final MongoCollection<Document> userCollection;
+	private final MongoCollection<SecuredUser> userCollection;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SecuredUserMongoRepository.class);
 	
 	@Inject
 	public SecuredUserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
-		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING , USER_COLLECTION);
+		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING , USER_COLLECTION, SecuredUser.class);
 		userConverter = new SecuredUserMongoConverter();
 	}
 	
 	@Override
 	protected void processCreate(SecuredUser user) {
-		Document doc = userConverter.toDocument(user);
 		try {
-			userCollection.insertOne(doc);
+			userCollection.insertOne(user);
 		} catch(MongoException e) {
-			String message = PROBLEM_CREATION_USER.getDevReadableMessage(e.getMessage());
-			LOGGER.error(message, e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_CREATION_USER);
 		}
 	}
 
 	@Override
 	protected SecuredUser processGetById(UUID userId) {
 		Bson filter = Filters.eq("_id", userId);
-		Document result = userCollection.find().filter(filter).first();
+		SecuredUser foundUser = null;
+		try {
+			foundUser = userCollection.find().filter(filter).first();
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_USER);
+		}
 		
-		return userConverter.fromDocument(result);
+		return foundUser;
 	}
 
 	@Override
@@ -73,9 +73,7 @@ public class SecuredUserMongoRepository extends SecuredUserRepository {
 		try {
 			userCollection.updateOne(filter, update);
 		} catch(MongoException e) {
-			String message = PROBLEM_UPDATE_USER_PASSWORD.getDevReadableMessage(e.getMessage());
-			LOGGER.error(message, e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_UPDATE_USER_PASSWORD);
 		}
 	}
 }

@@ -1,9 +1,9 @@
 package yoan.shopping.user.repository.mongo;
 
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
+import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_DELETE_USER;
+import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_READ_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_UPDATE_USER;
 
 import java.util.UUID;
@@ -12,17 +12,17 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-import yoan.shopping.infra.util.error.ApplicationException;
-import yoan.shopping.user.User;
-import yoan.shopping.user.repository.UserRepository;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
+import yoan.shopping.user.User;
+import yoan.shopping.user.repository.UserRepository;
 
 /**
  * Mongo implementation of the user repository
@@ -46,16 +46,20 @@ public class UserMongoRepository extends UserRepository {
 		try {
 			userCollection.insertOne(user);
 		} catch(MongoException e) {
-			String message = PROBLEM_CREATION_USER.getDevReadableMessage(e.getMessage());
-			LOGGER.error(message, e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_CREATION_USER);
 		}
 	}
 
 	@Override
 	protected User processGetById(UUID userId) {
 		Bson filter = Filters.eq(FIELD_ID, userId);
-		return userCollection.find().filter(filter).first();
+		User foundUser = null;
+		try {
+			foundUser = userCollection.find().filter(filter).first();
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_USER);
+		}
+		return foundUser;
 	}
 	
 	@Override
@@ -65,15 +69,17 @@ public class UserMongoRepository extends UserRepository {
 		try {
 			userCollection.updateOne(filter, update);
 		} catch(MongoException e) {
-			String message = PROBLEM_UPDATE_USER.getDevReadableMessage(e.getMessage());
-			LOGGER.error(message, e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_UPDATE_USER);
 		}
 	}
 	
 	@Override
 	protected void processDeleteById(UUID userId) {
 		Bson filter = Filters.eq(FIELD_ID, userId);
-		userCollection.deleteOne(filter);
+		try {
+			userCollection.deleteOne(filter);
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_DELETE_USER);
+		}
 	}
 }

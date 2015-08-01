@@ -21,7 +21,7 @@ import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
 
 /**
- * 
+ * MongoDb codec to convert secured user to BSON
  * @author yoan
  */
 public class SecuredUserMongoConverter extends MongoDocumentConverter<SecuredUser> {
