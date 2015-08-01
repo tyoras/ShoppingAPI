@@ -54,7 +54,7 @@ public class ShoppingListRepositoryTest {
 	}
 	
 	@Test
-	public void getByOwner_should_return_null_with_null_Id() {
+	public void getByOwner_should_return_empty_list_with_null_Id() {
 		//given
 		UUID nullId = null;
 
@@ -62,7 +62,8 @@ public class ShoppingListRepositoryTest {
 		ImmutableList<ShoppingList> result = testedRepo.getByOwner(nullId);
 		
 		//then
-		assertThat(result).isNull();
+		assertThat(result).isNotNull();
+		assertThat(result).isEmpty();
 		verify(testedRepo, never()).processGetById(any());
 	}
 	
