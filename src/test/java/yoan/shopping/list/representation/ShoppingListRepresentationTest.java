@@ -106,5 +106,6 @@ public class ShoppingListRepresentationTest {
 		//then
 		assertThat(result).isNotNull();
 		assertThat(result).isEqualTo(expectedShoppingList);
+		assertThat(result.getItemList()).isEqualTo(expectedShoppingList.getItemList());
 	}
 }

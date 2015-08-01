@@ -59,6 +59,10 @@ public class TestHelper {
 		assertApplicationException(wae, expectedLevel, expectedErrorCode, expectedMessage);
 	}
 	
+	public static void assertWebApiException(WebApiException wae, Status expectedStatus, Level expectedLevel, ErrorCode expectedErrorCode, ErrorMessage expectedMessage) {
+		assertWebApiException(wae, expectedStatus, expectedLevel, expectedErrorCode, expectedMessage.getDevReadableMessage());
+	}
+	
 	public static void assertErrorResponse(Response errorResponse, Status expectedStatus, Level expectedLevel, String expectedErrorCode, String expectedMessage) {
 		assertThat(errorResponse).isNotNull();
 		assertThat(errorResponse.getStatus()).isEqualTo(expectedStatus.getStatusCode());

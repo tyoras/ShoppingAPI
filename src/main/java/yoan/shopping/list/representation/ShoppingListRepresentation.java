@@ -84,8 +84,6 @@ public class ShoppingListRepresentation extends RestRepresentation {
 		ShoppingList.Builder listBuilder = ShoppingList.Builder.createDefault()
 						   .withName(representation.name)
 						   .withOwnerId(representation.getOwnerId())
-						   .withCreationDate(representation.getCreationDate())
-						   .withLastUpdate(representation.getLastUpdate())
 						   .withItemList(ShoppingItemRepresentation.toShoppingItemList(representation.getItemList()));
 		//if no ID provided, we let the default one
 		if (representation.id != null) {

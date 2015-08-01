@@ -69,7 +69,7 @@ public abstract class ShoppingListRepository {
 	public final ImmutableList<ShoppingList> getByOwner(UUID ownerId) {
 		if (ownerId == null) {
 			LOGGER.warn("User's shopping lists asked with null id");
-			return null;
+			return ImmutableList.of();
 		}
 		return processGetByOwner(ownerId);
 	}

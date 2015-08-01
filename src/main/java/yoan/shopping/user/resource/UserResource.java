@@ -53,7 +53,7 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 
 /**
- * User Resource
+ * User API
  * @author yoan
  */
 @Path("/api/user")

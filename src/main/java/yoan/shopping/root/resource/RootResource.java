@@ -5,6 +5,7 @@ package yoan.shopping.root.resource;
 
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.root.RootKey.LIST;
 import static yoan.shopping.root.RootKey.USER;
 
 import java.util.List;
@@ -14,13 +15,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import yoan.shopping.infra.rest.Link;
-import yoan.shopping.infra.rest.RestAPI;
-import yoan.shopping.root.BuildInfo;
-import yoan.shopping.root.repository.BuildInfoRepository;
-import yoan.shopping.root.representation.RootRepresentation;
-import yoan.shopping.user.User;
-
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -28,6 +22,13 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+
+import yoan.shopping.infra.rest.Link;
+import yoan.shopping.infra.rest.RestAPI;
+import yoan.shopping.root.BuildInfo;
+import yoan.shopping.root.repository.BuildInfoRepository;
+import yoan.shopping.root.representation.RootRepresentation;
+import yoan.shopping.user.User;
 
 
 /**
@@ -68,6 +69,7 @@ public class RootResource extends RestAPI {
 		List<Link> links = Lists.newArrayList(Link.self(getUriInfo()));
 		
 		links.add(USER.getlink(getUriInfo()));
+		links.add(LIST.getlink(getUriInfo()));
 		
 		return links;
 	}
