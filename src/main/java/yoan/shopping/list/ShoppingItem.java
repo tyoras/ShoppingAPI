@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.list.ItemState.TO_BUY;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -13,10 +14,10 @@ import org.bson.BsonDocumentWrapper;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
+import com.google.common.base.MoreObjects;
+
 import yoan.shopping.infra.db.WithId;
 import yoan.shopping.infra.util.GenericBuilder;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * Shopping item
@@ -32,18 +33,24 @@ public class ShoppingItem implements Bson, WithId {
 	private final UUID id;
 	/** Item name */
 	private final String name;
+	/** Item creation date */
+	private final LocalDateTime creationDate;
+	/** Item time the list was updated */
+	private final LocalDateTime lastUpdate;
 	/** Quantity of this item */
 	private final int quantity;
 	/** Current item state */
 	private final ItemState state;
 	
-	protected ShoppingItem(UUID id, String name, int quantity, ItemState state) {
+	protected ShoppingItem(UUID id, String name, LocalDateTime creationDate, LocalDateTime lastUpdate, int quantity, ItemState state) {
 		super();
 		this.id = requireNonNull(id, "Item Id is mandatory");
 		checkArgument(StringUtils.isNotBlank(name), "Invalid item name");
 		this.name = name;
 		this.quantity = quantity;
 		this.state = requireNonNull(state, "Invalid item state");
+		this.creationDate = requireNonNull(creationDate, "Creation date is mandatory");
+		this.lastUpdate = requireNonNull(lastUpdate, "Last update date is mandatory");
 	}
 	
 	public static class Builder implements GenericBuilder<ShoppingItem> {
@@ -51,6 +58,8 @@ public class ShoppingItem implements Bson, WithId {
 		private String name = "Default name";
 		private int quantity = 1;
 		private ItemState state = TO_BUY;
+		private LocalDateTime creationDate = LocalDateTime.now();
+		private LocalDateTime lastUpdate = LocalDateTime.now();
 		
 		private Builder() { }
 		
@@ -76,6 +85,8 @@ public class ShoppingItem implements Bson, WithId {
             builder.name = otherBuilder.name;
             builder.quantity = otherBuilder.quantity;
             builder.state = otherBuilder.state;
+            builder.creationDate = otherBuilder.creationDate;
+            builder.lastUpdate = otherBuilder.lastUpdate;
             
             return builder;
         }
@@ -93,13 +104,15 @@ public class ShoppingItem implements Bson, WithId {
             builder.name = item.name;
             builder.quantity = item.quantity;
             builder.state = item.state;
+            builder.creationDate = item.creationDate;
+            builder.lastUpdate = item.lastUpdate;
             
             return builder;
         }
         
 		@Override
 		public ShoppingItem build() {
-			return new ShoppingItem(id, name, quantity, state);
+			return new ShoppingItem(id, name, creationDate, lastUpdate, quantity, state);
 		}
 		
 		public Builder withId(UUID id) {
@@ -131,6 +144,16 @@ public class ShoppingItem implements Bson, WithId {
             this.state = state;
             return this;
         }
+        
+        public Builder withCreationDate(LocalDateTime creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+        
+        public Builder withLastUpdate(LocalDateTime lastUpdate) {
+            this.lastUpdate = lastUpdate;
+            return this;
+        }
 	}
 
 	@Override
@@ -148,6 +171,14 @@ public class ShoppingItem implements Bson, WithId {
 
 	public ItemState getState() {
 		return state;
+	}
+	
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
 	}
 	
 	@Override
@@ -176,6 +207,8 @@ public class ShoppingItem implements Bson, WithId {
 			.add("id", id).add("name", name)
 			.add("quantity", quantity)
 			.add("state", state)
+			.add("created", creationDate)
+			.add("lastUpdate", lastUpdate)
 			.toString();
 	}
 
