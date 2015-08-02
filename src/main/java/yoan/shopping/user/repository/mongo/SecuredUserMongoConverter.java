@@ -96,7 +96,7 @@ public class SecuredUserMongoConverter extends MongoDocumentConverter<SecuredUse
 	@Override
 	public SecuredUser generateIdIfAbsentFromDocument(SecuredUser securedUser) {
 		User user = User.Builder.createFrom(securedUser).withRandomId().build();
-		return documentHasId(securedUser) ? SecuredUser.Builder.createFrom(user)
+		return !documentHasId(securedUser) ? SecuredUser.Builder.createFrom(user)
 																.withPassword(securedUser.getPassword())
 																.withSalt(securedUser.getSalt())
 																.build() 
