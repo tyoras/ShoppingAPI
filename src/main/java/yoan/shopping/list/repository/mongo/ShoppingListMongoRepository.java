@@ -4,9 +4,10 @@
 package yoan.shopping.list.repository.mongo;
 
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_CREATION_LIST;
+import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_DELETE_LIST;
+import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_READ_LIST;
+import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_READ_USER_LISTS;
 import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_UPDATE_LIST;
 import static yoan.shopping.list.repository.mongo.ShoppingListMongoConverter.FIELD_OWNER_ID;
 
@@ -17,12 +18,6 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-import yoan.shopping.infra.util.error.ApplicationException;
-import yoan.shopping.list.ShoppingList;
-import yoan.shopping.list.repository.ShoppingListRepository;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -30,6 +25,12 @@ import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
+import yoan.shopping.list.ShoppingList;
+import yoan.shopping.list.repository.ShoppingListRepository;
 
 /**
  * Mongo implementation of the shopping list repository
@@ -55,16 +56,20 @@ public class ShoppingListMongoRepository extends ShoppingListRepository {
 		try {
 			listCollection.insertOne(listToCreate);
 		} catch(MongoException e) {
-			String message = PROBLEM_CREATION_LIST.getDevReadableMessage(e.getMessage());
-			LOGGER.error(message, e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_CREATION_LIST);
 		}
 	}
 
 	@Override
 	protected ShoppingList processGetById(UUID listId) {
 		Bson filter = Filters.eq(FIELD_ID, listId);
-		return listCollection.find().filter(filter).first();
+		ShoppingList foundList = null;
+		try {
+			foundList = listCollection.find().filter(filter).first();
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_LIST);
+		}
+		return foundList;
 	}
 
 	@Override
@@ -74,24 +79,29 @@ public class ShoppingListMongoRepository extends ShoppingListRepository {
 		try {
 			listCollection.updateOne(filter, update);
 		} catch(MongoException e) {
-			String message = PROBLEM_UPDATE_LIST.getDevReadableMessage(e.getMessage());
-			LOGGER.error(message, e);
-			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, e);
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_UPDATE_LIST);
 		}
 	}
 
 	@Override
 	protected void processDeleteById(UUID listId) {
 		Bson filter = Filters.eq(FIELD_ID, listId);
-		listCollection.deleteOne(filter);
+		try {
+			listCollection.deleteOne(filter);
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_DELETE_LIST);
+		}
 	}
 
 	@Override
 	protected ImmutableList<ShoppingList> processGetByOwner(UUID ownerId) {
 		Bson filter = Filters.eq(FIELD_OWNER_ID, ownerId);
 		List<ShoppingList> lists = Lists.newArrayList();
-		lists = listCollection.find().filter(filter).into(lists);
-		
+		try {
+			lists = listCollection.find().filter(filter).into(lists);
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_USER_LISTS);
+		}
 		return ImmutableList.<ShoppingList>copyOf(lists);
 	}
 
