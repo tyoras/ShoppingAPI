@@ -61,10 +61,10 @@ public class ShoppingListResource extends RestAPI {
 	private final ShoppingListRepository listRepo;
 	
 	@Inject
-	public ShoppingListResource(@Named(CONNECTED_USER) User connectedUser, ShoppingListRepository userRepo) {
+	public ShoppingListResource(@Named(CONNECTED_USER) User connectedUser, ShoppingListRepository listRepo) {
 		super();
 		this.connectedUser = requireNonNull(connectedUser);
-		this.listRepo = Objects.requireNonNull(userRepo);
+		this.listRepo = Objects.requireNonNull(listRepo);
 	}
 	
 	@GET
