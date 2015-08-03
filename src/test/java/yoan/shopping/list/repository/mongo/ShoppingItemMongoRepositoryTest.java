@@ -22,13 +22,13 @@ import com.mongodb.client.model.Filters;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.list.ShoppingItem;
 import yoan.shopping.list.ShoppingList;
-import yoan.shopping.test.LocalMongoBackedTest;
 import yoan.shopping.test.TestHelper;
+import yoan.shopping.test.fongo.FongoBackedTest;
 
-public class ShoppingItemMongoRepositoryTest extends LocalMongoBackedTest {
+public class ShoppingItemMongoRepositoryTest extends FongoBackedTest {
 	
 	private final ShoppingListMongoConverter listConverter = new ShoppingListMongoConverter();
-	private final MongoCollection<Document> listCollection = getMongoDbConnectionFactory().getCollection(SHOPPING, LIST_COLLECTION);
+	private final MongoCollection<Document> listCollection = getFongoDbConnectionFactory().getCollection(SHOPPING, LIST_COLLECTION);
 	
 	@InjectMocks
 	ShoppingListMongoRepository listRepo;
