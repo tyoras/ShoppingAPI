@@ -78,9 +78,7 @@ public class ShoppingItemRepresentation {
 		ShoppingItem.Builder itemBuilder = ShoppingItem.Builder.createDefault()
 						   .withName(representation.name)
 						   .withQuantity(representation.quantity)
-						   .withState(ItemState.of(representation.state))
-						   .withCreationDate(representation.creationDate)
-						   .withLastUpdate(representation.lastUpdate);
+						   .withState(ItemState.of(representation.state));
 		//if no ID provided, we let the default one
 		if (representation.id != null) {
 			itemBuilder.withId(representation.id);
@@ -147,6 +145,24 @@ public class ShoppingItemRepresentation {
 	public void setState(String state) {
 		this.state = state;
 	}
+	
+	@XmlElement(name = "creationDate")
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(LocalDateTime creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	@XmlElement(name = "lastUpdate")
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(LocalDateTime lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
 
 	@Override
 	public int hashCode() {
@@ -174,6 +190,8 @@ public class ShoppingItemRepresentation {
 											   .add("name", name)
 											   .add("quantity", quantity)
 											   .add("state", state)
+											   .add("created", creationDate)
+											   .add("lastUpdate", lastUpdate)
 											   .toString();
 	}
 }

@@ -5,6 +5,7 @@ package yoan.shopping.root.resource;
 
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.root.RootKey.ITEM;
 import static yoan.shopping.root.RootKey.LIST;
 import static yoan.shopping.root.RootKey.USER;
 
@@ -70,6 +71,7 @@ public class RootResource extends RestAPI {
 		
 		links.add(USER.getlink(getUriInfo()));
 		links.add(LIST.getlink(getUriInfo()));
+		links.add(ITEM.getlink(getUriInfo(), "{listId}"));
 		
 		return links;
 	}
