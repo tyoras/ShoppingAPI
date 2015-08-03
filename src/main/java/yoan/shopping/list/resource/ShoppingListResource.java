@@ -9,7 +9,8 @@ import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.ALREADY_EXISTING_LIST;
-import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.*;
+import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.LISTS_NOT_FOUND;
+import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.LIST_NOT_FOUND;
 import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.MISSING_LIST_ID_FOR_UPDATE;
 
 import java.net.URI;
@@ -61,10 +62,10 @@ public class ShoppingListResource extends RestAPI {
 	private final ShoppingListRepository listRepo;
 	
 	@Inject
-	public ShoppingListResource(@Named(CONNECTED_USER) User connectedUser, ShoppingListRepository userRepo) {
+	public ShoppingListResource(@Named(CONNECTED_USER) User connectedUser, ShoppingListRepository listRepo) {
 		super();
 		this.connectedUser = requireNonNull(connectedUser);
-		this.listRepo = Objects.requireNonNull(userRepo);
+		this.listRepo = Objects.requireNonNull(listRepo);
 	}
 	
 	@GET
@@ -150,10 +151,7 @@ public class ShoppingListResource extends RestAPI {
 		@ApiResponse(code = 404, message = "List not found") })
 	public Response update(@ApiParam(value = "List to update", required = true) ShoppingListRepresentation listToUpdate) {
 		ShoppingList updatedList = ShoppingListRepresentation.toShoppingList(listToUpdate);
-		//if the Id was not provided we generate one
-		if (updatedList.getId().equals(ShoppingList.DEFAULT_ID)) {
-			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_LIST_ID_FOR_UPDATE);
-		}
+		ensureListIdProvidedForUpdate(updatedList.getId());
 		listRepo.update(updatedList);
 
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -196,11 +194,17 @@ public class ShoppingListResource extends RestAPI {
 		return foundLists;
 	}
 	
-	private void ensureShoppingListNotExists(UUID userId) {
-		ShoppingList foundShoppingList = listRepo.getById(userId);
+	private void ensureShoppingListNotExists(UUID listId) {
+		ShoppingList foundShoppingList = listRepo.getById(listId);
 		
 		if (foundShoppingList != null) {
-			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_LIST.getDevReadableMessage(userId));
+			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_LIST.getDevReadableMessage(listId));
+		}
+	}
+	
+	private void ensureListIdProvidedForUpdate(UUID listId) {
+		if (listId.equals(ShoppingList.DEFAULT_ID)) {
+			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_LIST_ID_FOR_UPDATE);
 		}
 	}
 }
