@@ -17,7 +17,7 @@ public enum ShoppingListResourceErrorMessage implements ErrorMessage {
 	/** List Id is a mandatory field to update a list */
 	MISSING_LIST_ID_FOR_UPDATE("List Id is a mandatory field to update an list"),
 	/** List with Id : %s aready exists */
-	ALREADY_EXISTING_LIST("List with Id : %s aready exists");
+	ALREADY_EXISTING_LIST("List with Id : %s already exists");
 
 	private String message;
 	
