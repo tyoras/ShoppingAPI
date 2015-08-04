@@ -2,6 +2,7 @@ package yoan.shopping.list.repository;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static yoan.shopping.infra.rest.error.Level.INFO;
@@ -19,6 +20,7 @@ import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.CommonErrorMessage;
 import yoan.shopping.list.ShoppingList;
 import yoan.shopping.list.repository.fake.ShoppingListFakeRepository;
+import yoan.shopping.test.TestHelper;
 
 import com.google.common.collect.ImmutableList;
 
@@ -107,5 +109,34 @@ public class ShoppingListRepositoryTest {
 		
 		//then
 		verify(testedRepo, never()).processDeleteById(any());
+	}
+	
+	@Test(expected = ApplicationException.class)
+	public void findList_should_fail_with_not_existing_list() {
+		//given
+		UUID notExistingShoppingListId = UUID.randomUUID();
+		String expectedErrorMessage = CommonErrorMessage.NOT_FOUND.getDevReadableMessage("List");
+
+		//when
+		try {
+			testedRepo.findList(notExistingShoppingListId);
+		} catch (ApplicationException ae) {
+		//then
+			assertApplicationException(ae, INFO, NOT_FOUND, expectedErrorMessage);
+			throw ae;
+		}
+	}
+	
+	@Test
+	public void findList_should_work_with_existing_list() {
+		//given
+		ShoppingList existingList = TestHelper.generateRandomShoppingList();
+		doReturn(existingList).when(testedRepo).getById(existingList.getId());
+
+		//when
+		ShoppingList result = testedRepo.findList(existingList.getId());
+		
+		//then
+		assertThat(result).isEqualTo(existingList);
 	}
 }

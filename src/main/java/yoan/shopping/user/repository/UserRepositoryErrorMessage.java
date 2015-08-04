@@ -12,10 +12,14 @@ import yoan.shopping.infra.util.error.ErrorMessage;
  * @author yoan
  */
 public enum UserRepositoryErrorMessage implements ErrorMessage {
+	/** Error while reading user : %s */
+	PROBLEM_READ_USER("Error while reading user : %s"),
 	/** Error while creating user : %s */
 	PROBLEM_CREATION_USER("Error while creating user : %s"),
 	/** Error while updating user : %s */
 	PROBLEM_UPDATE_USER("Error while updating user : %s"),
+	/** Error while deleting user : %s */
+	PROBLEM_DELETE_USER("Error while deleting user : %s"),
 	/** Password does not comply to the minimum security level */
 	PROBLEM_PASSWORD_VALIDITY("Password does not comply to the minimum security level")
 	/** Unable to convert unsecure user : %s */,

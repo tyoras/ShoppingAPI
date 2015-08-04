@@ -101,7 +101,7 @@ public abstract class ShoppingListRepository {
 	 * Get a list by its Id and fail if it does not exist
 	 * @param listId
 	 * @return found list
-	 * @throws ApplicationException if user not found
+	 * @throws ApplicationException if list not found
 	 */
 	public final ShoppingList findList(UUID listId) {
 		ShoppingList foundList = getById(listId);

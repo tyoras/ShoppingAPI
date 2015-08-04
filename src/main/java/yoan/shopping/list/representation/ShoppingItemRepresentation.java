@@ -6,6 +6,7 @@ import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,10 @@ public class ShoppingItemRepresentation {
 	private int quantity;
 	/** Current item state */
 	private String state;
+	/** Item creation date */
+	private LocalDateTime creationDate;
+	/** Last time the item was updated */
+	private LocalDateTime lastUpdate;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingItemRepresentation.class);
 	
@@ -47,11 +52,13 @@ public class ShoppingItemRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public ShoppingItemRepresentation(UUID id, String name, int quantity, String state) {
+	public ShoppingItemRepresentation(UUID id, String name, int quantity, String state, LocalDateTime creationDate, LocalDateTime lastUpdate) {
 		this.id = id;
 		this.name = name;
 		this.quantity = quantity;
 		this.state = state;
+		this.creationDate = creationDate;
+		this.lastUpdate = lastUpdate;
 	}
 	
 	public ShoppingItemRepresentation(ShoppingItem item) {
@@ -61,6 +68,8 @@ public class ShoppingItemRepresentation {
 		this.name = item.getName();
 		this.quantity = item.getQuantity();
 		this.state = item.getState().name();
+		this.creationDate = item.getCreationDate();
+		this.lastUpdate = item.getLastUpdate();
 	}
 	
 	public static ShoppingItem toShoppingItem(ShoppingItemRepresentation representation) {
@@ -136,6 +145,24 @@ public class ShoppingItemRepresentation {
 	public void setState(String state) {
 		this.state = state;
 	}
+	
+	@XmlElement(name = "creationDate")
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(LocalDateTime creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	@XmlElement(name = "lastUpdate")
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(LocalDateTime lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
 
 	@Override
 	public int hashCode() {
@@ -163,6 +190,8 @@ public class ShoppingItemRepresentation {
 											   .add("name", name)
 											   .add("quantity", quantity)
 											   .add("state", state)
+											   .add("created", creationDate)
+											   .add("lastUpdate", lastUpdate)
 											   .toString();
 	}
 }

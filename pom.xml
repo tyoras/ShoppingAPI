@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>Shopping</groupId>
 	<artifactId>api</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<name>Shopping API</name>
 	<packaging>war</packaging>
 	<description>Shopping app core module</description>
@@ -153,6 +153,11 @@
 			<artifactId>fongo</artifactId>
 			<version>2.0.1</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>de.flapdoodle.embed</groupId>
+		    <artifactId>de.flapdoodle.embed.mongo</artifactId>
+		    <version>1.48.2</version>
 		</dependency>
 	</dependencies>
 

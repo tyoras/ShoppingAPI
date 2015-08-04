@@ -6,6 +6,7 @@ import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class ShoppingItemRepresentationTest {
 	public void toShoppingItem_should_fail_with_invalid_Representation() {
 		//given
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation invalidShoppingItemRepresentation = new ShoppingItemRepresentation(UUID.randomUUID(), " ", 0, " ");
+		ShoppingItemRepresentation invalidShoppingItemRepresentation = new ShoppingItemRepresentation(UUID.randomUUID(), " ", 0, " ", LocalDateTime.now(), LocalDateTime.now());
 		String expectedMessage = INVALID.getDevReadableMessage("item") + " : Invalid item name";
 		
 		//when
@@ -62,7 +63,7 @@ public class ShoppingItemRepresentationTest {
 	public void toShoppingItem_should_fail_with_unknow_item_state() {
 		//given
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation invalidShoppingItemRepresentation = new ShoppingItemRepresentation(UUID.randomUUID(), "name", 0, "unknown");
+		ShoppingItemRepresentation invalidShoppingItemRepresentation = new ShoppingItemRepresentation(UUID.randomUUID(), "name", 0, "unknown", LocalDateTime.now(), LocalDateTime.now());
 		String expectedMessage = INVALID.getDevReadableMessage("item") + " : Invalid item state";
 		
 		//when
@@ -80,7 +81,7 @@ public class ShoppingItemRepresentationTest {
 		//given
 		ShoppingItem expectedShoppingItem = TestHelper.generateRandomShoppingItem();
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation validShoppingItemRepresentation = new ShoppingItemRepresentation(expectedShoppingItem.getId(), expectedShoppingItem.getName(), expectedShoppingItem.getQuantity(),  expectedShoppingItem.getState().name());
+		ShoppingItemRepresentation validShoppingItemRepresentation = new ShoppingItemRepresentation(expectedShoppingItem.getId(), expectedShoppingItem.getName(), expectedShoppingItem.getQuantity(),  expectedShoppingItem.getState().name(), expectedShoppingItem.getCreationDate(), expectedShoppingItem.getLastUpdate());
 		
 		//when
 		ShoppingItem result = ShoppingItemRepresentation.toShoppingItem(validShoppingItemRepresentation);

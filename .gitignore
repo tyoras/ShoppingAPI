@@ -31,3 +31,7 @@ local.properties
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+
+# Small handy test Class
+src/main/java/yoan/shopping/TestMain.java
+

@@ -31,6 +31,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
+
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.RestRepresentation;
@@ -42,15 +51,6 @@ import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.representation.SecuredUserRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
 /**
  * User API
@@ -143,10 +143,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response update(@ApiParam(value = "User to update", required = true) UserRepresentation userToUpdate) {
 		User updatedUser = UserRepresentation.toUser(userToUpdate);
-		//if the Id was not provided we generate one
-		if (updatedUser.getId().equals(User.DEFAULT_ID)) {
-			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
-		}
+		ensureUserIdProvidedForUpdate(updatedUser.getId());
 		userRepo.update(updatedUser);
 
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -212,6 +209,12 @@ public class UserResource extends RestAPI {
 				throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, ae.getMessage());
 			}
 			throw ae;
+		}
+	}
+	
+	private void ensureUserIdProvidedForUpdate(UUID userId) {
+		if (userId.equals(User.DEFAULT_ID)) {
+			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
 		}
 	}
 }

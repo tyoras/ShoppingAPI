@@ -21,6 +21,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.mockito.Mockito;
+
 import yoan.shopping.infra.rest.error.ErrorRepresentation;
 import yoan.shopping.infra.rest.error.Level;
 import yoan.shopping.infra.rest.error.WebApiException;
@@ -85,6 +87,7 @@ public class TestHelper {
 		when(uriBuilder.path(any(Class.class), anyString())).thenReturn(uriBuilder);
 		when(uriBuilder.build()).thenReturn(URI.create(expectedURL));
 		when(uriBuilder.build(anyVararg())).thenReturn(URI.create(expectedURL));
+		when(uriBuilder.build(anyVararg(), Mockito.eq(false))).thenReturn(URI.create(expectedURL));
 		UriInfo mockedUriInfo = mock(UriInfo.class);
 		when(mockedUriInfo.getAbsolutePath()).thenReturn(URI.create(expectedURL));
 		when(mockedUriInfo.getBaseUriBuilder()).thenReturn(uriBuilder);

@@ -1,11 +1,14 @@
 package yoan.shopping.list.repository.mongo;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 import org.bson.Document;
 import org.bson.codecs.Codec;
 
 import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
+import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.list.ItemState;
 import yoan.shopping.list.ShoppingItem;
 
@@ -17,6 +20,8 @@ public class ShoppingItemMongoConverter extends MongoDocumentConverter<ShoppingI
     public static final String FIELD_NAME = "name";
     public static final String FIELD_QUANTITY = "quantity";
     public static final String FIELD_STATE = "state";
+    public static final String FIELD_CREATED = "created";
+    public static final String FIELD_LAST_UPDATE = "lastUpdate";
 	
     public ShoppingItemMongoConverter() {
 		super();
@@ -37,12 +42,18 @@ public class ShoppingItemMongoConverter extends MongoDocumentConverter<ShoppingI
         int quantity = doc.getInteger(FIELD_QUANTITY);
         String stateCode = doc.getString(FIELD_STATE);
         ItemState state = ItemState.of(stateCode);
+        Date created = doc.getDate(FIELD_CREATED);
+        LocalDateTime creationDate = DateHelper.toLocalDateTime(created);
+        Date lastUpdated = doc.getDate(FIELD_LAST_UPDATE);
+        LocalDateTime lastUpdate = DateHelper.toLocalDateTime(lastUpdated);
         
         return ShoppingItem.Builder.createDefault()
         				   .withId(id)
         				   .withName(name)
         				   .withQuantity(quantity)
         				   .withState(state)
+        				   .withCreationDate(creationDate)
+        				   .withLastUpdate(lastUpdate)
         				   .build();
 	}
 
@@ -55,7 +66,9 @@ public class ShoppingItemMongoConverter extends MongoDocumentConverter<ShoppingI
 		return new Document(FIELD_ID, item.getId())
 				.append(FIELD_NAME, item.getName())
 				.append(FIELD_QUANTITY, item.getQuantity())
-				.append(FIELD_STATE, item.getState().name());
+				.append(FIELD_STATE, item.getState().name())
+				.append(FIELD_CREATED, DateHelper.toDate(item.getCreationDate()))
+				.append(FIELD_LAST_UPDATE, DateHelper.toDate(item.getLastUpdate()));
 	}
 	
 	@Override
@@ -66,5 +79,12 @@ public class ShoppingItemMongoConverter extends MongoDocumentConverter<ShoppingI
 	@Override
 	public ShoppingItem generateIdIfAbsentFromDocument(ShoppingItem item) {
 		return documentHasId(item) ? item : ShoppingItem.Builder.createFrom(item).withRandomId().build();
+	}
+	
+	public Document getItemUpdate(ShoppingItem itemToUpdate) {
+		return new Document(FIELD_LAST_UPDATE, DateHelper.toDate(itemToUpdate.getLastUpdate()))
+									.append(FIELD_QUANTITY, itemToUpdate.getQuantity())
+									.append(FIELD_NAME, itemToUpdate.getName())
+									.append(FIELD_STATE, itemToUpdate.getState().name());
 	}
 }

@@ -20,10 +20,10 @@ import com.mongodb.DB;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class FongoBackedTest {
 	private static final Fongo FONGO = new Fongo("unit test server");
-	private final FongoDbConnectionFactory connectionFactory = new FongoDbConnectionFactory(FONGO);
+	private final FongoDbConnectionFactory fongoConnectionFactory = new FongoDbConnectionFactory(FONGO);
 	
 	@Spy
-	protected MongoDbConnectionFactory ConnectionFactory = getFongoDbConnectionFactory();
+	protected MongoDbConnectionFactory connectionFactory = getFongoDbConnectionFactory();
 	
 	@After
     public void afterTest() {
@@ -33,6 +33,6 @@ public abstract class FongoBackedTest {
     }
 	
 	protected FongoDbConnectionFactory getFongoDbConnectionFactory() {
-		return connectionFactory;
+		return fongoConnectionFactory;
 	}
 }

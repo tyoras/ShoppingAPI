@@ -13,6 +13,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.StringUtils;
 
 import yoan.shopping.infra.rest.Link;
+import yoan.shopping.list.resource.ShoppingItemResource;
 import yoan.shopping.list.resource.ShoppingListResource;
 import yoan.shopping.user.resource.UserResource;
 
@@ -21,6 +22,7 @@ import yoan.shopping.user.resource.UserResource;
  * @author yoan
  */
 public enum RootKey {
+	ITEM("item", ShoppingItemResource.class), 
 	LIST("list", ShoppingListResource.class),
 	USER("user", UserResource.class);
 	
@@ -45,6 +47,13 @@ public enum RootKey {
 		URI apiURI = uriInfo.getBaseUriBuilder()
 				.path(resourceClass)
 				.build();
+		return new Link(key, apiURI);
+	}
+	
+	public Link getlink(UriInfo uriInfo, String... pathParams) {
+		URI apiURI = uriInfo.getBaseUriBuilder()
+				.path(resourceClass)
+				.build(pathParams, false);
 		return new Link(key, apiURI);
 	}
 }
