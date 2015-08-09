@@ -116,6 +116,21 @@
 			<artifactId>shiro-guice</artifactId>
 			<version>${shiro-version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.common</artifactId>
+            <version>${oltu-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
+            <version>${oltu-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
+            <version>${oltu-version}</version>
+        </dependency>
 
 		<!-- Unit Test -->
 		<dependency>
@@ -253,6 +268,7 @@
 		<shiro-version>1.2.3</shiro-version>
 		<resteasy-version>3.0.11.Final</resteasy-version>
 		<swagger-ui-version>2.1.1-M2</swagger-ui-version>
+		<oltu-version>1.0.0</oltu-version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 	</properties>
 </project>
