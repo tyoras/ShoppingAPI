@@ -1,4 +1,4 @@
-package yoan.shopping.authentication.repository;
+package yoan.shopping.client.app.repository;
 
 /**
  * Client application repository
