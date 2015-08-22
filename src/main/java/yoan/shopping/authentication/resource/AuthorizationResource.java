@@ -5,12 +5,14 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.FOUND;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.INVALID_REDIRECT_URI;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.MISSING_REDIRECT_URI;
+import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.UNKNOWN_CLIENT;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.WARNING;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +40,10 @@ import com.wordnik.swagger.annotations.ApiResponses;
 
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
+import yoan.shopping.client.app.ClientApp;
+import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
+import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.user.User;
 
 /**
@@ -53,12 +58,14 @@ public class AuthorizationResource {
 	private final User authenticatedUser;
 	private final OAuth2AuthorizationCodeRepository authzCodeRepository;
 	private final OAuth2AccessTokenRepository accessTokenRepository;
+	private final ClientAppRepository clientAppRepository;
 	
 	@Inject
-	public AuthorizationResource(@Named(CONNECTED_USER) User authenticatedUser, OAuth2AuthorizationCodeRepository authzCodeRepository, OAuth2AccessTokenRepository accessTokenRepository) {
+	public AuthorizationResource(@Named(CONNECTED_USER) User authenticatedUser, OAuth2AuthorizationCodeRepository authzCodeRepository, OAuth2AccessTokenRepository accessTokenRepository, ClientAppRepository clientAppRepository) {
 		this.authenticatedUser = requireNonNull(authenticatedUser);
 		this.authzCodeRepository = requireNonNull(authzCodeRepository);
 		this.accessTokenRepository = requireNonNull(accessTokenRepository);
+		this.clientAppRepository = requireNonNull(clientAppRepository);
 	}
 	
 	@GET
@@ -77,7 +84,8 @@ public class AuthorizationResource {
 
 	protected OAuthResponse handleOauthRequest(HttpServletRequest request, OAuthAuthzRequest oauthRequest) throws OAuthSystemException {
 		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
-		//TODO check if client id is valid
+		
+		ensureClientExists(oauthRequest);
 		
 		//build response according to response_type
 		OAuthASResponse.OAuthAuthorizationResponseBuilder oAuthResponseBuilder = OAuthASResponse.authorizationResponse(request, FOUND.getStatusCode());
@@ -101,6 +109,14 @@ public class AuthorizationResource {
 		oAuthResponseBuilder.location(redirectURI);
 		
 		return oAuthResponseBuilder.buildQueryMessage();
+	}
+
+	private void ensureClientExists(OAuthAuthzRequest oauthRequest) {
+		UUID clientId = ResourceUtil.getIdfromParam("clientId", oauthRequest.getClientId());
+		ClientApp clientApp = clientAppRepository.getById(clientId);
+		if (clientApp == null) {
+			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, UNKNOWN_CLIENT.getDevReadableMessage(clientId.toString()));
+		}
 	}
 
 	private static ResponseType extractResponseType(OAuthAuthzRequest oauthRequest) {

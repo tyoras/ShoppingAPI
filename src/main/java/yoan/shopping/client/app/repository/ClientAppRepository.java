@@ -64,20 +64,20 @@ public abstract class ClientAppRepository {
 		return UUID.randomUUID().toString();
 	}
 	
-	protected void ensureSecretValidity(String password) {
-		if (!checkSecretValidity(password)) {
+	protected void ensureSecretValidity(String secret) {
+		if (!checkSecretValidity(secret)) {
 			String message = PROBLEM_SECRET_VALIDITY.getDevReadableMessage();
 			LOGGER.error(message);
 			throw new ApplicationException(ERROR, UNSECURE_SECRET, message);
 		}
 	}
 	
-	protected boolean checkSecretValidity(String password) {
-		return StringUtils.isNotBlank(password);
+	protected boolean checkSecretValidity(String secret) {
+		return StringUtils.isNotBlank(secret);
 	}
 	
-	public String hashSecret(String password, Object salt) {
-		return new Sha256Hash(password, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
+	public String hashSecret(String secret, Object salt) {
+		return new Sha256Hash(secret, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
 	}
 	
 	/**

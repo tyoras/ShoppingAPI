@@ -10,10 +10,16 @@ import yoan.shopping.infra.util.error.ErrorMessage;
  * @author yoan
  */
 public enum OAuthResourceErrorMessage implements ErrorMessage {
+	/** Grant type %s is not implemented */
+	GRANT_TYPE_NOT_IMPLEMENTED("Grant type %s is not implemented"),
+	/** Invalid secret for client with id %s */
+	INVALID_CLIENT_SECRET("Invalid secret for client with id %s"),
 	/** Invalid OAuth callback URL provided by client : %s */
 	INVALID_REDIRECT_URI("Invalid OAuth callback URL provided by client : %s"),
 	/** OAuth callback url needs to be provided by client! */
-	MISSING_REDIRECT_URI("OAuth callback URL needs to be provided by client!");
+	MISSING_REDIRECT_URI("OAuth callback URL needs to be provided by client!"),
+	/** Client with id %s is unknown */
+	UNKNOWN_CLIENT("Client with id %s is unknown");
 	
 	private String message;
 	
