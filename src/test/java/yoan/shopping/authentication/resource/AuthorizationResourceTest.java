@@ -154,7 +154,7 @@ public class AuthorizationResourceTest {
 		//given
 		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		String invalidClientId = "not uuid";
-		String expectedMessage = "Invalid Param named clientId : " + invalidClientId;
+		String expectedMessage = "Invalid Param named client_id : " + invalidClientId;
 		HttpServletRequest invalidRequest = new OauthMockRequestBuilder()
 				.withRedirectUri(VALID_REDIRECT_URI)
 				.withHttpMethod(OAuth.HttpMethod.GET)

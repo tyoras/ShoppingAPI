@@ -27,6 +27,7 @@ import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.request.OAuthAuthzRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
+import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
@@ -112,7 +113,7 @@ public class AuthorizationResource {
 	}
 
 	private void ensureClientExists(OAuthAuthzRequest oauthRequest) {
-		UUID clientId = ResourceUtil.getIdfromParam("clientId", oauthRequest.getClientId());
+		UUID clientId = ResourceUtil.getIdfromParam("client_id", oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID));
 		ClientApp clientApp = clientAppRepository.getById(clientId);
 		if (clientApp == null) {
 			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, UNKNOWN_CLIENT.getDevReadableMessage(clientId.toString()));
