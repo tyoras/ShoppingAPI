@@ -39,17 +39,20 @@ public class ClientApp implements Bson, WithId {
 	private final UUID ownerId;
 	/** App creation date */
 	private final LocalDateTime creationDate;
+	/** Last time the app was updated */
+	private final LocalDateTime lastUpdate;
 	/** App secret */
 	private final String secret;
 	/** App secret hash salt */
 	private final Object salt;
 	
-	protected ClientApp(UUID id, String name, UUID ownerId, LocalDateTime creationDate, String secret, Object salt) {
+	protected ClientApp(UUID id, String name, UUID ownerId, LocalDateTime creationDate, LocalDateTime lastUpdate, String secret, Object salt) {
 		this.id = requireNonNull(id, "App Id is mandatory");
 		checkArgument(StringUtils.isNotBlank(name), "Invalid app name");
 		this.name = name;
 		this.ownerId = requireNonNull(ownerId, "App owner Id is mandatory");
 		this.creationDate = requireNonNull(creationDate, "Creation date is mandatory");
+		this.lastUpdate = requireNonNull(lastUpdate, "Last update date is mandatory");
 		checkArgument(StringUtils.isNotBlank(secret), "Invalid app secret");
 		this.secret = secret;
 		this.salt = requireNonNull(salt, "The app secret hash salt is mandatory");
@@ -60,6 +63,7 @@ public class ClientApp implements Bson, WithId {
 		private String name = "Default app";
 		private UUID ownerId = User.DEFAULT_ID;
 		private LocalDateTime creationDate = LocalDateTime.now();
+		private LocalDateTime lastUpdate = LocalDateTime.now();
 		private String secret = "Default secret";
 		private Object salt = DEFAULT_SALT;
 		
@@ -87,6 +91,7 @@ public class ClientApp implements Bson, WithId {
             builder.name = otherBuilder.name;
             builder.ownerId = otherBuilder.ownerId;
             builder.creationDate = otherBuilder.creationDate;
+            builder.lastUpdate = otherBuilder.lastUpdate;
             builder.secret = otherBuilder.secret;
             builder.salt = otherBuilder.salt;
             
@@ -106,6 +111,7 @@ public class ClientApp implements Bson, WithId {
             builder.name = app.name;
             builder.ownerId = app.ownerId;
             builder.creationDate = app.creationDate;
+            builder.lastUpdate = app.lastUpdate;
             builder.secret = app.secret;
             builder.salt = app.salt;
             
@@ -114,7 +120,7 @@ public class ClientApp implements Bson, WithId {
         
 		@Override
 		public ClientApp build() {
-			return new ClientApp(id, name, ownerId, creationDate, secret, salt);
+			return new ClientApp(id, name, ownerId, creationDate, lastUpdate, secret, salt);
 		}
 		
 		public Builder withId(UUID id) {
@@ -147,6 +153,11 @@ public class ClientApp implements Bson, WithId {
             return this;
         }
         
+        public Builder withLastUpdate(LocalDateTime lastUpdate) {
+            this.lastUpdate = lastUpdate;
+            return this;
+        }
+        
         public Builder withSalt(Object salt) {
             this.salt = salt;
             return this;
@@ -173,6 +184,10 @@ public class ClientApp implements Bson, WithId {
 	
 	public LocalDateTime getCreationDate() {
 		return creationDate;
+	}
+	
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
 	}
 
 	public String getSecret() {
@@ -210,6 +225,7 @@ public class ClientApp implements Bson, WithId {
 			.add("id", id).add("name", name)
 			.add("ownerId", ownerId)
 			.add("created", creationDate)
+			.add("lastUpdate", lastUpdate)
 			.toString();
 	}
 	

@@ -7,11 +7,6 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-
-import yoan.shopping.list.ShoppingItem;
-import yoan.shopping.list.ShoppingList;
-
 public class ClientAppTest {
 	
 	@Test(expected = NullPointerException.class)
@@ -21,7 +16,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(nullId, "name", UUID.randomUUID(), LocalDateTime.now(), "Secret", UUID.randomUUID());
+			new ClientApp(nullId, "name", UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("App Id is mandatory");
@@ -36,7 +31,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), blankName, UUID.randomUUID(), LocalDateTime.now(), "Secret", UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), blankName, UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(IllegalArgumentException iae) {
 		//then
 			assertThat(iae.getMessage()).isEqualTo("Invalid app name");
@@ -51,7 +46,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), blankSecret, UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), blankSecret, UUID.randomUUID());
 		} catch(IllegalArgumentException iae) {
 		//then
 			assertThat(iae.getMessage()).isEqualTo("Invalid app secret");
@@ -66,7 +61,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), "Secret", nullSalt);
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "Secret", nullSalt);
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("The app secret hash salt is mandatory");
@@ -81,7 +76,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", nullId, LocalDateTime.now(), "Secret", UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), "name", nullId, LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("App owner Id is mandatory");
@@ -96,10 +91,25 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), nullDate, "Secret", UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), nullDate, LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("Creation date is mandatory");
+			throw npe;
+		}
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void clientApp_should_fail_without_last_update_date() {
+		//given
+		LocalDateTime nullDate = null;
+		
+		//when
+		try {
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), nullDate, "Secret", UUID.randomUUID());
+		} catch(NullPointerException npe) {
+		//then
+			assertThat(npe.getMessage()).isEqualTo("Last update date is mandatory");
 			throw npe;
 		}
 	}
