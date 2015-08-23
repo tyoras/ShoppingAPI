@@ -9,12 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.rs.response.OAuthRSResponse;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.WebUtils;
+import org.jboss.resteasy.spi.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,10 +106,11 @@ public class Oauth2AccessTokenAuthenticatingFilter extends AuthenticatingFilter 
 		try {
 			oauthResponse = OAuthRSResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
 								           .setRealm(APPLICATION_NAME)
+								           .setError(OAuthError.ResourceResponse.INVALID_TOKEN)
 								           .buildHeaderMessage();
 			 httpResponse.setHeader(AUTHENTICATE_HEADER, oauthResponse.getHeader(OAuth.HeaderType.WWW_AUTHENTICATE));
 		} catch (OAuthSystemException e) {
-			//ignore
+			throw new ApplicationException(e);
 		}
     }
 

@@ -7,6 +7,15 @@ import org.reflections.Reflections;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
+import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
+import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
+import yoan.shopping.authentication.repository.inmemory.OAuth2AccessTokenInMemoryRepository;
+import yoan.shopping.authentication.repository.inmemory.OAuth2AuthorizationCodeInMemoryRepository;
+import yoan.shopping.authentication.resource.AuthorizationResource;
+import yoan.shopping.authentication.resource.RedirectResource;
+import yoan.shopping.authentication.resource.TokenResource;
+import yoan.shopping.client.app.repository.ClientAppRepository;
+import yoan.shopping.client.app.repository.mongo.ClientAppMongoRepository;
 import yoan.shopping.infra.config.api.Config;
 import yoan.shopping.infra.config.api.repository.ConfigRepository;
 import yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesRepository;
@@ -48,6 +57,8 @@ public class ShoppingModule extends AbstractModule {
 		bind(UserResource.class);
 		bind(ShoppingListResource.class);
 		bind(ShoppingItemResource.class);
+		bind(AuthorizationResource.class);
+		bind(TokenResource.class);
 		
 		//providers
 		bind(GlobalExceptionMapper.class);
@@ -60,10 +71,27 @@ public class ShoppingModule extends AbstractModule {
 		bind(ConfigRepository.class).to(ConfigPropertiesRepository.class);
 		bind(ShoppingListRepository.class).to(ShoppingListMongoRepository.class);
 		bind(ShoppingItemRepository.class).to(ShoppingItemMongoRepository.class);
+		bind(ClientAppRepository.class).to(ClientAppMongoRepository.class);
+		
+		//TODO use mongo implementation for authz code and access token repos
+		bind(OAuth2AuthorizationCodeRepository.class).to(OAuth2AuthorizationCodeInMemoryRepository.class);
+		bind(OAuth2AccessTokenRepository.class).to(OAuth2AccessTokenInMemoryRepository.class);
+		
+		bindForLocalHostOnly();
 	}
 	
 	@Provides
 	BuildInfoRepository provideBuildInfoRepository() {
 		return new BuildInfoPropertiesRepository(BUILD_INFO_DEFAULT_PROPERTIES_FILE_NAME);
+	}
+	
+	/**
+	 * Binding only for development purpose
+	 */
+	private void bindForLocalHostOnly() {
+		String host = configAppli.getApiHost();
+		if ("localhost".equals(host) || "127.0.0.1".equals(host)) {
+			bind(RedirectResource.class);
+		}
 	}
 }
