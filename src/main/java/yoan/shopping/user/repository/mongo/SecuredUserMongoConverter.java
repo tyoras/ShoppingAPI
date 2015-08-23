@@ -43,6 +43,7 @@ public class SecuredUserMongoConverter extends MongoDocumentConverter<SecuredUse
 		userConverter = new UserMongoConverter(codec);
 	}
     
+    @Override
 	public SecuredUser fromDocument(Document doc) {
 		User user = userConverter.fromDocument(doc);
 		if (user == null) {
@@ -67,6 +68,7 @@ public class SecuredUserMongoConverter extends MongoDocumentConverter<SecuredUse
 		}
 	}
 
+	@Override
 	public Document toDocument(SecuredUser user) {
 		Document doc = userConverter.toDocument(user);
 		if (doc.isEmpty()) {

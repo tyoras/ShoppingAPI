@@ -78,6 +78,5 @@ public class UserRealmTest {
 			assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, "Invalid Param named user id : invalid user name");
 			throw wae;
 		}
-		
 	}
 }

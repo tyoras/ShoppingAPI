@@ -35,7 +35,6 @@ public class UserRealm extends AuthenticatingRealm {
 	
 	private final SecuredUserRepository userRepository;
 	
-	
 	@Inject
 	public UserRealm(CacheManager cacheManager, @Named(SHA256) HashedCredentialsMatcher credentialsMatcher, SecuredUserRepository userRepository) {
 		super(requireNonNull(cacheManager), requireNonNull(credentialsMatcher));
