@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>Shopping</groupId>
 	<artifactId>api</artifactId>
-	<version>0.0.4</version>
+	<version>0.0.5</version>
 	<name>Shopping API</name>
 	<packaging>war</packaging>
 	<description>Shopping app core module</description>
@@ -45,10 +45,10 @@
 
 		<!-- Documentation -->
 		<dependency>
-			<groupId>com.wordnik</groupId>
+			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
 			<scope>compile</scope>
-			<version>1.5.1-M2</version>
+			<version>1.5.3</version>
 		</dependency>
 
 		<!-- JAX-RS -->
@@ -116,6 +116,21 @@
 			<artifactId>shiro-guice</artifactId>
 			<version>${shiro-version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.common</artifactId>
+            <version>${oltu-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
+            <version>${oltu-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
+            <version>${oltu-version}</version>
+        </dependency>
 
 		<!-- Unit Test -->
 		<dependency>
@@ -226,6 +241,8 @@
 							<filtering>true</filtering>
 							<excludes>
 								<exclude>index.html</exclude>
+								<!-- FIXME : temporary fix oauth2 without scope issue => do not upgrade swagger ui until it is fixed -->
+								<exclude>lib/swagger-oauth.js</exclude>
 							</excludes>
 						</resource>
 					</webResources>
@@ -250,9 +267,10 @@
 	<properties>
 		<logback-version>1.1.3</logback-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<shiro-version>1.2.3</shiro-version>
+		<shiro-version>1.2.4</shiro-version>
 		<resteasy-version>3.0.11.Final</resteasy-version>
-		<swagger-ui-version>2.1.1-M2</swagger-ui-version>
+		<swagger-ui-version>2.1.2</swagger-ui-version>
+		<oltu-version>1.0.0</oltu-version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 	</properties>
 </project>

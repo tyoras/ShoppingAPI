@@ -35,11 +35,11 @@ public class ShoppingItemMongoRepositoryTest extends FongoBackedTest {
 	ShoppingListMongoRepository listRepo;
 	
 	@Test
-	public void create_should_work() {
+	public void create_should_work() throws InterruptedException {
 		//given
 		ShoppingItemMongoRepository testedRepo = new ShoppingItemMongoRepository(connectionFactory, listRepo);
 		ShoppingList existingList = TestHelper.generateRandomShoppingList();
-		listRepo.create(existingList);
+		listRepo.create(existingList); Thread.sleep(1);
 		ShoppingItem expectedShoppingItem = TestHelper.generateRandomShoppingItem();
 
 		//when
@@ -211,11 +211,11 @@ public class ShoppingItemMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	public void deleteById_should_work_with_existing_item_id() {
+	public void deleteById_should_work_with_existing_item_id() throws InterruptedException {
 		//given
 		ShoppingItemMongoRepository testedRepo = new ShoppingItemMongoRepository(connectionFactory, listRepo);
 		ShoppingList existingList = TestHelper.generateRandomShoppingList();
-		listRepo.create(existingList);
+		listRepo.create(existingList);  Thread.sleep(1);
 		ShoppingItem existingShoppingItem = existingList.getItemList().get(0);
 
 		//when

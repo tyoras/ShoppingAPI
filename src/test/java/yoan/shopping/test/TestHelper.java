@@ -23,6 +23,9 @@ import javax.ws.rs.core.UriInfo;
 
 import org.mockito.Mockito;
 
+import com.google.common.collect.ImmutableList;
+
+import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.infra.rest.error.ErrorRepresentation;
 import yoan.shopping.infra.rest.error.Level;
 import yoan.shopping.infra.rest.error.WebApiException;
@@ -33,8 +36,6 @@ import yoan.shopping.list.ShoppingItem;
 import yoan.shopping.list.ShoppingList;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Unit test helper
@@ -130,6 +131,15 @@ public class TestHelper {
 								   .withName(generateRandomName())
 								   .withItemList(itemList)
 								   .withOwnerId(UUID.randomUUID())
+								   .build();
+	}
+	
+	public static ClientApp generateRandomClientApp() {
+		return ClientApp.Builder.createDefault()
+								   .withRandomId()
+								   .withName(generateRandomName())
+								   .withSecret(UUID.randomUUID().toString())
+								   .withSalt(UUID.randomUUID().toString())
 								   .build();
 	}
 	

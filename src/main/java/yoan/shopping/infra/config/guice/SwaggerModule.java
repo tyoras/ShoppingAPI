@@ -7,21 +7,25 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Set;
 
+import javax.servlet.ServletContext;
+
 import org.reflections.Reflections;
 
-import yoan.shopping.infra.config.api.Config;
-
 import com.google.inject.AbstractModule;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.config.ScannerFactory;
-import com.wordnik.swagger.jaxrs.config.ReflectiveJaxrsScanner;
-import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
-import com.wordnik.swagger.jaxrs.listing.SwaggerSerializers;
-import com.wordnik.swagger.models.Contact;
-import com.wordnik.swagger.models.Info;
-import com.wordnik.swagger.models.License;
-import com.wordnik.swagger.models.Scheme;
-import com.wordnik.swagger.models.Swagger;
+
+import io.swagger.annotations.Api;
+import io.swagger.config.ScannerFactory;
+import io.swagger.jaxrs.config.ReflectiveJaxrsScanner;
+import io.swagger.jaxrs.listing.ApiListingResource;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
+import io.swagger.models.Contact;
+import io.swagger.models.Info;
+import io.swagger.models.License;
+import io.swagger.models.Scheme;
+import io.swagger.models.Swagger;
+import io.swagger.models.auth.OAuth2Definition;
+import io.swagger.models.auth.SecuritySchemeDefinition;
+import yoan.shopping.infra.config.api.Config;
 
 /**
  * Guice Module to bootstrap swagger
@@ -29,10 +33,12 @@ import com.wordnik.swagger.models.Swagger;
  */
 public class SwaggerModule extends AbstractModule {
 
+	private final ServletContext servletContext;
 	private final Reflections reflections;
 	private final Config configAppli;
 
-	public SwaggerModule(Reflections reflections, Config configAppli) {
+	public SwaggerModule(ServletContext servletContext, Reflections reflections, Config configAppli) {
+		this.servletContext = requireNonNull(servletContext);
 		this.reflections = requireNonNull(reflections);
 		this.configAppli = requireNonNull(configAppli);
 	}
@@ -45,7 +51,7 @@ public class SwaggerModule extends AbstractModule {
 		Info info = new Info()
         .title("Shopping API")
         .description("API to manage and share a shopping list")
-        .version("0.0.1")
+        .version("0.0.5")
         .termsOfService("https://github.com/tyoras/ShoppingAPI")
         .contact(new Contact().email("tyoras@gmail.com"))
         .license(new License().name("No license for the moment").url("https://github.com/tyoras/ShoppingAPI"));
@@ -55,6 +61,16 @@ public class SwaggerModule extends AbstractModule {
 		scanner.setInfo(info);
 		scanner.setConfigAppli(configAppli);
 		ScannerFactory.setScanner(scanner);
+		
+		Swagger swagger = new Swagger();
+		String authorizationURL = "http://" + configAppli.getApiHost() + ":" + configAppli.getApiPort()+"/shopping/rest/auth/authorization";
+		String tokenURL = "http://" + configAppli.getApiHost() + ":" + configAppli.getApiPort()+"/shopping/rest/auth/token";
+		SecuritySchemeDefinition oauth2SecurityDefinition = new OAuth2Definition()
+			//.implicit(authorizationURL) //to get directly the token from the authz endpoint
+			.accessCode(authorizationURL, tokenURL);
+		
+		swagger.securityDefinition("oauth2", oauth2SecurityDefinition);
+		servletContext.setAttribute("swagger", swagger);
 	}
 
 	private static class MyReflectiveJaxrsScanner extends ReflectiveJaxrsScanner {

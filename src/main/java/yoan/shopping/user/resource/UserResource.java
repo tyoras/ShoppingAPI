@@ -34,12 +34,13 @@ import javax.ws.rs.core.UriBuilder;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.RestRepresentation;
@@ -57,7 +58,7 @@ import yoan.shopping.user.representation.UserRepresentation;
  * @author yoan
  */
 @Path("/api/user")
-@Api(value = "/user", description = "Operations on Users")
+@Api(value = "/user")
 @Produces({ "application/json", "application/xml" })
 public class UserResource extends RestAPI {
 	/** Currently connected user */
@@ -74,7 +75,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@GET
-	@ApiOperation(value = "Get user API root", notes = "This will can only be done by the logged in user.", response = UserRepresentation.class, position = 1)
+	@ApiOperation(value = "Get user API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
 	@Override
 	public Response root() {
@@ -101,7 +102,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create user", notes = "This will can only be done by the logged in user.", position = 2)
+	@ApiOperation(value = "Create user", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User"),
@@ -124,7 +125,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/{userId}")
-	@ApiOperation(value = "Get user by Id", notes = "This will can only be done by the logged in user.", response = UserRepresentation.class, position = 3)
+	@ApiOperation(value = "Get user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found user"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -136,7 +137,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", notes = "This will can only be done by the logged in user.", position = 4)
+	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "User updated"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -153,7 +154,7 @@ public class UserResource extends RestAPI {
 	
 	@PUT
 	@Path("/{userId}/password/{newPassword}")
-	@ApiOperation(value = "Change password", notes = "This will can only be done by the logged in user.", position = 5)
+	@ApiOperation(value = "Change password", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Password changed"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -171,7 +172,7 @@ public class UserResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{userId}")
-	@ApiOperation(value = "Delete user by Id", notes = "This will can only be done by the logged in user.", position = 6)
+	@ApiOperation(value = "Delete user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "User deleted"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),

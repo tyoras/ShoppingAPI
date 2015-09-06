@@ -13,6 +13,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter;
 import yoan.shopping.infra.config.api.Config;
 import yoan.shopping.infra.db.Dbs;
 import yoan.shopping.list.repository.mongo.ShoppingItemMongoConverter;
@@ -96,7 +97,8 @@ public class MongoDbConnectionFactory {
 		SecuredUserMongoConverter securedUserCodec = new SecuredUserMongoConverter(defaultDocumentCodec);
 		ShoppingListMongoConverter listCodec = new ShoppingListMongoConverter(defaultDocumentCodec);
 		ShoppingItemMongoConverter itemCodec = new ShoppingItemMongoConverter(defaultDocumentCodec);
+		ClientAppMongoConverter clientAppCodec = new ClientAppMongoConverter(defaultDocumentCodec);
 		
-		return CodecRegistries.fromCodecs(userCodec, securedUserCodec, listCodec, itemCodec);
+		return CodecRegistries.fromCodecs(userCodec, securedUserCodec, listCodec, itemCodec,clientAppCodec);
 	}
 }

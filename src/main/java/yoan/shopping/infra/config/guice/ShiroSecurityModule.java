@@ -12,9 +12,12 @@ import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.guice.web.ShiroWebModule;
 
-import yoan.shopping.authentication.realm.UserRealm;
-
+import com.google.inject.Key;
 import com.google.inject.name.Names;
+
+import yoan.shopping.authentication.realm.OAuth2AccessTokenRealm;
+import yoan.shopping.authentication.realm.UserRealm;
+import yoan.shopping.infra.config.filter.Oauth2AccessTokenAuthenticatingFilter;
 
 /**
  * Guice module to configure Shiro
@@ -24,6 +27,8 @@ public class ShiroSecurityModule extends ShiroWebModule {
 	public static final String NO_SECURITY = "NO_SECURITY";
 	public static final String SHA256 = "SHA-256";
 	public static final int NB_HASH_ITERATION = 2;
+	
+	private static final Key<Oauth2AccessTokenAuthenticatingFilter> OAUTH2 = Key.get(Oauth2AccessTokenAuthenticatingFilter.class);
 	
 	public ShiroSecurityModule(ServletContext servletContext) {
 		super(servletContext);
@@ -43,8 +48,11 @@ public class ShiroSecurityModule extends ShiroWebModule {
 		expose(HashedCredentialsMatcher.class).annotatedWith(Names.named(NO_SECURITY));
 		
 		bindRealm().to(UserRealm.class);
+		bindRealm().to(OAuth2AccessTokenRealm.class);
 		
-		addFilterChain("/rest/api/**", config(NO_SESSION_CREATION, "true"), AUTHC_BASIC);
+		//TODO ajouter SSL au début de la filter chain
+		addFilterChain("/rest/api/**", config(NO_SESSION_CREATION, "true"), OAUTH2);
+		addFilterChain("/rest/auth/**", config(NO_SESSION_CREATION, "true"), AUTHC_BASIC);
 	}
 	
 	private HashedCredentialsMatcher getHashedCredentialsMatcher(String algorithmName) {
@@ -57,6 +65,7 @@ public class ShiroSecurityModule extends ShiroWebModule {
 	 * /!\ local dev usage only /!\
 	 * Allow to use API without security
 	 */
+	@Deprecated
 	private HashedCredentialsMatcher getNoSecurityCredentialsMatcher() {
 		HashedCredentialsMatcher credentialMatcher = new HashedCredentialsMatcher(SHA256) {
 			@Override
