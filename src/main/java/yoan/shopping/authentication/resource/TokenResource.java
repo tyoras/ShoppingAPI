@@ -38,11 +38,13 @@ import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 
 import com.google.inject.name.Named;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
 import yoan.shopping.client.app.ClientApp;
@@ -52,7 +54,7 @@ import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.user.User;
 
 @Path("/auth/token")
-@Api(value = "/auth/token", description = "OAuth2 Token endpoint")
+@Api(value = "token")
 public class TokenResource {
 
 	/** Currently connected user */
@@ -75,6 +77,13 @@ public class TokenResource {
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces("application/json")
 	@ApiOperation(value = "Get Oauth2 access token", notes = "This will can only be done by an authenticated client")
+	@ApiImplicitParams({
+	    @ApiImplicitParam(name = "grant_type", value = "Grant type", required = true, dataType = "string", paramType = "form", allowableValues = "authorization_code, password, refresh_token, client_credentials"),
+	    @ApiImplicitParam(name = "redirect_uri", value = "Redirect URI", required = true, dataType = "string", paramType = "form"),
+	    @ApiImplicitParam(name = "client_id", value = "Client Id", required = false, dataType = "string", paramType = "form"),
+	    @ApiImplicitParam(name = "client_secret", value = "Client Secret", required = false, dataType = "string", paramType = "form"),
+	    @ApiImplicitParam(name = "code", value = "Authorization code", required = false, dataType = "string", paramType = "form")
+	  })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Response with access token in payload"), @ApiResponse(code = 401, message = "Not authenticated") })
 	public Response authorize(@Context HttpServletRequest request) throws OAuthSystemException {
 		try {

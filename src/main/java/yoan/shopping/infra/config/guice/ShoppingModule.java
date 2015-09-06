@@ -1,6 +1,9 @@
 package yoan.shopping.infra.config.guice;
 
+import static java.util.Objects.requireNonNull;
 import static yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository.BUILD_INFO_DEFAULT_PROPERTIES_FILE_NAME;
+
+import javax.servlet.ServletContext;
 
 import org.reflections.Reflections;
 
@@ -43,6 +46,12 @@ import yoan.shopping.user.resource.UserResource;
 public class ShoppingModule extends AbstractModule {
 	private static final Config configAppli;
 	
+	private final ServletContext servletContext;
+	
+	public ShoppingModule(ServletContext servletContext) {
+		this.servletContext = requireNonNull(servletContext);
+	}
+	
 	static {
 		ConfigRepository configRepo = new ConfigPropertiesRepository();
 		configAppli = configRepo.readConfig();
@@ -50,7 +59,7 @@ public class ShoppingModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {
-		install(new SwaggerModule(new Reflections("yoan.shopping"), configAppli));
+		install(new SwaggerModule(servletContext, new Reflections("yoan.shopping"), configAppli));
 		
 		//resources
 		bind(RootResource.class);

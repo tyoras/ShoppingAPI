@@ -30,12 +30,13 @@ import javax.ws.rs.core.UriBuilder;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.RestRepresentation;
@@ -51,7 +52,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api/list/{listId}/item")
-@Api(value = "item", description = "Operations on Shopping items")
+@Api(value = "item")
 @Produces({ "application/json", "application/xml" })
 public class ShoppingItemResource extends RestAPI {
 	/** Currently connected user */
@@ -67,7 +68,7 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@GET
-	@ApiOperation(value = "Get shopping item API root", notes = "This will can only be done by the logged in user.", response = RestRepresentation.class, position = 1)
+	@ApiOperation(value = "Get shopping item API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = RestRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
 	@Override
 	public Response root() {
@@ -92,7 +93,7 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create shopping item", notes = "This will can only be done by the logged in user.", position = 2)
+	@ApiOperation(value = "Create shopping item", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "Item created"),
 		@ApiResponse(code = 400, message = "Invalid item"),
@@ -117,7 +118,7 @@ public class ShoppingItemResource extends RestAPI {
 	
 	@GET
 	@Path("/{itemId}")
-	@ApiOperation(value = "Get shopping item by Id", notes = "This will can only be done by the logged in user.", response = ShoppingItemRepresentation.class, position = 3)
+	@ApiOperation(value = "Get shopping item by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingItemRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found item"),
 		@ApiResponse(code = 400, message = "Invalid item Id"),
@@ -131,7 +132,7 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", notes = "This will can only be done by the logged in user.", position = 5)
+	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Shopping item updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
@@ -150,7 +151,7 @@ public class ShoppingItemResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{itemId}")
-	@ApiOperation(value = "Delete item by Id", notes = "This will can only be done by the logged in user.", position = 6)
+	@ApiOperation(value = "Delete item by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Item deleted"),
 		@ApiResponse(code = 400, message = "Invalid item Id"),

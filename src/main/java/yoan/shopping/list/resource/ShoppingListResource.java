@@ -33,12 +33,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.RestRepresentation;
@@ -54,7 +55,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api/list")
-@Api(value = "/list", description = "Operations on Shopping lists")
+@Api(value = "/list")
 @Produces({ "application/json", "application/xml" })
 public class ShoppingListResource extends RestAPI {
 	/** Currently connected user */
@@ -69,7 +70,7 @@ public class ShoppingListResource extends RestAPI {
 	}
 	
 	@GET
-	@ApiOperation(value = "Get shopping list API root", notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class, position = 1)
+	@ApiOperation(value = "Get shopping list API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
 	@Override
 	public Response root() {
@@ -96,7 +97,7 @@ public class ShoppingListResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create shopping list", notes = "This will can only be done by the logged in user.", position = 2)
+	@ApiOperation(value = "Create shopping list", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "List created"),
 		@ApiResponse(code = 400, message = "Invalid list"),
@@ -118,7 +119,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@GET
 	@Path("/{listId}")
-	@ApiOperation(value = "Get shopping list by Id", notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class, position = 3)
+	@ApiOperation(value = "Get shopping list by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found list"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
@@ -131,7 +132,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@GET
 	@Path("/user/{ownerId}")
-	@ApiOperation(value = "Get shopping list by Id", notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class, position = 4)
+	@ApiOperation(value = "Get shopping list by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found lists"),
 		@ApiResponse(code = 400, message = "Invalid owner Id"),
@@ -144,7 +145,7 @@ public class ShoppingListResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", notes = "This will can only be done by the logged in user.", position = 5)
+	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Shopping list updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
@@ -161,7 +162,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{listId}")
-	@ApiOperation(value = "Delete list by Id", notes = "This will can only be done by the logged in user.", position = 6)
+	@ApiOperation(value = "Delete list by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "List deleted"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),

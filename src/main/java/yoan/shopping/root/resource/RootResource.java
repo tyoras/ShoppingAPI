@@ -19,11 +19,12 @@ import javax.ws.rs.core.Response;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.root.BuildInfo;
@@ -37,7 +38,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api")
-@Api(value = "/root", description = "API Root")
+@Api(value = "/root")
 @Produces({ "application/json", "application/xml" })
 public class RootResource extends RestAPI {
 	/** Currently connected user */
@@ -54,7 +55,7 @@ public class RootResource extends RestAPI {
 	
 	@GET
 	@Override
-	@ApiOperation(value = "Get API root", notes = "This will can only be done by the logged in user.", response = RootRepresentation.class, position = 1)
+	@ApiOperation(value = "Get API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = RootRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root") })
 	public Response root() {
 		List<Link> links = getRootLinks();

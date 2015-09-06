@@ -19,6 +19,6 @@ import com.google.inject.Module;
 public class BootstrapServletContextListener extends GuiceResteasyBootstrapServletContextListener {
 	@Override
 	protected List<? extends Module> getModules(final ServletContext context) {
-		return Lists.newArrayList(new ShoppingWebModule(), new ShoppingModule(), new ShiroSecurityModule(context));
+		return Lists.newArrayList(new ShoppingWebModule(), new ShoppingModule(context), new ShiroSecurityModule(context));
 	}
 }
