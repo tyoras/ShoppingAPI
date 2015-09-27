@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 
 import com.google.common.collect.ImmutableList;
 
+import yoan.shopping.authentication.repository.OAuth2AuthorizationCode;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.infra.rest.error.ErrorRepresentation;
 import yoan.shopping.infra.rest.error.Level;
@@ -141,6 +142,14 @@ public class TestHelper {
 								   .withSecret(UUID.randomUUID().toString())
 								   .withSalt(UUID.randomUUID().toString())
 								   .build();
+	}
+	
+	public static OAuth2AuthorizationCode generateRandomOAuth2AuthorizationCode() {
+		return OAuth2AuthorizationCode.Builder.createDefault()
+											   .withRandomId()
+											   .withCode(generateString(5))
+											   .withUserId(UUID.randomUUID())
+											   .build();
 	}
 	
 	public static String generateRandomName() {

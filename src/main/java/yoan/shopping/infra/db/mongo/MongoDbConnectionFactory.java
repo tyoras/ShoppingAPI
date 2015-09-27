@@ -13,14 +13,6 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter;
-import yoan.shopping.infra.config.api.Config;
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.list.repository.mongo.ShoppingItemMongoConverter;
-import yoan.shopping.list.repository.mongo.ShoppingListMongoConverter;
-import yoan.shopping.user.repository.mongo.SecuredUserMongoConverter;
-import yoan.shopping.user.repository.mongo.UserMongoConverter;
-
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -30,6 +22,15 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+
+import yoan.shopping.authentication.repository.mongo.OAuth2AuthorizationCodeMongoConverter;
+import yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter;
+import yoan.shopping.infra.config.api.Config;
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.list.repository.mongo.ShoppingItemMongoConverter;
+import yoan.shopping.list.repository.mongo.ShoppingListMongoConverter;
+import yoan.shopping.user.repository.mongo.SecuredUserMongoConverter;
+import yoan.shopping.user.repository.mongo.UserMongoConverter;
 
 @Singleton
 public class MongoDbConnectionFactory {
@@ -98,7 +99,8 @@ public class MongoDbConnectionFactory {
 		ShoppingListMongoConverter listCodec = new ShoppingListMongoConverter(defaultDocumentCodec);
 		ShoppingItemMongoConverter itemCodec = new ShoppingItemMongoConverter(defaultDocumentCodec);
 		ClientAppMongoConverter clientAppCodec = new ClientAppMongoConverter(defaultDocumentCodec);
+		OAuth2AuthorizationCodeMongoConverter authCodeCodec = new OAuth2AuthorizationCodeMongoConverter(defaultDocumentCodec);
 		
-		return CodecRegistries.fromCodecs(userCodec, securedUserCodec, listCodec, itemCodec,clientAppCodec);
+		return CodecRegistries.fromCodecs(userCodec, securedUserCodec, listCodec, itemCodec, clientAppCodec, authCodeCodec);
 	}
 }
