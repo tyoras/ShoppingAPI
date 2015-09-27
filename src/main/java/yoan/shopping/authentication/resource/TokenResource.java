@@ -178,7 +178,7 @@ public class TokenResource {
 	protected String generateAccessToken() throws OAuthSystemException {
 		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
 		String accessToken = oauthIssuer.accessToken();
-		accessTokenRepository.insertAccessToken(accessToken, authenticatedUser.getId());
+		accessTokenRepository.insert(accessToken, authenticatedUser.getId());
 		return accessToken;
 	}
 	

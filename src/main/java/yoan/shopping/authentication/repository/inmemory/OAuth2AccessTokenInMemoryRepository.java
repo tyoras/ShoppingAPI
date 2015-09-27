@@ -23,8 +23,13 @@ public class OAuth2AccessTokenInMemoryRepository extends OAuth2AccessTokenReposi
 	}
 
 	@Override
-	protected void processInsertAccessToken(String accessToken, UUID userId) {
+	protected void processInsert(String accessToken, UUID userId) {
 		userIdByAccessToken.put(accessToken, userId);
+	}
+
+	@Override
+	protected void processDeleteByAccessToken(String accessToken) {
+		userIdByAccessToken.remove(accessToken);
 	}
 
 }

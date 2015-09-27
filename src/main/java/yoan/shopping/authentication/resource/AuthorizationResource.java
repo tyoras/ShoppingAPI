@@ -141,7 +141,7 @@ public class AuthorizationResource {
 	
 	protected String generateAccessToken(OAuthIssuer oauthIssuer) throws OAuthSystemException {
 		String accessToken = oauthIssuer.accessToken();
-		accessTokenRepository.insertAccessToken(accessToken, authenticatedUser.getId());
+		accessTokenRepository.insert(accessToken, authenticatedUser.getId());
 		return accessToken;
 	}
 	
