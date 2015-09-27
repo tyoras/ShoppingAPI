@@ -129,7 +129,7 @@ public class ClientApp implements Bson, WithId {
         }
 
         /**
-         * Set a random user ID
+         * Set a random ID
          *
          * @return builder
          */

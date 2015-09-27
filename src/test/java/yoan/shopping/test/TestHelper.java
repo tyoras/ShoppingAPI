@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 
 import com.google.common.collect.ImmutableList;
 
+import yoan.shopping.authentication.repository.OAuth2AccessToken;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCode;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.infra.rest.error.ErrorRepresentation;
@@ -149,6 +150,15 @@ public class TestHelper {
 											   .withRandomId()
 											   .withCode(generateString(5))
 											   .withUserId(UUID.randomUUID())
+											   .build();
+	}
+	
+	public static OAuth2AccessToken generateRandomOAuth2AccessToken() {
+		return OAuth2AccessToken.Builder.createDefault()
+											   .withRandomId()
+											   .withToken(generateString(5))
+											   .withUserId(UUID.randomUUID())
+											   .withNbRefresh(generateRandomInt(0, 10))
 											   .build();
 	}
 	

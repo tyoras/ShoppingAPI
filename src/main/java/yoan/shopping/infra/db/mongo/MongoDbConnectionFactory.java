@@ -23,6 +23,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import yoan.shopping.authentication.repository.mongo.OAuth2AccessTokenMongoConverter;
 import yoan.shopping.authentication.repository.mongo.OAuth2AuthorizationCodeMongoConverter;
 import yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter;
 import yoan.shopping.infra.config.api.Config;
@@ -100,7 +101,8 @@ public class MongoDbConnectionFactory {
 		ShoppingItemMongoConverter itemCodec = new ShoppingItemMongoConverter(defaultDocumentCodec);
 		ClientAppMongoConverter clientAppCodec = new ClientAppMongoConverter(defaultDocumentCodec);
 		OAuth2AuthorizationCodeMongoConverter authCodeCodec = new OAuth2AuthorizationCodeMongoConverter(defaultDocumentCodec);
+		OAuth2AccessTokenMongoConverter accessTokenCodec = new OAuth2AccessTokenMongoConverter(defaultDocumentCodec);
 		
-		return CodecRegistries.fromCodecs(userCodec, securedUserCodec, listCodec, itemCodec, clientAppCodec, authCodeCodec);
+		return CodecRegistries.fromCodecs(userCodec, securedUserCodec, listCodec, itemCodec, clientAppCodec, authCodeCodec, accessTokenCodec);
 	}
 }

@@ -20,44 +20,49 @@ import yoan.shopping.infra.util.GenericBuilder;
 import yoan.shopping.user.User;
 
 /**
- * Oauth2 authorization code value object
+ * Oauth2 access token value object
  * @author yoan
  */
-public class OAuth2AuthorizationCode implements Bson, WithId {
-	/** Default auth code ID */
-	public static final UUID DEFAULT_ID = UUID.fromString("8b1241e5-d935-4a40-8927-5eb7b87784b6");
-	public static final String DEFAULT_CODE = "default code";
-	public static final OAuth2AuthorizationCode DEFAULT = Builder.createDefault().build();
+public class OAuth2AccessToken implements Bson, WithId {
+	/** Default auth token ID */
+	public static final UUID DEFAULT_ID = UUID.fromString("47e260b3-14ea-4b83-ac13-dafc3752b350");
+	public static final String DEFAULT_TOKEN = "default token";
+	public static final OAuth2AccessToken DEFAULT = Builder.createDefault().build();
 	
-	/** Auth code unique ID */
+	/** Access token unique ID */
 	private final UUID id;
-	/** Auth code value */
-	private final String code;
-	/** Auth code creation date */
+	/** Access token value */
+	private final String token;
+	/** Access token creation date */
 	private final LocalDateTime creationDate;
 	/** Associated user ID */
 	private final UUID userId;
+	/** Number of refresh on this token */
+	private final int nbRefresh;
 	
-	protected OAuth2AuthorizationCode(UUID id, String code, LocalDateTime creationDate, UUID userId) {
-		this.id = requireNonNull(id, "Auth code Id is mandatory");
-		checkArgument(StringUtils.isNotBlank(code), "Invalid code");
-		this.code = code;
+	protected OAuth2AccessToken(UUID id, String token, LocalDateTime creationDate, UUID userId, int nbRefresh) {
+		this.id = requireNonNull(id, "Access token Id is mandatory");
+		checkArgument(StringUtils.isNotBlank(token), "Invalid token");
+		this.token = token;
 		this.creationDate = requireNonNull(creationDate, "Creation date is mandatory");
 		this.userId = requireNonNull(userId, "User ID is mandatory");
+		checkArgument(nbRefresh >= 0, "Invalid number of refresh");
+		this.nbRefresh = nbRefresh;
 	}
 
-	public static class Builder implements GenericBuilder<OAuth2AuthorizationCode> {
+	public static class Builder implements GenericBuilder<OAuth2AccessToken> {
 		private UUID id = DEFAULT_ID;
-		private String code = DEFAULT_CODE;
+		private String token = DEFAULT_TOKEN;
 		private LocalDateTime creationDate = LocalDateTime.now();
 		private UUID userId = User.DEFAULT_ID;
+		private int nbRefresh = 0;
 		
 		private Builder() { }
 		
 		/**
-         * The default auth code is DEFAULT
+         * The default auth token is DEFAULT
          *
-         * @return DEFAULT auth code
+         * @return DEFAULT auth token
          */
         public static Builder createDefault() {
             return new Builder();
@@ -73,33 +78,35 @@ public class OAuth2AuthorizationCode implements Bson, WithId {
             Builder builder = new Builder();
 
             builder.id = otherBuilder.id;
-            builder.code = otherBuilder.code;
+            builder.token = otherBuilder.token;
             builder.creationDate = otherBuilder.creationDate;
             builder.userId = otherBuilder.userId;
+            builder.nbRefresh = otherBuilder.nbRefresh;
             
             return builder;
         }
         
         /**
-         * Get a builder based on an existing OAuth2AuthorizationCode instance
+         * Get a builder based on an existing OAuth2AccessToken instance
          *
          * @param authCode
          * @return builder
          */
-        public static Builder createFrom(final OAuth2AuthorizationCode authCode) {
+        public static Builder createFrom(final OAuth2AccessToken authCode) {
             Builder builder = new Builder();
 
             builder.id = authCode.id;
-            builder.code = authCode.code;
+            builder.token = authCode.token;
             builder.creationDate = authCode.creationDate;
             builder.userId = authCode.userId;
+            builder.nbRefresh = authCode.nbRefresh;
             
             return builder;
         }
         
 		@Override
-		public OAuth2AuthorizationCode build() {
-			return new OAuth2AuthorizationCode(id, code, creationDate, userId);
+		public OAuth2AccessToken build() {
+			return new OAuth2AccessToken(id, token, creationDate, userId, nbRefresh);
 		}
 		
 		public Builder withId(UUID id) {
@@ -117,8 +124,8 @@ public class OAuth2AuthorizationCode implements Bson, WithId {
             return this;
         }
         
-        public Builder withCode(String code) {
-            this.code = code;
+        public Builder withToken(String token) {
+            this.token = token;
             return this;
         }
         
@@ -132,6 +139,10 @@ public class OAuth2AuthorizationCode implements Bson, WithId {
             return this;
         }
         
+        public Builder withNbRefresh(int nbRefresh) {
+            this.nbRefresh = nbRefresh;
+            return this;
+        }
 	}
 	
 	@Override
@@ -139,8 +150,8 @@ public class OAuth2AuthorizationCode implements Bson, WithId {
 		return id;
 	}
 
-	public String getCode() {
-		return code;
+	public String getToken() {
+		return token;
 	}
 	
 	public LocalDateTime getCreationDate() {
@@ -150,10 +161,14 @@ public class OAuth2AuthorizationCode implements Bson, WithId {
 	public UUID getuserId() {
 		return userId;
 	}
+	
+	public int getNbRefresh() {
+		return nbRefresh;
+	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, code, creationDate, userId);
+		return Objects.hash(id, token, creationDate, userId, nbRefresh);
 	}
 
 	@Override
@@ -164,24 +179,26 @@ public class OAuth2AuthorizationCode implements Bson, WithId {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        OAuth2AuthorizationCode that = (OAuth2AuthorizationCode) obj;
+        OAuth2AccessToken that = (OAuth2AccessToken) obj;
         return Objects.equals(this.id, that.id)
-            && Objects.equals(this.code, that.code)
+            && Objects.equals(this.token, that.token)
             && Objects.equals(this.creationDate, that.creationDate)
-	        && Objects.equals(this.userId, that.userId);
+	        && Objects.equals(this.userId, that.userId)
+	        && Objects.equals(this.nbRefresh, that.nbRefresh);
     }
 	
 	@Override
 	public final String toString() {
 		return MoreObjects.toStringHelper(this)
-			.add("id", id).add("code", code)
+			.add("id", id).add("token", token)
 			.add("created", creationDate)
 			.add("userId", userId)
+			.add("nbRefresh", nbRefresh)
 			.toString();
 	}
 	
 	@Override
 	public <TDocument> BsonDocument toBsonDocument(Class<TDocument> documentClass, CodecRegistry codecRegistry) {
-		return new BsonDocumentWrapper<OAuth2AuthorizationCode>(this, codecRegistry.get(OAuth2AuthorizationCode.class));
+		return new BsonDocumentWrapper<OAuth2AccessToken>(this, codecRegistry.get(OAuth2AccessToken.class));
 	}
 }
