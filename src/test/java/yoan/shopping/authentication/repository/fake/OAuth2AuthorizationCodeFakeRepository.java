@@ -16,7 +16,7 @@ public class OAuth2AuthorizationCodeFakeRepository extends OAuth2AuthorizationCo
 	}
 
 	@Override
-	protected void processInsert(String authzCode, UUID userId) { }
+	protected void processCreate(String authzCode, UUID userId) { }
 
 	@Override
 	protected void processDeleteByCode(String authzCode) { }

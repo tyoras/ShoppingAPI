@@ -135,7 +135,7 @@ public class AuthorizationResource {
 	
 	protected String generateAuthorizationCode(OAuthIssuer oauthIssuer) throws OAuthSystemException {
 		String authorizationCode = oauthIssuer.authorizationCode();
-		authzCodeRepository.insert(authorizationCode, authenticatedUser.getId());
+		authzCodeRepository.create(authorizationCode, authenticatedUser.getId());
 		return authorizationCode;
 	}
 	

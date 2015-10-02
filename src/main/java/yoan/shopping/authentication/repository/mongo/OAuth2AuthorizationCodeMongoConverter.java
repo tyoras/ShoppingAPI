@@ -6,6 +6,9 @@ import java.util.UUID;
 
 import org.bson.Document;
 import org.bson.codecs.Codec;
+import org.bson.conversions.Bson;
+
+import com.mongodb.client.model.Filters;
 
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCode;
 import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
@@ -68,5 +71,9 @@ public class OAuth2AuthorizationCodeMongoConverter extends MongoDocumentConverte
    	@Override
    	public OAuth2AuthorizationCode generateIdIfAbsentFromDocument(OAuth2AuthorizationCode authCode) {
    		return documentHasId(authCode) ? authCode : OAuth2AuthorizationCode.Builder.createFrom(authCode).withRandomId().build();
+   	}
+   	
+   	public Bson filterByCode(String authzCode) {
+   		return Filters.eq(FIELD_CODE, authzCode);
    	}
 }

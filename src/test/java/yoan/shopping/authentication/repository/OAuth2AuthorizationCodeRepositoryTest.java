@@ -56,10 +56,10 @@ public class OAuth2AuthorizationCodeRepositoryTest {
 		String nullCode = null;
 
 		//when
-		testedRepo.insert(nullCode, null);
+		testedRepo.create(nullCode, null);
 		
 		//then
-		verify(testedRepo, never()).processInsert(any(), any());
+		verify(testedRepo, never()).processCreate(any(), any());
 	}
 	
 	@Test
@@ -68,10 +68,10 @@ public class OAuth2AuthorizationCodeRepositoryTest {
 		String blankCode = "  ";
 
 		//when
-		testedRepo.insert(blankCode, UUID.randomUUID());
+		testedRepo.create(blankCode, UUID.randomUUID());
 		
 		//then
-		verify(testedRepo, never()).processInsert(any(), any());
+		verify(testedRepo, never()).processCreate(any(), any());
 	}
 	
 	@Test
@@ -80,10 +80,10 @@ public class OAuth2AuthorizationCodeRepositoryTest {
 		UUID nullUserId = null;
 
 		//when
-		testedRepo.insert("code", nullUserId);
+		testedRepo.create("code", nullUserId);
 		
 		//then
-		verify(testedRepo, never()).processInsert(any(), any());
+		verify(testedRepo, never()).processCreate(any(), any());
 	}
 	
 	@Test

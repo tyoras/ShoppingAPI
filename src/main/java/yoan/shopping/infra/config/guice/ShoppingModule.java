@@ -13,7 +13,7 @@ import com.google.inject.Provides;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
 import yoan.shopping.authentication.repository.inmemory.OAuth2AccessTokenInMemoryRepository;
-import yoan.shopping.authentication.repository.inmemory.OAuth2AuthorizationCodeInMemoryRepository;
+import yoan.shopping.authentication.repository.mongo.OAuth2AuthorizationCodeMongoRepository;
 import yoan.shopping.authentication.resource.AuthorizationResource;
 import yoan.shopping.authentication.resource.RedirectResource;
 import yoan.shopping.authentication.resource.TokenResource;
@@ -83,7 +83,7 @@ public class ShoppingModule extends AbstractModule {
 		bind(ClientAppRepository.class).to(ClientAppMongoRepository.class);
 		
 		//TODO use mongo implementation for authz code and access token repos
-		bind(OAuth2AuthorizationCodeRepository.class).to(OAuth2AuthorizationCodeInMemoryRepository.class);
+		bind(OAuth2AuthorizationCodeRepository.class).to(OAuth2AuthorizationCodeMongoRepository.class);
 		bind(OAuth2AccessTokenRepository.class).to(OAuth2AccessTokenInMemoryRepository.class);
 		
 		bindForLocalHostOnly();

@@ -13,7 +13,13 @@ public enum OAuth2AuthorizationCodeRepositoryErrorMessage implements ErrorMessag
 	/** Invalid authorization code : %s while %s */
 	PROBLEM_INVALID_AUTH_CODE("Invalid authorization code : %s while %s"),
 	/** Unable to insert auth code : %s because user ID is null */
-	PROBLEM_INSERT_USER_ID_NULL("Unable to insert auth code : %s because user ID is null");
+	PROBLEM_INSERT_USER_ID_NULL("Unable to insert auth code : %s because user ID is null"),
+	/** Error while reading authorization code : %s */
+	PROBLEM_READ_AUTH_CODE("Error while reading authorization code : %s"),
+	/** Error while creating authorization code : %s */
+	PROBLEM_CREATION_AUTH_CODE("Error while creating authorization code : %s"),
+	/** Error while deleting authorization code : %s */
+	PROBLEM_DELETE_AUTH_CODE("Error while deleting authorization code : %s");
 	
 	private String message;
 	
