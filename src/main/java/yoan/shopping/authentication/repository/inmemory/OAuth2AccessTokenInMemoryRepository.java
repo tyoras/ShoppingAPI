@@ -10,8 +10,10 @@ import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 
 /**
  * In memory implementation of the oauth2 access token repository
+ * @deprecated very basic implementation
  * @author yoan
  */
+@Deprecated
 @Singleton
 public class OAuth2AccessTokenInMemoryRepository extends OAuth2AccessTokenRepository {
 
