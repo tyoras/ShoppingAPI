@@ -1,0 +1,1 @@
+docker build -t shopping_api_docker .

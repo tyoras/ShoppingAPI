@@ -35,3 +35,6 @@ local.properties
 # Small handy test Class
 src/main/java/yoan/shopping/TestMain.java
 
+#docker build folder
+docker/configAPI.properties
+wars/*.war
