@@ -24,7 +24,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 public class ClientApp implements Bson, WithId {
-	/** Default list ID */
+	/** Default client app ID */
 	public static final UUID DEFAULT_ID = UUID.fromString("addab685-8f35-4eeb-85b2-d3f74e4466da");
 	/** Default password salt */
 	public static final Object DEFAULT_SALT = UUID.fromString("dbafd399-217a-4b95-bb2b-2a754e90710c");
@@ -101,7 +101,7 @@ public class ClientApp implements Bson, WithId {
         /**
          * Get a builder based on an existing ClientApp instance
          *
-         * @param user
+         * @param app
          * @return builder
          */
         public static Builder createFrom(final ClientApp app) {
@@ -129,7 +129,7 @@ public class ClientApp implements Bson, WithId {
         }
 
         /**
-         * Set a random user ID
+         * Set a random ID
          *
          * @return builder
          */

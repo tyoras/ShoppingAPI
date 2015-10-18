@@ -20,7 +20,7 @@ import org.jboss.resteasy.spi.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.authentication.Oauth2AccessToken;
+import yoan.shopping.authentication.realm.Oauth2ShiroAccessToken;
 
 /**
  * Shiro filter to extract access token from HTTP request or sending challenge if not fond
@@ -127,14 +127,14 @@ public class Oauth2AccessTokenAuthenticatingFilter extends AuthenticatingFilter 
         if (StringUtils.isBlank(authorizationHeader)) {
             // Create an empty authentication token since there is no
             // Authorization header.
-        	return new Oauth2AccessToken("", host);
+        	return new Oauth2ShiroAccessToken("", host);
         }
 
     	LOGGER.debug("Attempting to execute login with headers [" + authorizationHeader + "]");
 
         String accessToken = extractAccessToken(authorizationHeader);
 
-        return new Oauth2AccessToken(accessToken, host);
+        return new Oauth2ShiroAccessToken(accessToken, host);
     }
 
     /**

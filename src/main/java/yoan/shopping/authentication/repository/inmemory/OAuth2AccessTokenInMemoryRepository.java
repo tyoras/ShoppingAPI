@@ -10,8 +10,10 @@ import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 
 /**
  * In memory implementation of the oauth2 access token repository
+ * @deprecated very basic implementation
  * @author yoan
  */
+@Deprecated
 @Singleton
 public class OAuth2AccessTokenInMemoryRepository extends OAuth2AccessTokenRepository {
 
@@ -23,8 +25,13 @@ public class OAuth2AccessTokenInMemoryRepository extends OAuth2AccessTokenReposi
 	}
 
 	@Override
-	protected void processInsertAccessToken(String accessToken, UUID userId) {
+	protected void processCreate(String accessToken, UUID userId) {
 		userIdByAccessToken.put(accessToken, userId);
+	}
+
+	@Override
+	protected void processDeleteByAccessToken(String accessToken) {
+		userIdByAccessToken.remove(accessToken);
 	}
 
 }

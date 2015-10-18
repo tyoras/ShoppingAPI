@@ -14,7 +14,6 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 
 import com.google.inject.Inject;
 
-import yoan.shopping.authentication.Oauth2AccessToken;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
@@ -32,14 +31,14 @@ public class OAuth2AccessTokenRealm extends AuthenticatingRealm {
 	@Inject
 	public OAuth2AccessTokenRealm(CacheManager cacheManager, OAuth2AccessTokenRepository accessTokenRepository, SecuredUserRepository userRepository) {
 		super(requireNonNull(cacheManager), new SimpleCredentialsMatcher());
-		setAuthenticationTokenClass(Oauth2AccessToken.class);
+		setAuthenticationTokenClass(Oauth2ShiroAccessToken.class);
 		this.accessTokenRepository = requireNonNull(accessTokenRepository);
 		this.userRepository = requireNonNull(userRepository);
 	}
 	
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-		Oauth2AccessToken accessToken = (Oauth2AccessToken) token;
+		Oauth2ShiroAccessToken accessToken = (Oauth2ShiroAccessToken) token;
 		UUID userId = extractUserIdFromAccessToken(accessToken);
 		
 		SecuredUser foundUser = userRepository.getById(userId);
@@ -51,7 +50,7 @@ public class OAuth2AccessTokenRealm extends AuthenticatingRealm {
 		return new SimpleAuthenticationInfo(user, accessToken.getAccessToken(), getName());
 	}
 
-	private UUID extractUserIdFromAccessToken(Oauth2AccessToken accessToken) {
+	private UUID extractUserIdFromAccessToken(Oauth2ShiroAccessToken accessToken) {
 		String token = accessToken.getAccessToken();
 		return accessTokenRepository.getUserIdByAccessToken(token);
 	}

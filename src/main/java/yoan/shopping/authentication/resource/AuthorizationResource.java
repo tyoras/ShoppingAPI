@@ -135,13 +135,13 @@ public class AuthorizationResource {
 	
 	protected String generateAuthorizationCode(OAuthIssuer oauthIssuer) throws OAuthSystemException {
 		String authorizationCode = oauthIssuer.authorizationCode();
-		authzCodeRepository.insert(authorizationCode, authenticatedUser.getId());
+		authzCodeRepository.create(authorizationCode, authenticatedUser.getId());
 		return authorizationCode;
 	}
 	
 	protected String generateAccessToken(OAuthIssuer oauthIssuer) throws OAuthSystemException {
 		String accessToken = oauthIssuer.accessToken();
-		accessTokenRepository.insertAccessToken(accessToken, authenticatedUser.getId());
+		accessTokenRepository.create(accessToken, authenticatedUser.getId());
 		return accessToken;
 	}
 	

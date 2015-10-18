@@ -10,9 +10,11 @@ import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository
 
 /**
  * In memory implementation of the oauth2 access token repository
+ * @deprecated very basic implementation
  * @author yoan
  */
 @Singleton
+@Deprecated
 public class OAuth2AuthorizationCodeInMemoryRepository extends OAuth2AuthorizationCodeRepository {
 	
 	private final Map<String, UUID> userIdByAuthorizationCode = Maps.newHashMap();
@@ -23,7 +25,7 @@ public class OAuth2AuthorizationCodeInMemoryRepository extends OAuth2Authorizati
 	}
 
 	@Override
-	protected void processInsert(String authzCode, UUID userId) {
+	protected void processCreate(String authzCode, UUID userId) {
 		userIdByAuthorizationCode.put(authzCode, userId);
 	}
 
