@@ -6,6 +6,9 @@ import java.util.UUID;
 
 import org.bson.Document;
 import org.bson.codecs.Codec;
+import org.bson.conversions.Bson;
+
+import com.mongodb.client.model.Filters;
 
 import yoan.shopping.authentication.repository. OAuth2AccessToken;
 import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
@@ -72,5 +75,9 @@ public class OAuth2AccessTokenMongoConverter extends MongoDocumentConverter<OAut
    	@Override
    	public OAuth2AccessToken generateIdIfAbsentFromDocument(OAuth2AccessToken accessToken) {
    		return documentHasId(accessToken) ? accessToken : OAuth2AccessToken.Builder.createFrom(accessToken).withRandomId().build();
+   	}
+   	
+   	public Bson filterByToken(String accessToken) {
+   		return Filters.eq(FIELD_TOKEN, accessToken);
    	}
 }

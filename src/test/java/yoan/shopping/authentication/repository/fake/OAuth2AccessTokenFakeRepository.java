@@ -16,7 +16,7 @@ public class OAuth2AccessTokenFakeRepository extends OAuth2AccessTokenRepository
 	}
 
 	@Override
-	protected void processInsert(String accessToken, UUID userId) { }
+	protected void processCreate(String accessToken, UUID userId) { }
 
 	@Override
 	protected void processDeleteByAccessToken(String accessToken) { }

@@ -17,6 +17,8 @@ import org.slf4j.Marker;
  */
 public abstract class OAuth2AccessTokenRepository {
 	
+	public static final long ACCESS_TOKEN_TTL_IN_MINUTES = 10;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2AuthorizationCodeRepository.class);
 	private static final Marker AUTH_MARKER = AUTHENTICATION.getMarker();
 	
@@ -28,7 +30,7 @@ public abstract class OAuth2AccessTokenRepository {
 		return processGetUserIdByAccessToken(accessToken);
 	};
 	
-	public void insert(String accessToken, UUID userId) {
+	public void create(String accessToken, UUID userId) {
 		if (StringUtils.isBlank(accessToken)) {
 			LOGGER.error(AUTH_MARKER, PROBLEM_INVALID_ACCESS_TOKEN.getDevReadableMessage(accessToken, "inserting token for user : " + userId));
 			return;
@@ -39,7 +41,7 @@ public abstract class OAuth2AccessTokenRepository {
 			return;
 		}
 		
-		processInsert(accessToken, userId);
+		processCreate(accessToken, userId);
 	}
 	
 	public void deleteByAccessToken(String accessToken) {
@@ -53,7 +55,7 @@ public abstract class OAuth2AccessTokenRepository {
 	
 	protected abstract UUID processGetUserIdByAccessToken(String accessToken);
 	
-	protected abstract void processInsert(String accessToken, UUID userId);
+	protected abstract void processCreate(String accessToken, UUID userId);
 	
 	protected abstract void processDeleteByAccessToken(String accessToken);
 }

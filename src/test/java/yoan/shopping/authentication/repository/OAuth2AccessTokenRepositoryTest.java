@@ -51,39 +51,39 @@ public class OAuth2AccessTokenRepositoryTest {
 	}
 	
 	@Test
-	public void insertAccessToken_should_do_nothing_with_null_token() {
+	public void create_should_do_nothing_with_null_token() {
 		//given
 		String nullToken = null;
 
 		//when
-		testedRepo.insert(nullToken, null);
+		testedRepo.create(nullToken, null);
 		
 		//then
-		verify(testedRepo, never()).processInsert(any(), any());
+		verify(testedRepo, never()).processCreate(any(), any());
 	}
 	
 	@Test
-	public void insertAccessToken_should_do_nothing_with_blank_token() {
+	public void create_should_do_nothing_with_blank_token() {
 		//given
 		String blankToken = "  ";
 
 		//when
-		testedRepo.insert(blankToken, UUID.randomUUID());
+		testedRepo.create(blankToken, UUID.randomUUID());
 		
 		//then
-		verify(testedRepo, never()).processInsert(any(), any());
+		verify(testedRepo, never()).processCreate(any(), any());
 	}
 	
 	@Test
-	public void insertAccessToken_should_do_nothing_with_null_userId() {
+	public void create_should_do_nothing_with_null_userId() {
 		//given
 		UUID nullUserId = null;
 
 		//when
-		testedRepo.insert("token", nullUserId);
+		testedRepo.create("token", nullUserId);
 		
 		//then
-		verify(testedRepo, never()).processInsert(any(), any());
+		verify(testedRepo, never()).processCreate(any(), any());
 	}
 	
 	@Test

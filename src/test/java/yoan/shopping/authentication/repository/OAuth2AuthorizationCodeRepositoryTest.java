@@ -51,7 +51,7 @@ public class OAuth2AuthorizationCodeRepositoryTest {
 	}
 	
 	@Test
-	public void insert_should_do_nothing_with_null_code() {
+	public void create_should_do_nothing_with_null_code() {
 		//given
 		String nullCode = null;
 
@@ -63,7 +63,7 @@ public class OAuth2AuthorizationCodeRepositoryTest {
 	}
 	
 	@Test
-	public void insert_should_do_nothing_with_blank_code() {
+	public void create_should_do_nothing_with_blank_code() {
 		//given
 		String blankCode = "  ";
 
@@ -75,7 +75,7 @@ public class OAuth2AuthorizationCodeRepositoryTest {
 	}
 	
 	@Test
-	public void insert_should_do_nothing_with_null_userId() {
+	public void create_should_do_nothing_with_null_userId() {
 		//given
 		UUID nullUserId = null;
 
