@@ -1,4 +1,4 @@
-FROM ubuntu:15.04
+FROM ubuntu:15.10
 MAINTAINER tyoras@gmail.com
 LABEL Description="ShoppingAPI container" Version="0.1.0"
 
