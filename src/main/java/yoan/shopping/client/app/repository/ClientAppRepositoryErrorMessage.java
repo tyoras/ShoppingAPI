@@ -6,7 +6,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import yoan.shopping.infra.util.error.ErrorMessage;
 
 /**
- * Error codes specific to the client app repository
+ * Error messages specific to the client app repository
  * @author yoan
  */
 public enum ClientAppRepositoryErrorMessage implements ErrorMessage {

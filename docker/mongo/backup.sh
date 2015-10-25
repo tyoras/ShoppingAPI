@@ -1,0 +1,1 @@
+docker run --rm --volumes-from mongo_data_docker -v /tmp:/backup debian tar cvf /backup/backup.tar /data/db

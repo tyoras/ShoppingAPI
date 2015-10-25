@@ -51,7 +51,7 @@ public class SwaggerModule extends AbstractModule {
 		Info info = new Info()
         .title("Shopping API")
         .description("API to manage and share a shopping list")
-        .version("0.0.5")
+        .version("0.1.0")
         .termsOfService("https://github.com/tyoras/ShoppingAPI")
         .contact(new Contact().email("tyoras@gmail.com"))
         .license(new License().name("No license for the moment").url("https://github.com/tyoras/ShoppingAPI"));

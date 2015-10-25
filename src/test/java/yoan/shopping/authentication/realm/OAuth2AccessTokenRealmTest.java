@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import yoan.shopping.authentication.Oauth2AccessToken;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.SecuredUser;
@@ -43,7 +42,7 @@ public class OAuth2AccessTokenRealmTest {
 		when(mockedUserRepository.getById(existingUser.getId())).thenReturn(existingUser);
 		String validAccessToken = UUID.randomUUID().toString();
 		when(mockedAccessTokenRepository.getUserIdByAccessToken(validAccessToken)).thenReturn(existingUser.getId());
-		Oauth2AccessToken accessToken = new Oauth2AccessToken(validAccessToken, "host");
+		Oauth2ShiroAccessToken accessToken = new Oauth2ShiroAccessToken(validAccessToken, "host");
 		
 		//when
 		AuthenticationInfo result = testedRealm.doGetAuthenticationInfo(accessToken);
@@ -56,7 +55,7 @@ public class OAuth2AccessTokenRealmTest {
 	@Test
 	public void doGetAuthenticationInfo_should_return_null_with_invalid_access_token() {
 		//given
-		Oauth2AccessToken accessToken = new Oauth2AccessToken("invalid token", "host");
+		Oauth2ShiroAccessToken accessToken = new Oauth2ShiroAccessToken("invalid token", "host");
 		
 		//when
 		AuthenticationInfo result = testedRealm.doGetAuthenticationInfo(accessToken);
