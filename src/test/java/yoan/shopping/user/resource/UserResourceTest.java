@@ -357,4 +357,61 @@ public class UserResourceTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
 	}
+	
+	@Test(expected = WebApiException.class)
+	public void getByEmail_should_return_400_with_invalid_email() {
+		//given
+		String invalidEmail = "invalid email";
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		String expectedMessage = "Invalid Param named userEmail is not a valid email adress : invalid email";
+		
+		//when
+		try {
+			testedResource.getByEmail(invalidEmail);
+		} catch(WebApiException wae) {
+		//then
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
+			throw wae;
+		}
+	}
+	
+	@Test(expected = WebApiException.class)
+	public void getByEmail_should_return_404_with_unknown_user_email() {
+		//given
+		String unknownEmail = "unknown@unknown.com";
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		String expectedMessage = "User not found";
+		
+		//when
+		try {
+			testedResource.getByEmail(unknownEmail);
+		} catch(WebApiException wae) {
+		//then
+			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
+			throw wae;
+		}
+	}
+	
+	@Test
+	public void getByEmail_should_work_with_existing_user_email() {
+		//given
+		String existingEmail = "existing@existing.com";
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
+		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		User existingUser = User.Builder.createDefault().withRandomId().withEmail(existingEmail).build();
+		when(mockedUserRepo.getByEmail(existingEmail)).thenReturn(existingUser);
+		
+		//when
+		Response response = testedResource.getByEmail(existingEmail);
+		
+		//then
+		assertThat(response).isNotNull();
+		assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
+		UserRepresentation userRepresentation = (UserRepresentation) response.getEntity();
+		assertThat(userRepresentation).isNotNull();
+		assertThat(userRepresentation.getId()).isNotEqualTo(User.DEFAULT_ID);
+		assertThat(userRepresentation.getName()).isEqualTo(existingUser.getName());
+		assertThat(userRepresentation.getEmail()).isEqualTo(existingUser.getEmail());
+	}
 }
