@@ -93,6 +93,32 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
+	public void getByEmail_should_return_null_with_not_existing_user_email() {
+		//given
+		String notExistingUserEmail = "not_existing@mail.com";
+
+		//when
+		User result = testedRepo.getByEmail(notExistingUserEmail);
+		
+		//then
+		assertThat(result).isNull();
+	}
+	
+	@Test
+	public void getByEmail_should_work_with_existing_user_email() {
+		//given
+		User expectedUser = TestHelper.generateRandomUser();
+		testedRepo.create(expectedUser);
+
+		//when
+		User result = testedRepo.getByEmail(expectedUser.getEmail());
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEqualTo(expectedUser);
+	}
+	
+	@Test
 	public void update_should_work_with_existing_user() {
 		//given
 		User originalUser = TestHelper.generateRandomUser();

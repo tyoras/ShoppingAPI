@@ -6,8 +6,6 @@ package yoan.shopping.authentication.realm;
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.config.guice.ShiroSecurityModule.SHA256;
 
-import java.util.UUID;
-
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -19,7 +17,6 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.util.SimpleByteSource;
 
-import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.SecuredUserRepository;
@@ -45,8 +42,8 @@ public class UserRealm extends AuthenticatingRealm {
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		UsernamePasswordToken userToken = (UsernamePasswordToken) token;
-		UUID userId = extractUserIdFromToken(userToken);
-		SecuredUser foundUser = userRepository.getById(userId);
+		String userEmail = extractUserEmailFromToken(userToken);
+		SecuredUser foundUser = userRepository.getByEmail(userEmail);
 		if (foundUser == null) {
 			return null;
 		}
@@ -56,9 +53,8 @@ public class UserRealm extends AuthenticatingRealm {
 		return saltedCredentials;
 	}
 	
-	private UUID extractUserIdFromToken(UsernamePasswordToken userToken) {
-		String userIdStr = userToken.getUsername();
-		return ResourceUtil.getIdfromParam("user id", userIdStr);
+	private String extractUserEmailFromToken(UsernamePasswordToken userToken) {
+		return userToken.getUsername();
 	}
 	
 	private Sha256Hash extractHashedPasswordFromUser(SecuredUser user) {

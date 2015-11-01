@@ -67,4 +67,9 @@ public class MongoIndexEnsurer {
 		options.unique(true);
 		collection.createIndex(indexKey, options);
 	}
+	
+	public void ensureIndex(String fieldName, SortOrder sortOrder) {
+		Document indexKey = new Document(fieldName, sortOrder.getOrder());
+		collection.createIndex(indexKey);
+	}
 }

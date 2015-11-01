@@ -4,6 +4,7 @@
 package yoan.shopping.list.repository.mongo;
 
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
+import static yoan.shopping.infra.db.mongo.MongoIndexEnsurer.SortOrder.ASCENDING;
 import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_CREATION_LIST;
 import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_DELETE_LIST;
 import static yoan.shopping.list.repository.ShoppingListRepositoryErrorMessage.PROBLEM_READ_LIST;
@@ -18,6 +19,13 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+import yoan.shopping.infra.db.mongo.MongoIndexEnsurer;
+import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
+import yoan.shopping.list.ShoppingList;
+import yoan.shopping.list.repository.ShoppingListRepository;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -25,12 +33,6 @@ import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
-import yoan.shopping.list.ShoppingList;
-import yoan.shopping.list.repository.ShoppingListRepository;
 
 /**
  * Mongo implementation of the shopping list repository
@@ -49,6 +51,16 @@ public class ShoppingListMongoRepository extends ShoppingListRepository {
 	public ShoppingListMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
 		listCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, LIST_COLLECTION, ShoppingList.class);
 		listConverter = new ShoppingListMongoConverter();
+		ensureIndexes();
+	}
+	
+	private void ensureIndexes() {
+		MongoIndexEnsurer indexEnsurer = new MongoIndexEnsurer(listCollection);
+		indexEnsurer.logStartEnsuringIndexes();
+		
+		indexEnsurer.ensureUniqueIndex(FIELD_OWNER_ID, ASCENDING);
+		
+		indexEnsurer.logEndEnsuringIndexes();
 	}
 	
 	@Override

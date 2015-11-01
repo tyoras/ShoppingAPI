@@ -85,6 +85,18 @@ public abstract class SecuredUserRepository {
 	}
 	
 	/**
+	 * Get a user by its email adress
+	 * @param userEmail
+	 * @return found user with security infos
+	 */
+	public final SecuredUser getByEmail(String userEmail) {
+		if (StringUtils.isBlank(userEmail)) {
+			return null;
+		}
+		return processGetByEmail(userEmail);
+	}
+	
+	/**
 	 * Get a user by its Id
 	 * @param userId
 	 * @return found user with security infos
@@ -147,6 +159,12 @@ public abstract class SecuredUserRepository {
 	 * @param userId
 	 */
 	protected abstract SecuredUser processGetById(UUID userId);
+	
+	/**
+	 * Get a user by its email adress
+	 * @param userEmail
+	 */
+	protected abstract SecuredUser processGetByEmail(String userEmail);
 	
 	/**
 	 * Update password

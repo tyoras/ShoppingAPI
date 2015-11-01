@@ -1,10 +1,12 @@
 package yoan.shopping.user.repository.mongo;
 
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
+import static yoan.shopping.infra.db.mongo.MongoIndexEnsurer.SortOrder.ASCENDING;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_DELETE_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_READ_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_UPDATE_USER;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_EMAIL;
 
 import java.util.UUID;
 
@@ -12,17 +14,18 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+import yoan.shopping.infra.db.mongo.MongoIndexEnsurer;
+import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
+import yoan.shopping.user.User;
+import yoan.shopping.user.repository.UserRepository;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
-import yoan.shopping.user.User;
-import yoan.shopping.user.repository.UserRepository;
 
 /**
  * Mongo implementation of the user repository
@@ -39,6 +42,16 @@ public class UserMongoRepository extends UserRepository {
 	@Inject
 	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
 		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
+		ensureIndexes();
+	}
+	
+	private void ensureIndexes() {
+		MongoIndexEnsurer indexEnsurer = new MongoIndexEnsurer(userCollection);
+		indexEnsurer.logStartEnsuringIndexes();
+		
+		indexEnsurer.ensureUniqueIndex(FIELD_EMAIL, ASCENDING);
+		
+		indexEnsurer.logEndEnsuringIndexes();
 	}
 	
 	@Override
@@ -81,5 +94,17 @@ public class UserMongoRepository extends UserRepository {
 		} catch(MongoException e) {
 			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_DELETE_USER);
 		}
+	}
+
+	@Override
+	protected User processGetByEmail(String email) {
+		Bson filter = Filters.eq(FIELD_EMAIL, email);
+		User foundUser = null;
+		try {
+			foundUser = userCollection.find().filter(filter).first();
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_USER);
+		}
+		return foundUser;
 	}
 }

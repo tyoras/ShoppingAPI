@@ -7,6 +7,7 @@ import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUN
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +54,18 @@ public abstract class UserRepository {
 			return null;
 		}
 		return processGetById(userId);
+	}
+	
+	/**
+	 * Get a user by its email adress
+	 * @param email
+	 * @return found user or null if not found
+	 */
+	public final User getByEmail(String email) {
+		if (StringUtils.isBlank(email)) {
+			return null;
+		}
+		return processGetByEmail(email);
 	}
 	
 	/**
@@ -118,6 +131,12 @@ public abstract class UserRepository {
 	 * @param userId
 	 */
 	protected abstract User processGetById(UUID userId);
+	
+	/**
+	 * Get a user by its email adress
+	 * @param email
+	 */
+	protected abstract User processGetByEmail(String email);
 	
 	/**
 	 * Update a new User

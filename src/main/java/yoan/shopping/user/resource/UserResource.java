@@ -75,7 +75,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@GET
-	@ApiOperation(value = "Get user API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiOperation(value = "Get user API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
 	@Override
 	public Response root() {
@@ -102,7 +102,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create user", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Create user", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User"),
@@ -125,19 +125,32 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/{userId}")
-	@ApiOperation(value = "Get user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiOperation(value = "Get user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found user"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response getById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
-		User foundUser = findUser(userIdStr);
+		User foundUser = findUserById(userIdStr);
+		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, getUriInfo());
+		return Response.ok().entity(foundUserRepresentation).build();
+	}
+	
+	@GET
+	@Path("/email/{userEmail}")
+	@ApiOperation(value = "Get user by Email adress", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "Found user"),
+		@ApiResponse(code = 400, message = "Invalid user email"),
+		@ApiResponse(code = 404, message = "User not found") })
+	public Response getByEmail(@PathParam("userEmail") @ApiParam(value = "User email adress", required = true) String userEmail) {
+		User foundUser = findUserByEmail(userEmail);
 		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, getUriInfo());
 		return Response.ok().entity(foundUserRepresentation).build();
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "User updated"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -154,7 +167,7 @@ public class UserResource extends RestAPI {
 	
 	@PUT
 	@Path("/{userId}/password/{newPassword}")
-	@ApiOperation(value = "Change password", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Change password", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Password changed"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -172,26 +185,37 @@ public class UserResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{userId}")
-	@ApiOperation(value = "Delete user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Delete user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "User deleted"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response deleteById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
-		User foundUser = findUser(userIdStr);
+		User foundUser = findUserById(userIdStr);
 		userRepo.deleteById(foundUser.getId());
 		return Response.ok().build();
 	}
 	
-	private User findUser(String userIdStr) {
+	private User findUserById(String userIdStr) {
 		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
 		User foundUser = userRepo.getById(userId);
 		
+		ensureFoundUser(foundUser);
+		
+		return foundUser;
+	}
+	
+	private User findUserByEmail(String userEmailStr) {
+		String userEmail = ResourceUtil.getEmailfromParam("userEmail", userEmailStr);
+		User foundUser = userRepo.getByEmail(userEmail);
+		ensureFoundUser(foundUser);
+		return foundUser;
+	}
+	
+	private void ensureFoundUser(User foundUser) {
 		if (foundUser == null) {
 			throw new WebApiException(NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
 		}
-		
-		return foundUser;
 	}
 	
 	private void ensureUserNotExists(UUID userId) {

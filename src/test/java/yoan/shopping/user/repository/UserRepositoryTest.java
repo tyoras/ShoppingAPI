@@ -92,4 +92,30 @@ public class UserRepositoryTest {
 		//then
 		verify(testedRepo, never()).processDeleteById(any());
 	}
+	
+	@Test
+	public void getByEmail_should_return_null_with_null_email() {
+		//given
+		String nullEmail = null;
+
+		//when
+		User result = testedRepo.getByEmail(nullEmail);
+		
+		//then
+		assertThat(result).isNull();
+		verify(testedRepo, never()).processGetByEmail(any());
+	}
+	
+	@Test
+	public void getByEmail_should_return_null_with_blank_email() {
+		//given
+		String blankEmail = "  ";
+
+		//when
+		User result = testedRepo.getByEmail(blankEmail);
+		
+		//then
+		assertThat(result).isNull();
+		verify(testedRepo, never()).processGetByEmail(any());
+	}
 }
