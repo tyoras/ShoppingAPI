@@ -1,6 +1,7 @@
 package yoan.shopping.user.repository.mongo;
 
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
+import static yoan.shopping.infra.db.mongo.MongoIndexEnsurer.SortOrder.ASCENDING;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_DELETE_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_READ_USER;
@@ -13,17 +14,18 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
+import yoan.shopping.infra.db.mongo.MongoIndexEnsurer;
+import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
+import yoan.shopping.user.User;
+import yoan.shopping.user.repository.UserRepository;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
-import yoan.shopping.user.User;
-import yoan.shopping.user.repository.UserRepository;
 
 /**
  * Mongo implementation of the user repository
@@ -39,7 +41,22 @@ public class UserMongoRepository extends UserRepository {
 	
 	@Inject
 	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
-		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
+		userCollection = getCollection(mongoConnectionFactory);
+		ensureIndexes(mongoConnectionFactory);
+	}
+	
+	private static MongoCollection<User> getCollection(MongoDbConnectionFactory mongoConnectionFactory) {
+		return mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
+	}
+	
+	public static void ensureIndexes(MongoDbConnectionFactory mongoConnectionFactory) {
+		MongoCollection<User> userCollection = getCollection(mongoConnectionFactory);
+		MongoIndexEnsurer indexEnsurer = new MongoIndexEnsurer(userCollection);
+		indexEnsurer.logStartEnsuringIndexes();
+		
+		indexEnsurer.ensureUniqueIndex(FIELD_EMAIL, ASCENDING);
+		
+		indexEnsurer.logEndEnsuringIndexes();
 	}
 	
 	@Override
