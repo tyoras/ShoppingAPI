@@ -5,6 +5,7 @@ import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_C
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_DELETE_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_READ_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_UPDATE_USER;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_EMAIL;
 
 import java.util.UUID;
 
@@ -81,5 +82,17 @@ public class UserMongoRepository extends UserRepository {
 		} catch(MongoException e) {
 			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_DELETE_USER);
 		}
+	}
+
+	@Override
+	protected User processGetByEmail(String email) {
+		Bson filter = Filters.eq(FIELD_EMAIL, email);
+		User foundUser = null;
+		try {
+			foundUser = userCollection.find().filter(filter).first();
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_USER);
+		}
+		return foundUser;
 	}
 }

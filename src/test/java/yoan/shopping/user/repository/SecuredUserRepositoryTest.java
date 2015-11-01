@@ -142,6 +142,32 @@ public class SecuredUserRepositoryTest {
 	}
 	
 	@Test
+	public void getByEmail_should_return_null_with_null_email() {
+		//given
+		String nullEmail = null;
+
+		//when
+		User result = testedRepo.getByEmail(nullEmail);
+		
+		//then
+		assertThat(result).isNull();
+		verify(testedRepo, never()).processGetByEmail(any());
+	}
+	
+	@Test
+	public void getByEmail_should_return_null_with_blank_email() {
+		//given
+		String blankEmail = null;
+
+		//when
+		User result = testedRepo.getByEmail(blankEmail);
+		
+		//then
+		assertThat(result).isNull();
+		verify(testedRepo, never()).processGetByEmail(any());
+	}
+	
+	@Test
 	public void changePassword_should_do_nothing_with_null_user_Id() {
 		//given
 		UUID nullUserId = null;

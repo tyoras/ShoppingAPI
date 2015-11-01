@@ -26,4 +26,9 @@ public class UserFakeRepository extends UserRepository {
 	@Override
 	protected void processDeleteById(UUID userId) { }
 
+	@Override
+	protected User processGetByEmail(String email) {
+		return null;
+	}
+
 }

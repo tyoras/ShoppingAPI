@@ -6,6 +6,7 @@ package yoan.shopping.user.repository.mongo;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_READ_USER;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_UPDATE_USER_PASSWORD;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.*;
 import static yoan.shopping.user.repository.mongo.UserMongoRepository.USER_COLLECTION;
 
 import java.util.UUID;
@@ -55,7 +56,7 @@ public class SecuredUserMongoRepository extends SecuredUserRepository {
 
 	@Override
 	protected SecuredUser processGetById(UUID userId) {
-		Bson filter = Filters.eq("_id", userId);
+		Bson filter = Filters.eq(FIELD_ID, userId);
 		SecuredUser foundUser = null;
 		try {
 			foundUser = userCollection.find().filter(filter).first();
@@ -75,5 +76,18 @@ public class SecuredUserMongoRepository extends SecuredUserRepository {
 		} catch(MongoException e) {
 			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_UPDATE_USER_PASSWORD);
 		}
+	}
+
+	@Override
+	protected SecuredUser processGetByEmail(String userEmail) {
+		Bson filter = Filters.eq(FIELD_EMAIL, userEmail);
+		SecuredUser foundUser = null;
+		try {
+			foundUser = userCollection.find().filter(filter).first();
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_USER);
+		}
+		
+		return foundUser;
 	}
 }
