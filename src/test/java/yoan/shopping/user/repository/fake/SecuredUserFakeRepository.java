@@ -24,4 +24,9 @@ public class SecuredUserFakeRepository extends SecuredUserRepository {
 
 	@Override
 	protected void processChangePassword(SecuredUser userToUpdate) { }
+
+	@Override
+	protected SecuredUser processGetByEmail(String userEmail) {
+		return null;
+	}
 }

@@ -147,4 +147,35 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 		//last update date should have changed
 		assertThat(result.getLastUpdate().isAfter(originalSecuredUser.getLastUpdate())).isTrue();
 	}
+	
+	@Test
+	public void getByEmail_should_return_null_with_not_existing_user_email() {
+		//given
+		String notExistingUserEmail = "not_existing@mail.com";
+
+		//when
+		User result = testedRepo.getByEmail(notExistingUserEmail);
+		
+		//then
+		assertThat(result).isNull();
+	}
+	
+	@Test
+	public void getByEmail_should_work_with_existing_user_id() {
+		//given
+		User expectedUser = TestHelper.generateRandomUser();
+		String originalPassword = "password";
+		testedRepo.create(expectedUser, originalPassword);
+		
+
+		//when
+		SecuredUser result = testedRepo.getByEmail(expectedUser.getEmail());
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(User.Builder.createFrom(result).build()).isEqualTo(expectedUser);
+		//with the generated salt we should be able to generate the same hash
+		String hash = testedRepo.hashPassword(originalPassword, result.getSalt());
+		assertThat(result.getPassword()).isEqualTo(hash);
+	}
 }
