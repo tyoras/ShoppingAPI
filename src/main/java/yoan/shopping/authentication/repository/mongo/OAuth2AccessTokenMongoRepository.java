@@ -42,17 +42,12 @@ public static final String ACCESS_TOKEN_COLLECTION = "accessToken";
 	@Inject
 	public OAuth2AccessTokenMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
 		requireNonNull(mongoConnectionFactory);
-		accessTokenCollection = getCollection(mongoConnectionFactory);
+		accessTokenCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, ACCESS_TOKEN_COLLECTION, OAuth2AccessToken.class);
 		accessTokenConverter = new OAuth2AccessTokenMongoConverter();
-		ensureIndexes(mongoConnectionFactory);
-	}
-	
-	private static MongoCollection<OAuth2AccessToken> getCollection(MongoDbConnectionFactory mongoConnectionFactory) {
-		return mongoConnectionFactory.getCollection(Dbs.SHOPPING, ACCESS_TOKEN_COLLECTION, OAuth2AccessToken.class);
+		ensureIndexes();
 	}
 
-	public static void ensureIndexes(MongoDbConnectionFactory mongoConnectionFactory) {
-		MongoCollection<OAuth2AccessToken> accessTokenCollection = getCollection(mongoConnectionFactory);
+	private void ensureIndexes() {
 		MongoIndexEnsurer indexEnsurer = new MongoIndexEnsurer(accessTokenCollection);
 		indexEnsurer.logStartEnsuringIndexes();
 		

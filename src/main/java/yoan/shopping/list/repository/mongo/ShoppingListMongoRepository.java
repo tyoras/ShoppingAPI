@@ -49,16 +49,12 @@ public class ShoppingListMongoRepository extends ShoppingListRepository {
 	
 	@Inject
 	public ShoppingListMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
-		listCollection = getCollection(mongoConnectionFactory);
+		listCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, LIST_COLLECTION, ShoppingList.class);
 		listConverter = new ShoppingListMongoConverter();
+		ensureIndexes();
 	}
 	
-	private static MongoCollection<ShoppingList> getCollection(MongoDbConnectionFactory mongoConnectionFactory) {
-		return mongoConnectionFactory.getCollection(Dbs.SHOPPING, LIST_COLLECTION, ShoppingList.class);
-	}
-	
-	public static void ensureIndexes(MongoDbConnectionFactory mongoConnectionFactory) {
-		MongoCollection<ShoppingList> listCollection = getCollection(mongoConnectionFactory);
+	private void ensureIndexes() {
 		MongoIndexEnsurer indexEnsurer = new MongoIndexEnsurer(listCollection);
 		indexEnsurer.logStartEnsuringIndexes();
 		

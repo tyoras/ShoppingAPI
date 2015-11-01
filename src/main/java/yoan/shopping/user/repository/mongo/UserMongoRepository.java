@@ -41,16 +41,11 @@ public class UserMongoRepository extends UserRepository {
 	
 	@Inject
 	public UserMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
-		userCollection = getCollection(mongoConnectionFactory);
-		ensureIndexes(mongoConnectionFactory);
+		userCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
+		ensureIndexes();
 	}
 	
-	private static MongoCollection<User> getCollection(MongoDbConnectionFactory mongoConnectionFactory) {
-		return mongoConnectionFactory.getCollection(Dbs.SHOPPING, USER_COLLECTION, User.class);
-	}
-	
-	public static void ensureIndexes(MongoDbConnectionFactory mongoConnectionFactory) {
-		MongoCollection<User> userCollection = getCollection(mongoConnectionFactory);
+	private void ensureIndexes() {
 		MongoIndexEnsurer indexEnsurer = new MongoIndexEnsurer(userCollection);
 		indexEnsurer.logStartEnsuringIndexes();
 		

@@ -45,17 +45,12 @@ public class OAuth2AuthorizationCodeMongoRepository extends OAuth2AuthorizationC
 	@Inject
 	public OAuth2AuthorizationCodeMongoRepository(MongoDbConnectionFactory mongoConnectionFactory) {
 		requireNonNull(mongoConnectionFactory);
-		authCodeCollection = getCollection(mongoConnectionFactory);
+		authCodeCollection = mongoConnectionFactory.getCollection(Dbs.SHOPPING, AUTHZ_CODE_COLLECTION, OAuth2AuthorizationCode.class);
 		authCodeConverter = new OAuth2AuthorizationCodeMongoConverter();
-		ensureIndexes(mongoConnectionFactory);
+		ensureIndexes();
 	}
 	
-	private static MongoCollection<OAuth2AuthorizationCode> getCollection(MongoDbConnectionFactory mongoConnectionFactory) {
-		return mongoConnectionFactory.getCollection(Dbs.SHOPPING, AUTHZ_CODE_COLLECTION, OAuth2AuthorizationCode.class);
-	}
-
-	public static void ensureIndexes(MongoDbConnectionFactory mongoConnectionFactory) {
-		MongoCollection<OAuth2AuthorizationCode> authCodeCollection = getCollection(mongoConnectionFactory);
+	private void ensureIndexes() {
 		MongoIndexEnsurer indexEnsurer = new MongoIndexEnsurer(authCodeCollection);
 		indexEnsurer.logStartEnsuringIndexes();
 		
