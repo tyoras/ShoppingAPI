@@ -12,6 +12,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
+import yoan.shopping.client.app.resource.ClientAppResource;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.list.resource.ShoppingItemResource;
 import yoan.shopping.list.resource.ShoppingListResource;
@@ -22,6 +23,7 @@ import yoan.shopping.user.resource.UserResource;
  * @author yoan
  */
 public enum RootKey {
+	CLIENT_APP("clientApp", ClientAppResource.class),
 	ITEM("item", ShoppingItemResource.class), 
 	LIST("list", ShoppingListResource.class),
 	USER("user", UserResource.class);

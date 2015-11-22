@@ -2,10 +2,13 @@ package yoan.shopping.client.app;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.Test;
+
+import yoan.shopping.test.TestHelper;
 
 public class ClientAppTest {
 	
@@ -16,7 +19,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(nullId, "name", UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
+			new ClientApp(nullId, "name", UUID.randomUUID(), TestHelper.TEST_URI, LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("App Id is mandatory");
@@ -31,7 +34,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), blankName, UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), blankName, UUID.randomUUID(), TestHelper.TEST_URI, LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(IllegalArgumentException iae) {
 		//then
 			assertThat(iae.getMessage()).isEqualTo("Invalid app name");
@@ -46,7 +49,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), blankSecret, UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), TestHelper.TEST_URI, LocalDateTime.now(), LocalDateTime.now(), blankSecret, UUID.randomUUID());
 		} catch(IllegalArgumentException iae) {
 		//then
 			assertThat(iae.getMessage()).isEqualTo("Invalid app secret");
@@ -61,7 +64,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "Secret", nullSalt);
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), TestHelper.TEST_URI, LocalDateTime.now(), LocalDateTime.now(), "Secret", nullSalt);
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("The app secret hash salt is mandatory");
@@ -76,7 +79,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", nullId, LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), "name", nullId, TestHelper.TEST_URI, LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("App owner Id is mandatory");
@@ -91,7 +94,7 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), nullDate, LocalDateTime.now(), "Secret", UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), TestHelper.TEST_URI, nullDate, LocalDateTime.now(), "Secret", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("Creation date is mandatory");
@@ -106,10 +109,25 @@ public class ClientAppTest {
 		
 		//when
 		try {
-			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), LocalDateTime.now(), nullDate, "Secret", UUID.randomUUID());
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), TestHelper.TEST_URI, LocalDateTime.now(), nullDate, "Secret", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("Last update date is mandatory");
+			throw npe;
+		}
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void clientApp_should_fail_without_redirect_URI() {
+		//given
+		URI nullRedirectURI = null;
+		
+		//when
+		try {
+			new ClientApp(UUID.randomUUID(), "name", UUID.randomUUID(), nullRedirectURI, LocalDateTime.now(), LocalDateTime.now(), "Secret", UUID.randomUUID());
+		} catch(NullPointerException npe) {
+		//then
+			assertThat(npe.getMessage()).isEqualTo("Oauth2 redirect URI is mandatory");
 			throw npe;
 		}
 	}

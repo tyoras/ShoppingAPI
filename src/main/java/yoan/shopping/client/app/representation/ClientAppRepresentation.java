@@ -1,4 +1,4 @@
-package yoan.shopping.user.representation;
+package yoan.shopping.client.app.representation;
 
 import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -19,79 +19,88 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yoan.shopping.client.app.ClientApp;
+import yoan.shopping.client.app.resource.ClientAppResource;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
-import yoan.shopping.user.User;
-import yoan.shopping.user.resource.UserResource;
 
 import com.google.common.base.MoreObjects;
 
 /**
- * User Rest Representation
+ * Client application Rest Representation
  * @author yoan
  */
-@XmlRootElement(name = "user")
-public class UserRepresentation extends RestRepresentation {
-	/** User unique ID */
+@XmlRootElement(name = "clientApp")
+public class ClientAppRepresentation extends RestRepresentation {
+	/** Client app unique ID */
 	private UUID id;
-	/** User last name */
+	/** Client app last name */
 	private String name;
-	/** User email */
-	private String email;
-	/** user creation date */
+	/** Oauth2 redirect URI */
+	private String redirectURI;
+	/** Client app owner ID */
+	private UUID ownerId;
+	/** Client app secret key */
+	private String secretKey;
+	/** Client app creation date */
 	private LocalDateTime creationDate;
-	/** Last time the user was updated */
+	/** Last time the client app was updated */
 	private LocalDateTime lastUpdate;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserRepresentation.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClientAppRepresentation.class);
 	
-	public UserRepresentation() {
+	public ClientAppRepresentation() {
 		super();
 	}
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public UserRepresentation(UUID id, String name, String email, List<Link> links) {
+	public ClientAppRepresentation(UUID id, String name, UUID ownerId, String redirectURI, String secretKey, List<Link> links) {
 		super(links);
 		this.id = id;
 		this.name = name;
-		this.email = email;
+		this.ownerId = ownerId;
+		this.redirectURI = redirectURI;
+		this.secretKey = secretKey;
 	}
 	
-	public UserRepresentation(User user, UriInfo uriInfo) {
+	public ClientAppRepresentation(ClientApp clientApp, UriInfo uriInfo) {
 		super();
-		requireNonNull(user);
+		requireNonNull(clientApp);
 		requireNonNull(uriInfo);
-		URI selfURI = uriInfo.getAbsolutePathBuilder().path(UserResource.class, "getById").build(user.getId());
+		URI selfURI = uriInfo.getAbsolutePathBuilder().path(ClientAppResource.class, "getById").build(clientApp.getId());
 		this.links.add(Link.self(selfURI));
-		this.id = user.getId();
-		this.name = user.getName();
-		this.email = user.getEmail();
-		this.creationDate = user.getCreationDate();
-		this.lastUpdate = user.getLastUpdate();
+		this.id = clientApp.getId();
+		this.name = clientApp.getName();
+		this.ownerId = clientApp.getOwnerId();
+		this.redirectURI = clientApp.getRedirectURI().toString();
+		this.creationDate = clientApp.getCreationDate();
+		this.lastUpdate = clientApp.getLastUpdate();
+		//should be set using setter
+		this.secretKey = null;
 	}
 	
-	public static User toUser(UserRepresentation representation) {
+	public static ClientApp toClientApp(ClientAppRepresentation representation) {
 		requireNonNull(representation, "Unable to create User from null UserRepresentation");
 		
-		User.Builder userBuilder = User.Builder.createDefault()
+		ClientApp.Builder appBuilder = ClientApp.Builder.createDefault()
 						   .withName(representation.name)
-						   .withEmail(representation.email);
+						   .withRedirectURI(URI.create(representation.redirectURI));
 		//if no ID provided, we let the default one
 		if (representation.id != null) {
-			userBuilder.withId(representation.id);
+			appBuilder.withId(representation.id);
 		}
 		
-		User user;
+		ClientApp app;
 		try {
-			user = userBuilder.build();
+			app = appBuilder.build();
 		} catch (NullPointerException | IllegalArgumentException e) {
-			String message = INVALID.getDevReadableMessage("user") + " : " + e.getMessage();
+			String message = INVALID.getDevReadableMessage("client application") + " : " + e.getMessage();
 			LOGGER.error(message, e);
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, message, e);
 		}
-		return user;
+		return app;
 	}
 
 	@XmlElement(name = "id")
@@ -103,10 +112,15 @@ public class UserRepresentation extends RestRepresentation {
 	public String getName() {
 		return name;
 	}
+	
+	@XmlElement(name = "ownerid")
+	public UUID getOwnerId() {
+		return ownerId;
+	}
 
-	@XmlElement(name = "email")
-	public String getEmail() {
-		return email;
+	@XmlElement(name = "redirectURI")
+	public String getRedirectURI() {
+		return redirectURI;
 	}
 	
 	@XmlElement(name = "creationDate")
@@ -126,9 +140,13 @@ public class UserRepresentation extends RestRepresentation {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public void setOwnerId(UUID ownerId) {
+		this.ownerId = ownerId;
+	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setRedirectURI(String redirectURI) {
+		this.redirectURI = redirectURI;
 	}
 	
 	public void setCreationDate(LocalDateTime creationDate) {
@@ -141,7 +159,7 @@ public class UserRepresentation extends RestRepresentation {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, email, creationDate, lastUpdate);
+		return Objects.hash(id, name, ownerId, redirectURI, creationDate, lastUpdate);
 	}
 
 	@Override
@@ -152,10 +170,11 @@ public class UserRepresentation extends RestRepresentation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        UserRepresentation that = (UserRepresentation) obj;
+        ClientAppRepresentation that = (ClientAppRepresentation) obj;
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
-                && Objects.equals(this.email, that.email)
+                && Objects.equals(this.ownerId, that.ownerId)
+                && Objects.equals(this.redirectURI, that.redirectURI)
                 && Objects.equals(this.creationDate, that.creationDate)
                 && Objects.equals(this.lastUpdate, that.lastUpdate);
     }
@@ -164,7 +183,8 @@ public class UserRepresentation extends RestRepresentation {
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("id", id)
 											   .add("name", name)
-											   .add("email", email)
+											   .add("ownerId", ownerId)
+											   .add("redirectURI", redirectURI)
 											   .add("created", creationDate)
 											   .add("lastUpdate", lastUpdate)
 											   .toString();

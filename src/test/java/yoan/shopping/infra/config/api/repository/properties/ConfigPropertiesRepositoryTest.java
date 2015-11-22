@@ -30,8 +30,8 @@ public class ConfigPropertiesRepositoryTest {
 	@Test(expected = ApplicationException.class)
 	public void readConfig_should_fail_with_invalid_file_path() {
 		//given
-		String invalidConfigFilePath = "invalid/path";
-		String expectedMessage = "Unable to find a readable file at path found in \"" + CONFIG_LOCATION_ENV_VARIABLE + "\" env variable : " + invalidConfigFilePath;;
+		String invalidConfigFilePath = "invalidPath";
+		String expectedMessage = "Unable to find a readable file at path found in \"" + CONFIG_LOCATION_ENV_VARIABLE + "\" env variable : " + invalidConfigFilePath;
 		ConfigPropertiesRepository testedRepo = new ConfigPropertiesRepository();
 		
 		//when

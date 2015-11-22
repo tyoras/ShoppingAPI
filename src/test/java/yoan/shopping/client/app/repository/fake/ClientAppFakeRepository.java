@@ -24,4 +24,7 @@ public class ClientAppFakeRepository extends ClientAppRepository {
 
 	@Override
 	protected void processDeleteById(UUID clientId) { }
+
+	@Override
+	protected void processUpdate(ClientApp clientAppToUpdate) { }
 }

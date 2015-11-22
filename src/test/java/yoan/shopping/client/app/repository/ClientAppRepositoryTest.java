@@ -21,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.fake.ClientAppFakeRepository;
 import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.test.TestHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClientAppRepositoryTest {
@@ -183,6 +184,35 @@ public class ClientAppRepositoryTest {
 			verify(testedRepo, never()).processChangeSecret(any());
 			assertApplicationException(ae, ERROR, UNSECURE_SECRET, PROBLEM_SECRET_VALIDITY);
 			throw ae;
+		}
+	}
+	
+	@Test
+	public void update_should_do_nothing_with_null_client_app() {
+		//given
+		ClientApp nullClientApp = null;
+
+		//when
+		testedRepo.update(nullClientApp);
+		
+		//then
+		verify(testedRepo, never()).processUpdate(any());
+	}
+	
+	@Test(expected = ApplicationException.class)
+	public void update_should_fail_with_not_existing_client_app() {
+		//given
+		ClientApp notExistingClientApp = TestHelper.generateRandomClientApp();
+
+		//when
+		try {
+			testedRepo.update(notExistingClientApp);
+		} catch (ApplicationException ae) {
+		//then
+			assertApplicationException(ae, INFO, NOT_FOUND, "Client app not found");
+			throw ae;
+		} finally {
+			verify(testedRepo, never()).processUpdate(any());
 		}
 	}
 	

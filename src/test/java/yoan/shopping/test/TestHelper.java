@@ -46,6 +46,8 @@ import yoan.shopping.user.User;
 public class TestHelper {
 	private TestHelper() { }
 	
+	public static URI TEST_URI = URI.create("http://localhost:8080");
+	
 	private static Random rand = new Random();
 	private static final ImmutableList<String> SYLLABS = ImmutableList.<String>of("yo", "an", "ad", "ri", "en", "e", "mi", "li", "en");
 	

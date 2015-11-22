@@ -28,7 +28,7 @@ public abstract class ClientAppRepository {
 	public static final Logger LOGGER = LoggerFactory.getLogger(ClientAppRepository.class);
 	
 	/**
-	 * Create a new User
+	 * Create a new client app
 	 * @param userToCreate
 	 */
 	public void create(ClientApp appToCreate, String secret) {
@@ -93,8 +93,8 @@ public abstract class ClientAppRepository {
 	}
 	
 	/**
-	 * Get a user by its Id and fail if it does not exist
-	 * @param userId
+	 * Get a client app by its Id and fail if it does not exist
+	 * @param clientId
 	 * @return found app
 	 * @throws ApplicationException if user not found
 	 */
@@ -145,7 +145,30 @@ public abstract class ClientAppRepository {
 	}
 	
 	/**
-	 * Create a new ClientApp
+	 * Update a Client app
+	 * @param askedClientAppToUpdate
+	 */
+	public final void update(ClientApp askedClientAppToUpdate) {
+		if (askedClientAppToUpdate == null) {
+			LOGGER.warn("Client app update asked with null client app");
+			return;
+		}
+		ClientApp existingClientApp = findClientAppById(askedClientAppToUpdate.getId());
+		
+		ClientApp clientAppToUpdate = mergeUpdatesInExistingClientApp(existingClientApp, askedClientAppToUpdate);
+		processUpdate(clientAppToUpdate);
+	}
+	
+	private ClientApp mergeUpdatesInExistingClientApp(ClientApp existingClientApp, ClientApp askedClientAppToUpdate) {
+		return ClientApp.Builder.createFrom(existingClientApp)
+				.withLastUpdate(LocalDateTime.now())
+				.withName(askedClientAppToUpdate.getName())
+				.withRedirectURI(askedClientAppToUpdate.getRedirectURI())
+				.build();
+	}
+	
+	/**
+	 * Create a new client app
 	 * @param appToCreate
 	 */
 	protected abstract void processCreate(ClientApp appToCreate);
@@ -161,6 +184,12 @@ public abstract class ClientAppRepository {
 	 * @param userToUpdate
 	 */
 	protected abstract void processChangeSecret(ClientApp clientAppToUpdate);
+	
+	/**
+	 * Update an existing client app
+	 * @param clientAppToUpdate
+	 */
+	protected abstract void processUpdate(ClientApp clientAppToUpdate);
 	
 	/**
 	 * Delete a client app by its Id

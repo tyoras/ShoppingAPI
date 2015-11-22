@@ -74,7 +74,7 @@ public abstract class UserRepository {
 	 */
 	public final void update(User askedUserToUpdate) {
 		if (askedUserToUpdate == null) {
-			LOGGER.warn("User updateasked with null user");
+			LOGGER.warn("User update asked with null user");
 			return;
 		}
 		User existingUser = findUser(askedUserToUpdate.getId());
@@ -121,7 +121,7 @@ public abstract class UserRepository {
 	}
 	
 	/**
-	 * Create a new User
+	 * Create a new user
 	 * @param userToCreate
 	 */
 	protected abstract void processCreate(User userToCreate);
@@ -139,7 +139,7 @@ public abstract class UserRepository {
 	protected abstract User processGetByEmail(String email);
 	
 	/**
-	 * Update a new User
+	 * Update an existing user
 	 * @param userToUpdate
 	 */
 	protected abstract void processUpdate(User userToUpdate);

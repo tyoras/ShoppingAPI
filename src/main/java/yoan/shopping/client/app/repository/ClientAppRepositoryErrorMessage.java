@@ -19,7 +19,9 @@ public enum ClientAppRepositoryErrorMessage implements ErrorMessage {
 	/** Error while deleting client app : %s */
 	PROBLEM_DELETE_CLIENT_APP("Error while deleting client app : %s"),
 	/** Error while updating client app secret : %s */
-	PROBLEM_UPDATE_CLIENT_APP_SECRET("Error while updating client app secret : %s");
+	PROBLEM_UPDATE_CLIENT_APP_SECRET("Error while updating client app secret : %s"),
+	/** Error while updating client app : %s */
+	PROBLEM_UPDATE_CLIENT_APP("Error while updating client app : %s"),;
 	
 	private String message;
 	
