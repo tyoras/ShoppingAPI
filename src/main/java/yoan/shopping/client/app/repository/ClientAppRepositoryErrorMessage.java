@@ -14,6 +14,8 @@ public enum ClientAppRepositoryErrorMessage implements ErrorMessage {
 	PROBLEM_SECRET_VALIDITY("Secret does not comply to the minimum security level"),
 	/** Error while reading client app : %s */
 	PROBLEM_READ_CLIENT_APP("Error while reading client app : %s"),
+	/** Error while reading this user client applications : %s */
+	PROBLEM_READ_USER_CLIENT_APPS("Error while reading this user lient applications : %s"),
 	/** Error while creating client app : %s */
 	PROBLEM_CREATION_CLIENT_APP("Error while creating client app : %s"),
 	/** Error while deleting client app : %s */

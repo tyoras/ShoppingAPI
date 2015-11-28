@@ -19,6 +19,8 @@ import yoan.shopping.infra.config.guice.ShiroSecurityModule;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.RepositoryErrorCode;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Client application repository
  * @author yoan
@@ -96,16 +98,30 @@ public abstract class ClientAppRepository {
 	 * Get a client app by its Id and fail if it does not exist
 	 * @param clientId
 	 * @return found app
-	 * @throws ApplicationException if user not found
+	 * @throws ApplicationException if client app not found
 	 */
 	public final ClientApp findClientAppById(UUID clientId) {
 		ClientApp foundApp = getById(clientId);
-		
+		ensureAppfound(foundApp);
+		return foundApp;
+	}
+	
+	/**
+	 * Get all client apps of an user
+	 * @param ownerId
+	 * @return found apps
+	 */
+	public final ImmutableList<ClientApp> getByOwner(UUID ownerId) {
+		if (ownerId == null) {
+			return ImmutableList.of();
+		}
+		return processGetByOwner(ownerId);
+	}
+	
+	private void ensureAppfound(ClientApp foundApp) {
 		if (foundApp == null) {
 			throw new ApplicationException(INFO, RepositoryErrorCode.NOT_FOUND, NOT_FOUND.getDevReadableMessage("Client app"));
 		}
-		
-		return foundApp;
 	}
 	
 	/**
@@ -178,6 +194,13 @@ public abstract class ClientAppRepository {
 	 * @param userId
 	 */
 	protected abstract ClientApp processGetById(UUID clientId);
+	
+	/**
+	 * Get all client apps of an user
+	 * @param ownerId
+	 * @return found apps
+	 */
+	protected abstract ImmutableList<ClientApp> processGetByOwner(UUID ownerId);
 	
 	/**
 	 * Update secret

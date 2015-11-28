@@ -48,11 +48,15 @@ public class ShiroSecurityModule extends ShiroWebModule {
 		expose(HashedCredentialsMatcher.class).annotatedWith(Names.named(NO_SECURITY));
 		
 		bindRealm().to(UserRealm.class);
+		//TODO ajouter un realm pour identifier le token dans le cas d'un appel au token endpoint en fonction du grant type
+		// (peut être géré dans la resource si Filter qui inject user par défaut)
 		bindRealm().to(OAuth2AccessTokenRealm.class);
 		
+		
 		//TODO ajouter SSL au début de la filter chain
-		addFilterChain("/rest/api/**", config(NO_SESSION_CREATION, "true"), OAUTH2);
 		addFilterChain("/rest/auth/**", config(NO_SESSION_CREATION, "true"), AUTHC_BASIC);
+		//TODO ajouter un filter (custom ou default user) pour le token endpoint
+		addFilterChain("/rest/api/**", config(NO_SESSION_CREATION, "true"), OAUTH2);
 	}
 	
 	private HashedCredentialsMatcher getHashedCredentialsMatcher(String algorithmName) {

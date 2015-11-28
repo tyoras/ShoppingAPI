@@ -69,7 +69,7 @@ public class ClientAppRepresentation extends RestRepresentation {
 		super();
 		requireNonNull(clientApp);
 		requireNonNull(uriInfo);
-		URI selfURI = uriInfo.getAbsolutePathBuilder().path(ClientAppResource.class, "getById").build(clientApp.getId());
+		URI selfURI = uriInfo.getBaseUriBuilder().path(ClientAppResource.class).path(ClientAppResource.class, "getById").build(clientApp.getId());
 		this.links.add(Link.self(selfURI));
 		this.id = clientApp.getId();
 		this.name = clientApp.getName();
@@ -82,18 +82,19 @@ public class ClientAppRepresentation extends RestRepresentation {
 	}
 	
 	public static ClientApp toClientApp(ClientAppRepresentation representation) {
-		requireNonNull(representation, "Unable to create User from null UserRepresentation");
-		
-		ClientApp.Builder appBuilder = ClientApp.Builder.createDefault()
-						   .withName(representation.name)
-						   .withRedirectURI(URI.create(representation.redirectURI));
-		//if no ID provided, we let the default one
-		if (representation.id != null) {
-			appBuilder.withId(representation.id);
-		}
+		requireNonNull(representation, "Unable to create client application from null ClientAppRepresentation");
 		
 		ClientApp app;
 		try {
+			ClientApp.Builder appBuilder = ClientApp.Builder.createDefault()
+							   .withName(representation.name)
+							   .withOwnerId(representation.ownerId)
+							   .withRedirectURI(URI.create(representation.redirectURI));
+			//if no ID provided, we let the default one
+			if (representation.id != null) {
+				appBuilder.withId(representation.id);
+			}
+		
 			app = appBuilder.build();
 		} catch (NullPointerException | IllegalArgumentException e) {
 			String message = INVALID.getDevReadableMessage("client application") + " : " + e.getMessage();
@@ -123,6 +124,11 @@ public class ClientAppRepresentation extends RestRepresentation {
 		return redirectURI;
 	}
 	
+	@XmlElement(name = "secretkey")
+	public String getSecretkey() {
+		return secretKey;
+	}
+	
 	@XmlElement(name = "creationDate")
 	public LocalDateTime getCreationDate() {
 		return creationDate;
@@ -147,6 +153,10 @@ public class ClientAppRepresentation extends RestRepresentation {
 
 	public void setRedirectURI(String redirectURI) {
 		this.redirectURI = redirectURI;
+	}
+	
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
 	}
 	
 	public void setCreationDate(LocalDateTime creationDate) {

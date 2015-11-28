@@ -216,7 +216,7 @@ public class ClientApp implements Bson, WithId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, ownerId, redirectURI, secret, salt);
+		return Objects.hash(id, name, ownerId, redirectURI);
 	}
 
 	@Override
@@ -231,9 +231,7 @@ public class ClientApp implements Bson, WithId {
         return Objects.equals(this.id, that.id)
             && Objects.equals(this.name, that.name)
             && Objects.equals(this.ownerId, that.ownerId)
-            && Objects.equals(this.redirectURI, that.redirectURI)
-	        && Objects.equals(this.secret, that.secret)
-	        && Objects.equals(this.salt, that.salt);
+            && Objects.equals(this.redirectURI, that.redirectURI);
     }
 	
 	@Override

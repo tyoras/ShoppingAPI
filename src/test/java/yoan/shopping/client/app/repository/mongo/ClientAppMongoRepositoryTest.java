@@ -19,6 +19,7 @@ import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.test.fongo.FongoBackedTest;
 
+import com.google.common.collect.ImmutableList;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
@@ -204,5 +205,39 @@ public class ClientAppMongoRepositoryTest extends FongoBackedTest {
 		assertThat(result.getCreationDate()).isEqualTo(originalClientApp.getCreationDate());
 		//last update date should have changed
 		assertThat(result.getLastUpdate().isAfter(originalClientApp.getLastUpdate())).isTrue();
+	}
+	
+	@Test
+	public void getByOwner_should_return_empty_list_if_no_app_found() {
+		//given
+		UUID ownerIdWithoutApp = UUID.randomUUID();
+
+		//when
+		ImmutableList<ClientApp> result = testedRepo.getByOwner(ownerIdWithoutApp);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEqualTo(ImmutableList.<ClientApp>of());
+	}
+	
+	@Test
+	public void getByOwner_should_work_with_owner_with_apps() {
+		//given
+		UUID ownerIdWithTwoApps = UUID.randomUUID();
+		ClientApp app1 = TestHelper.generateRandomClientApp();
+		ClientApp expectedClientApp1 = ClientApp.Builder.createFrom(app1).withOwnerId(ownerIdWithTwoApps).build();
+		ClientApp app2 = TestHelper.generateRandomClientApp();
+		ClientApp expectedClientApp2 = ClientApp.Builder.createFrom(app2).withOwnerId(ownerIdWithTwoApps).build();
+		
+		testedRepo.create(expectedClientApp1, "secret1");
+		testedRepo.create(expectedClientApp2, "secret2");
+
+		//when
+		ImmutableList<ClientApp> result = testedRepo.getByOwner(ownerIdWithTwoApps);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).hasSize(2);
+		assertThat(result).containsExactly(expectedClientApp1, expectedClientApp2);
 	}
 }

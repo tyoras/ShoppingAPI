@@ -142,6 +142,7 @@ public class TestHelper {
 		return ClientApp.Builder.createDefault()
 								   .withRandomId()
 								   .withName(generateRandomName())
+								   .withOwnerId(UUID.randomUUID())
 								   .withSecret(UUID.randomUUID().toString())
 								   .withSalt(UUID.randomUUID().toString())
 								   .build();

@@ -18,6 +18,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.common.collect.ImmutableList;
+
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.fake.ClientAppFakeRepository;
 import yoan.shopping.infra.util.error.ApplicationException;
@@ -139,6 +141,20 @@ public class ClientAppRepositoryTest {
 		//then
 		assertThat(result).isNull();
 		verify(testedRepo, never()).processGetById(any());
+	}
+	
+	@Test
+	public void getByOwner_should_return_empty_list_with_null_owner_Id() {
+		//given
+		UUID nullId = null;
+
+		//when
+		ImmutableList<ClientApp> result = testedRepo.getByOwner(nullId);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEmpty();
+		verify(testedRepo, never()).processGetByOwner(any());
 	}
 	
 	@Test
