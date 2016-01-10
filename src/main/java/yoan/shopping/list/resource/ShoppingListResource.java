@@ -132,7 +132,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@GET
 	@Path("/user/{ownerId}")
-	@ApiOperation(value = "Get shopping list by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
+	@ApiOperation(value = "Get shopping list by owner Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found lists"),
 		@ApiResponse(code = 400, message = "Invalid owner Id"),

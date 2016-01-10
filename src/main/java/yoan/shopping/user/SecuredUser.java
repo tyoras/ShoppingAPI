@@ -16,6 +16,7 @@ import org.bson.BsonDocumentWrapper;
 import org.bson.codecs.configuration.CodecRegistry;
 
 import yoan.shopping.infra.util.GenericBuilder;
+import yoan.shopping.infra.util.helper.SecurityHelper;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
 
@@ -24,8 +25,12 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  * @author yoan
  */
 public class SecuredUser extends User {
+	/** default raw password */
+	public static final String DEFAULT_RAW_PASSWORD = "Default password";
 	/** Default password salt */
 	public static final Object DEFAULT_SALT = UUID.fromString("94ccbae1-c33b-40fc-addd-f70d493e6eca");
+	/** default hashed password - precomputed for performance sake */
+	public static final String DEFAULT_HASED_PASSWORD = SecurityHelper.hash(DEFAULT_RAW_PASSWORD, DEFAULT_SALT.toString());
 	/** Default secured user instance */
 	public static final User DEFAULT = Builder.createDefault().build();
 	
@@ -48,7 +53,7 @@ public class SecuredUser extends User {
 	}
 	
 	public static class Builder implements GenericBuilder<SecuredUser> {
-		private String password = "Default password";
+		private String password = DEFAULT_HASED_PASSWORD;
 		private Object salt = DEFAULT_SALT;
 		private User user = User.DEFAULT;
 		
@@ -104,6 +109,11 @@ public class SecuredUser extends User {
         public Builder withPassword(String password) {
             this.password = password;
             return this;
+        }
+        
+        public Builder withRawPassword(String rawPassword) {
+        	this.password = SecurityHelper.hash(rawPassword, salt);
+        	return this;
         }
 	}
 	

@@ -92,12 +92,13 @@ public class AuthorizationResource {
     }
 
 	protected OAuthResponse handleOauthRequest(HttpServletRequest request, OAuthAuthzRequest oauthRequest) throws OAuthSystemException {
-		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
-		
-		ensureClientExists(oauthRequest);
+		ClientApp clientApp = getAndEnsureClientExists(oauthRequest);
+		String redirectURI = oauthRequest.getRedirectURI();
+		ensureRedirectURI(clientApp, redirectURI);
 		
 		//build response according to response_type
 		OAuthASResponse.OAuthAuthorizationResponseBuilder oAuthResponseBuilder = OAuthASResponse.authorizationResponse(request, Status.FOUND.getStatusCode());
+		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
 		ResponseType responseType = extractResponseType(oauthRequest);
 		switch(responseType) {
 		    case CODE : 
@@ -113,19 +114,16 @@ public class AuthorizationResource {
 		    	break;
 		}
 
-		String redirectURI = oauthRequest.getRedirectURI();
-		ensureValidRedirectURI(redirectURI);
-		oAuthResponseBuilder.location(redirectURI);
-		
-		return oAuthResponseBuilder.buildQueryMessage();
+		return oAuthResponseBuilder.location(redirectURI).buildQueryMessage();
 	}
 
-	private void ensureClientExists(OAuthAuthzRequest oauthRequest) {
+	private ClientApp getAndEnsureClientExists(OAuthAuthzRequest oauthRequest) {
 		UUID clientId = ResourceUtil.getIdfromParam("client_id", oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID));
 		ClientApp clientApp = clientAppRepository.getById(clientId);
 		if (clientApp == null) {
 			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, UNKNOWN_CLIENT.getDevReadableMessage(clientId.toString()));
 		}
+		return clientApp;
 	}
 
 	private static ResponseType extractResponseType(OAuthAuthzRequest oauthRequest) {
@@ -155,13 +153,21 @@ public class AuthorizationResource {
         return responseBuilder.location(location).build();
 	}
 	
-	private void ensureValidRedirectURI(String redirectURI) {
+	private void ensureRedirectURI(ClientApp clientApp, String redirectUriStr) {
+		URI redirectURI = ensureValidRedirectURI(redirectUriStr);
+		
+		if (!clientApp.getRedirectURI().equals(redirectURI)) {
+			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, INVALID_REDIRECT_URI.getDevReadableMessage(redirectUriStr));
+		}
+	}
+	
+	private URI ensureValidRedirectURI(String redirectURI) {
 		if (StringUtils.isBlank(redirectURI)) {
 			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, MISSING_REDIRECT_URI);
         }
 		
 		try {
-			new URI(redirectURI);
+			return new URI(redirectURI);
 		} catch(URISyntaxException e) {
 			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, INVALID_REDIRECT_URI.getDevReadableMessage(redirectURI), e);
 		}

@@ -6,7 +6,7 @@ import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.
 import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.FIELD_NAME;
 import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.FIELD_OWNER_ID;
 import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.FIELD_SALT;
-import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.FIELD_SECRET;
+import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.*;
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
 
 import java.util.UUID;
@@ -41,6 +41,7 @@ public class ClientAppMongoConverterTest {
 		Document doc = new Document(FIELD_ID, expectedClientApp.getId())
 							.append(FIELD_NAME, expectedClientApp.getName())
 							.append(FIELD_OWNER_ID, expectedClientApp.getOwnerId())
+							.append(FIELD_REDIRECT_URI, expectedClientApp.getRedirectURI().toString())
 							.append(FIELD_CREATED, DateHelper.toDate(expectedClientApp.getCreationDate()))
 							.append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedClientApp.getLastUpdate()))
 							.append(FIELD_SECRET, expectedClientApp.getSecret())
@@ -54,6 +55,7 @@ public class ClientAppMongoConverterTest {
 		assertThat(result.getId()).isEqualTo(expectedClientApp.getId());
 		assertThat(result.getName()).isEqualTo(expectedClientApp.getName());
 		assertThat(result.getOwnerId()).isEqualTo(expectedClientApp.getOwnerId());
+		assertThat(result.getRedirectURI()).isEqualTo(expectedClientApp.getRedirectURI());
 		assertThat(result.getCreationDate()).isEqualTo(expectedClientApp.getCreationDate());
 		assertThat(result.getLastUpdate()).isEqualTo(expectedClientApp.getLastUpdate());
 		assertThat(result.getSecret()).isEqualTo(expectedClientApp.getSecret());
@@ -88,6 +90,7 @@ public class ClientAppMongoConverterTest {
 		assertThat(result.get(FIELD_ID, UUID.class)).isEqualTo(clientApp.getId());
 		assertThat(result.getString(FIELD_NAME)).isEqualTo(clientApp.getName());
 		assertThat(result.get(FIELD_OWNER_ID, UUID.class)).isEqualTo(clientApp.getOwnerId());
+		assertThat(result.getString(FIELD_REDIRECT_URI)).isEqualTo(clientApp.getRedirectURI().toString());
 		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_CREATED))).isEqualTo(clientApp.getCreationDate());
 		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_LAST_UPDATE))).isEqualTo(clientApp.getLastUpdate());
 		assertThat(result.getString(FIELD_SECRET)).isEqualTo(clientApp.getSecret());

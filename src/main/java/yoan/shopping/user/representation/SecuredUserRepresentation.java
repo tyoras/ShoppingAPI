@@ -1,6 +1,3 @@
-/**
- * 
- */
 package yoan.shopping.user.representation;
 
 import java.util.List;

@@ -46,6 +46,8 @@ import yoan.shopping.user.User;
 public class TestHelper {
 	private TestHelper() { }
 	
+	public static URI TEST_URI = URI.create("http://localhost:8080");
+	
 	private static Random rand = new Random();
 	private static final ImmutableList<String> SYLLABS = ImmutableList.<String>of("yo", "an", "ad", "ri", "en", "e", "mi", "li", "en");
 	
@@ -109,8 +111,8 @@ public class TestHelper {
 	public static SecuredUser generateRandomSecuredUser() {
 		User user = User.Builder.createDefault().withRandomId().build();
 		return SecuredUser.Builder.createFrom(user)
-								  .withPassword(UUID.randomUUID().toString())
 								  .withSalt(UUID.randomUUID().toString())
+								  .withRawPassword(UUID.randomUUID().toString())
 								  .build();
 	}
 	
@@ -140,6 +142,7 @@ public class TestHelper {
 		return ClientApp.Builder.createDefault()
 								   .withRandomId()
 								   .withName(generateRandomName())
+								   .withOwnerId(UUID.randomUUID())
 								   .withSecret(UUID.randomUUID().toString())
 								   .withSalt(UUID.randomUUID().toString())
 								   .build();

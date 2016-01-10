@@ -98,14 +98,15 @@ public class ShoppingListMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	public void update_should_work_with_existing_list() {
+	public void update_should_work_with_existing_list() throws InterruptedException {
 		//given
 		ShoppingList originalShoppingList = TestHelper.generateRandomShoppingList();
 		testedRepo.create(originalShoppingList);
 		originalShoppingList = testedRepo.getById(originalShoppingList.getId());
 		String modifiedName = "new " + originalShoppingList.getName();
 		ShoppingList modifiedShoppingList = ShoppingList.Builder.createFrom(originalShoppingList).withName(modifiedName).build();
-
+		Thread.sleep(1);
+		
 		//when
 		testedRepo.update(modifiedShoppingList);
 		
@@ -121,7 +122,7 @@ public class ShoppingListMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	public void update_should_be_able_to_update_items() {
+	public void update_should_be_able_to_update_items() throws InterruptedException {
 		//given
 		ShoppingList originalShoppingList = TestHelper.generateRandomShoppingList();
 		testedRepo.create(originalShoppingList);
@@ -131,7 +132,8 @@ public class ShoppingListMongoRepositoryTest extends FongoBackedTest {
 		modifiedItem = ShoppingItem.Builder.createFrom(modifiedItem).withName("new " + modifiedItem.getName()).build();
 		modifiedList.set(0, modifiedItem);
 		ShoppingList modifiedShoppingList = ShoppingList.Builder.createFrom(originalShoppingList).withItemList(modifiedList).build();
-
+		Thread.sleep(1);
+		
 		//when
 		testedRepo.update(modifiedShoppingList);
 		

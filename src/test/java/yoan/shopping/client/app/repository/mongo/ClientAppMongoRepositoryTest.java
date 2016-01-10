@@ -6,6 +6,7 @@ import static yoan.shopping.client.app.repository.mongo.ClientAppMongoRepository
 import static yoan.shopping.infra.db.Dbs.SHOPPING;
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
 
+import java.net.URI;
 import java.util.UUID;
 
 import org.bson.Document;
@@ -13,13 +14,14 @@ import org.bson.conversions.Bson;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.test.fongo.FongoBackedTest;
+
+import com.google.common.collect.ImmutableList;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 
 public class ClientAppMongoRepositoryTest extends FongoBackedTest {
 	
@@ -151,13 +153,14 @@ public class ClientAppMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	public void changeSecret_should_work_with_existing_client_app() {
+	public void changeSecret_should_work_with_existing_client_app() throws InterruptedException {
 		//given
 		ClientApp originalClientApp = TestHelper.generateRandomClientApp();
 		String originalPassword = "originalSecret";
 		testedRepo.create(originalClientApp, originalPassword);
 		originalClientApp = testedRepo.getById(originalClientApp.getId());
 		String newPassword = "newSecret";
+		Thread.sleep(1);
 
 		//when
 		testedRepo.changeSecret(originalClientApp.getId(), newPassword);
@@ -173,5 +176,68 @@ public class ClientAppMongoRepositoryTest extends FongoBackedTest {
 		
 		assertThat(result.getSecret()).isNotEqualTo(originalClientApp.getSecret());
 		assertThat(result.getSalt()).isNotEqualTo(originalClientApp.getSalt());
+	}
+	
+	@Test
+	public void update_should_work_with_existing_client_app() throws InterruptedException {
+		//given
+		ClientApp originalClientApp = TestHelper.generateRandomClientApp();
+		testedRepo.create(originalClientApp, "secret");
+		originalClientApp = testedRepo.getById(originalClientApp.getId());
+		String modifiedName = "new " + originalClientApp.getName();
+		URI modifiedRedirectURI = URI.create("http://modified");
+		ClientApp modifiedClientApp = ClientApp.Builder.createFrom(originalClientApp)
+													.withName(modifiedName)
+													.withRedirectURI(modifiedRedirectURI)
+													.build();
+		Thread.sleep(1);
+		
+		//when
+		testedRepo.update(modifiedClientApp);
+		
+		//then
+		ClientApp result = testedRepo.getById(originalClientApp.getId());
+		assertThat(result).isNotNull();
+		assertThat(result.getName()).isEqualTo(modifiedName);
+		assertThat(result.getRedirectURI()).isEqualTo(modifiedRedirectURI);
+		assertThat(result).isEqualTo(modifiedClientApp);
+		//creation date should not change
+		assertThat(result.getCreationDate()).isEqualTo(originalClientApp.getCreationDate());
+		//last update date should have changed
+		assertThat(result.getLastUpdate().isAfter(originalClientApp.getLastUpdate())).isTrue();
+	}
+	
+	@Test
+	public void getByOwner_should_return_empty_list_if_no_app_found() {
+		//given
+		UUID ownerIdWithoutApp = UUID.randomUUID();
+
+		//when
+		ImmutableList<ClientApp> result = testedRepo.getByOwner(ownerIdWithoutApp);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEqualTo(ImmutableList.<ClientApp>of());
+	}
+	
+	@Test
+	public void getByOwner_should_work_with_owner_with_apps() {
+		//given
+		UUID ownerIdWithTwoApps = UUID.randomUUID();
+		ClientApp app1 = TestHelper.generateRandomClientApp();
+		ClientApp expectedClientApp1 = ClientApp.Builder.createFrom(app1).withOwnerId(ownerIdWithTwoApps).build();
+		ClientApp app2 = TestHelper.generateRandomClientApp();
+		ClientApp expectedClientApp2 = ClientApp.Builder.createFrom(app2).withOwnerId(ownerIdWithTwoApps).build();
+		
+		testedRepo.create(expectedClientApp1, "secret1");
+		testedRepo.create(expectedClientApp2, "secret2");
+
+		//when
+		ImmutableList<ClientApp> result = testedRepo.getByOwner(ownerIdWithTwoApps);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).hasSize(2);
+		assertThat(result).containsExactly(expectedClientApp1, expectedClientApp2);
 	}
 }
