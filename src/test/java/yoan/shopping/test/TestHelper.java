@@ -111,8 +111,8 @@ public class TestHelper {
 	public static SecuredUser generateRandomSecuredUser() {
 		User user = User.Builder.createDefault().withRandomId().build();
 		return SecuredUser.Builder.createFrom(user)
-								  .withPassword(UUID.randomUUID().toString())
 								  .withSalt(UUID.randomUUID().toString())
+								  .withRawPassword(UUID.randomUUID().toString())
 								  .build();
 	}
 	

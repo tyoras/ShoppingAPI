@@ -34,7 +34,7 @@ public class ShoppingWebModule extends ServletModule {
 		filter("/rest/api", "/rest/api/*", "/rest/auth", "/rest/auth/*").through(GuiceShiroFilter.class);
 		
 		//filtering to authenticate the current user
-		filter("/rest/api", "/rest/api/*", "/rest/auth", "/rest/auth/*").through(RequestScopeFilter.class);
+		filter("/rest/api", "/rest/api/*", "/rest/auth/authorization").through(RequestScopeFilter.class);
 	}
 	
 	@Provides

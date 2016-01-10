@@ -7,10 +7,15 @@ import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.IN
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.INVALID_CLIENT_SECRET;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.MISSING_CLIENT_SECRET;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.UNKNOWN_CLIENT;
-import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.rest.error.Level.WARNING;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import java.util.UUID;
 
@@ -37,40 +42,32 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 
-import com.google.inject.name.Named;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
-import yoan.shopping.user.User;
+import yoan.shopping.user.SecuredUser;
+import yoan.shopping.user.repository.SecuredUserRepository;
 
 @Path("/auth/token")
 @Api(value = "token")
 public class TokenResource {
 
-	/** Currently connected user */
-	private final User authenticatedUser;
 	private final OAuth2AuthorizationCodeRepository authzCodeRepository;
 	private final OAuth2AccessTokenRepository accessTokenRepository;
 	private final ClientAppRepository clientAppRepository;
+	private final SecuredUserRepository userRepository;
 
 	public static final String INVALID_CLIENT_DESCRIPTION = "Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).";
 	
 	@Inject
-	public TokenResource(@Named(CONNECTED_USER) User authenticatedUser, OAuth2AuthorizationCodeRepository authzCodeRepository, OAuth2AccessTokenRepository accessTokenRepository, ClientAppRepository clientAppRepository) {
-		this.authenticatedUser = requireNonNull(authenticatedUser);
+	public TokenResource(OAuth2AuthorizationCodeRepository authzCodeRepository, OAuth2AccessTokenRepository accessTokenRepository, ClientAppRepository clientAppRepository, SecuredUserRepository userRepository) {
 		this.authzCodeRepository = requireNonNull(authzCodeRepository);
 		this.accessTokenRepository = requireNonNull(accessTokenRepository);
 		this.clientAppRepository = requireNonNull(clientAppRepository);
+		this.userRepository = requireNonNull(userRepository);
 	}
 
 	@POST
@@ -79,10 +76,12 @@ public class TokenResource {
 	@ApiOperation(value = "Get Oauth2 access token", notes = "This will can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "grant_type", value = "Grant type", required = true, dataType = "string", paramType = "form", allowableValues = "authorization_code, password, refresh_token, client_credentials"),
-	    @ApiImplicitParam(name = "redirect_uri", value = "Redirect URI", required = true, dataType = "string", paramType = "form"),
+	    @ApiImplicitParam(name = "redirect_uri", value = "Redirect URI", required = false, dataType = "string", paramType = "form"),
 	    @ApiImplicitParam(name = "client_id", value = "Client Id", required = false, dataType = "string", paramType = "form"),
 	    @ApiImplicitParam(name = "client_secret", value = "Client Secret", required = false, dataType = "string", paramType = "form"),
-	    @ApiImplicitParam(name = "code", value = "Authorization code", required = false, dataType = "string", paramType = "form")
+	    @ApiImplicitParam(name = "code", value = "Authorization code", required = false, dataType = "string", paramType = "form"),
+	    @ApiImplicitParam(name = "username", value = "User email adress", required = false, dataType = "string", paramType = "form"),
+	    @ApiImplicitParam(name = "password", value = "User password", required = false, dataType = "string", paramType = "form"),
 	  })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Response with access token in payload"), @ApiResponse(code = 401, message = "Not authenticated") })
 	public Response authorize(@Context HttpServletRequest request) throws OAuthSystemException {
@@ -98,15 +97,16 @@ public class TokenResource {
 	}
 
 	protected OAuthResponse handleTokenRequest(OAuthTokenRequest oauthRequest) throws OAuthSystemException {
-		ensureTrustedClient(oauthRequest);
-
+		ClientApp clientApp = ensureClientExists(oauthRequest);
+		
+		UUID userId;
 		GrantType grantType = extractGrantType(oauthRequest);
 		switch (grantType) {
 			case AUTHORIZATION_CODE :
-				authorizeWithCode(oauthRequest);
+				userId = authorizeWithCode(oauthRequest, clientApp);
 				break;
 			case PASSWORD :
-				authorizeWithPassword(oauthRequest);
+				userId = authorizeWithPassword(oauthRequest);
 				break;
 			case REFRESH_TOKEN :
 				//TODO implement OAuth2 refresh token grant
@@ -116,7 +116,7 @@ public class TokenResource {
 				throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, GRANT_TYPE_NOT_IMPLEMENTED.getDevReadableMessage(grantType.toString()));
 		}
 		
-		String accessToken = generateAccessToken();
+		String accessToken = generateAccessToken(userId);
 
 		OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setExpiresIn("3600").buildJSONMessage();
 		return response;
@@ -127,23 +127,15 @@ public class TokenResource {
 		return GrantType.valueOf(grantTypeParam.toUpperCase());
 	}
 	
-	private void ensureTrustedClient(OAuthTokenRequest oauthRequest) throws OAuthSystemException {
+	private ClientApp ensureClientExists(OAuthTokenRequest oauthRequest) {
 		UUID clientId = ResourceUtil.getIdfromParam(OAuth.OAUTH_CLIENT_ID, oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID));
 		ClientApp clientApp = clientAppRepository.getById(clientId);
-		if (!checkClientExists(clientApp)) {
+		if (clientApp == null) {
 			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, UNKNOWN_CLIENT.getDevReadableMessage(clientId.toString()));
 		}
-		
-		String clientSecret = oauthRequest.getParam(OAuth.OAUTH_CLIENT_SECRET);
-		if (!checkClientSecret(clientApp, clientSecret)) {
-			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, INVALID_CLIENT_SECRET.getDevReadableMessage(clientId.toString()));
-		}
+		return clientApp;
 	}
 	
-	private boolean checkClientExists(ClientApp clientApp) {
-		return clientApp != null;
-	}
-
 	private boolean checkClientSecret(ClientApp clientApp, String secret) {
 		if (StringUtils.isBlank(secret)) {
 			throw new WebApiException(BAD_REQUEST, INFO, API_RESPONSE, MISSING_CLIENT_SECRET);
@@ -152,32 +144,47 @@ public class TokenResource {
 		return clientApp.getSecret().equals(hashedSecret);
 	}
 
-	private void authorizeWithCode(OAuthTokenRequest oauthRequest) throws OAuthSystemException {
+	private UUID authorizeWithCode(OAuthTokenRequest oauthRequest, ClientApp clientApp) throws OAuthSystemException {
+		ensureTrustedClient(oauthRequest, clientApp);
 		String authzCode = oauthRequest.getCode();
-		if (!checkAuthCode(authzCode)) {
+		UUID userId = findUserIdByAuthCode(authzCode);
+		if (userId == null) {
 			throw new OAuthException(buildBadAuthCodeResponse(authzCode));
 		}
 		authzCodeRepository.deleteByCode(authzCode);
+		return userId;
 	}
 	
-	private boolean checkAuthCode(String authCode) {
-		return authzCodeRepository.getUserIdByAuthorizationCode(authCode) != null;
-	}
-
-	private void authorizeWithPassword(OAuthTokenRequest oauthRequest) throws OAuthSystemException {
-		if (!checkUserPassword(oauthRequest.getUsername(), oauthRequest.getPassword())) {
-			throw new OAuthException(buildInvalidUserPassResponse());
+	private void ensureTrustedClient(OAuthTokenRequest oauthRequest, ClientApp clientApp) throws OAuthSystemException {
+		String clientSecret = oauthRequest.getParam(OAuth.OAUTH_CLIENT_SECRET);
+		if (!checkClientSecret(clientApp, clientSecret)) {
+			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, INVALID_CLIENT_SECRET.getDevReadableMessage(clientApp.getId().toString()));
 		}
 	}
 	
-	private boolean checkUserPassword(String userEmail, String password) {
-		return false;
+	private UUID findUserIdByAuthCode(String authCode) {
+		return authzCodeRepository.getUserIdByAuthorizationCode(authCode);
+	}
+
+	private UUID authorizeWithPassword(OAuthTokenRequest oauthRequest) throws OAuthSystemException {
+		String userEmail = oauthRequest.getUsername();
+		String password =  oauthRequest.getPassword();
+		SecuredUser foundUser = userRepository.getByEmail(userEmail);
+		if (!checkUserPassword(foundUser, password)) {
+			throw new OAuthException(buildInvalidUserPassResponse());
+		}
+		return foundUser.getId();
 	}
 	
-	protected String generateAccessToken() throws OAuthSystemException {
+	private boolean checkUserPassword(SecuredUser foundUser, String password) {
+		String hashedPassword = userRepository.hashPassword(password, foundUser.getSalt());
+		return foundUser.getPassword().equals(hashedPassword);
+	}
+	
+	protected String generateAccessToken(UUID userId) throws OAuthSystemException {
 		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
 		String accessToken = oauthIssuer.accessToken();
-		accessTokenRepository.create(accessToken, authenticatedUser.getId());
+		accessTokenRepository.create(accessToken, userId);
 		return accessToken;
 	}
 	

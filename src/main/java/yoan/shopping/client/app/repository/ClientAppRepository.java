@@ -10,14 +10,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import yoan.shopping.client.app.ClientApp;
-import yoan.shopping.infra.config.guice.ShiroSecurityModule;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.RepositoryErrorCode;
+import yoan.shopping.infra.util.helper.SecurityHelper;
 
 import com.google.common.collect.ImmutableList;
 
@@ -79,7 +78,7 @@ public abstract class ClientAppRepository {
 	}
 	
 	public String hashSecret(String secret, Object salt) {
-		return new Sha256Hash(secret, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
+		return SecurityHelper.hash(secret, salt);
 	}
 	
 	/**

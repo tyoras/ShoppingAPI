@@ -14,12 +14,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.infra.config.guice.ShiroSecurityModule;
 import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.infra.util.helper.SecurityHelper;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
 
@@ -81,7 +80,7 @@ public abstract class SecuredUserRepository {
 	}
 	
 	public String hashPassword(String password, Object salt) {
-		return new Sha256Hash(password, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
+		return SecurityHelper.hash(password, salt);
 	}
 	
 	/**

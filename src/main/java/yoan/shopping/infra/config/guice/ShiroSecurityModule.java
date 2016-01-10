@@ -51,7 +51,9 @@ public class ShiroSecurityModule extends ShiroWebModule {
 		bindRealm().to(OAuth2AccessTokenRealm.class);
 		
 		//TODO ajouter SSL au début de la filter chain
-		addFilterChain("/rest/auth/**", config(NO_SESSION_CREATION, "true"), AUTHC_BASIC);
+		addFilterChain("/rest/auth/authorization", config(NO_SESSION_CREATION, "true"), AUTHC_BASIC);
+		//TODO ajouter SSL au début de la filter chain
+		//addFilterChain("/rest/auth/token", config(NO_SESSION_CREATION, "true"), SSL);
 		//TODO ajouter un filter (custom ou default user) pour le token endpoint
 		addFilterChain("/rest/api/**", config(NO_SESSION_CREATION, "true"), OAUTH2);
 	}
