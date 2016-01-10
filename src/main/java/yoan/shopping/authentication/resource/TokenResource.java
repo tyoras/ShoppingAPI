@@ -170,8 +170,7 @@ public class TokenResource {
 		}
 	}
 	
-	private boolean checkUserPassword(String user, String password) {
-		//TODO implement check on user and password
+	private boolean checkUserPassword(String userEmail, String password) {
 		return false;
 	}
 	

@@ -29,6 +29,8 @@ public class ClientApp implements Bson, WithId {
 	public static final UUID DEFAULT_ID = UUID.fromString("addab685-8f35-4eeb-85b2-d3f74e4466da");
 	/** Default password salt */
 	public static final Object DEFAULT_SALT = UUID.fromString("dbafd399-217a-4b95-bb2b-2a754e90710c");
+	/** Default redirect URI */
+	public static final URI DEFAULT_REDIRECT_URI = URI.create("http://localhost:8080");
 	/** Default client app instance */
 	public static final ClientApp DEFAULT = Builder.createDefault().build();
 	
@@ -66,7 +68,7 @@ public class ClientApp implements Bson, WithId {
 		private UUID id = DEFAULT_ID;
 		private String name = "Default app";
 		private UUID ownerId = User.DEFAULT_ID;
-		private URI redirectURI = URI.create("http://localhost:8080");
+		private URI redirectURI = DEFAULT_REDIRECT_URI;
 		private LocalDateTime creationDate = LocalDateTime.now();
 		private LocalDateTime lastUpdate = LocalDateTime.now();
 		private String secret = "Default secret";
