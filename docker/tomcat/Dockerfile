@@ -51,6 +51,7 @@ ENV CATALINA_OPTS="-Xms900m -Xmx900m -verbose:gc -XX:+PrintGCDetails -XX:+PrintT
 ENV API_SHOPPING_CONFIG_FILE_PATH="$CATALINA_HOME/configAPI.properties"
 ADD /configAPI.properties $API_SHOPPING_CONFIG_FILE_PATH
 ADD /wars/shopping.war ${CATALINA_HOME}/webapps/shopping.war
+ADD /conf/web.xml ${CATALINA_HOME}/conf/web.xml
 #ADD server.xml $CATALINA_HOME/conf/server.xml
 
 EXPOSE 8080 8080
