@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>Shopping</groupId>
 	<artifactId>api</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.2</version>
 	<name>Shopping API</name>
 	<packaging>war</packaging>
 	<description>Shopping app core module</description>
