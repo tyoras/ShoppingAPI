@@ -1,6 +1,3 @@
-/**
- * 
- */
 package yoan.shopping.user.resource;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -8,7 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import yoan.shopping.infra.util.error.ErrorMessage;
 
 /**
- *
+ * Error messages specific to User API
  * @author yoan
  */
 public enum UserResourceErrorMessage  implements ErrorMessage {

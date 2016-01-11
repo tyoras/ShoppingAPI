@@ -45,7 +45,7 @@ public class AuthorizationResourceTest {
 	@Mock
 	ClientAppRepository mockedClientAppRepo;
 	
-	private static final String VALID_REDIRECT_URI = "http://www.google.fr";
+	private static final String VALID_REDIRECT_URI = ClientApp.DEFAULT_REDIRECT_URI.toString();
 	
 	private AuthorizationResource getAuthorizationResource(User connectedUser) {
 		when(mockedClientAppRepo.getById(ClientApp.DEFAULT_ID)).thenReturn(ClientApp.DEFAULT);

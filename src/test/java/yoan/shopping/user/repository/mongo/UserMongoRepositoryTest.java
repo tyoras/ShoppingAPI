@@ -119,14 +119,15 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	public void update_should_work_with_existing_user() {
+	public void update_should_work_with_existing_user() throws InterruptedException {
 		//given
 		User originalUser = TestHelper.generateRandomUser();
 		testedRepo.create(originalUser);
 		originalUser = testedRepo.getById(originalUser.getId());
 		String modifiedName = "new " + originalUser.getName();
 		User modifiedUser = User.Builder.createFrom(originalUser).withName(modifiedName).build();
-
+		Thread.sleep(1);
+		
 		//when
 		testedRepo.update(modifiedUser);
 		

@@ -127,13 +127,14 @@ public class SecuredUserMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	public void changePassword_should_work_with_existing_user() {
+	public void changePassword_should_work_with_existing_user() throws InterruptedException {
 		//given
 		User originalUser = TestHelper.generateRandomUser();
 		String originalPassword = "originalPW";
 		testedRepo.create(originalUser, originalPassword);
 		SecuredUser originalSecuredUser = testedRepo.getById(originalUser.getId());
 		String newPassword = "newPW";
+		Thread.sleep(1);
 
 		//when
 		testedRepo.changePassword(originalUser.getId(), newPassword);

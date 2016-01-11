@@ -3,6 +3,7 @@ package yoan.shopping.client.app;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -13,11 +14,11 @@ import org.bson.BsonDocumentWrapper;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
-import com.google.common.base.MoreObjects;
-
 import yoan.shopping.infra.db.WithId;
 import yoan.shopping.infra.util.GenericBuilder;
 import yoan.shopping.user.User;
+
+import com.google.common.base.MoreObjects;
 
 /**
  * Client application
@@ -28,6 +29,8 @@ public class ClientApp implements Bson, WithId {
 	public static final UUID DEFAULT_ID = UUID.fromString("addab685-8f35-4eeb-85b2-d3f74e4466da");
 	/** Default password salt */
 	public static final Object DEFAULT_SALT = UUID.fromString("dbafd399-217a-4b95-bb2b-2a754e90710c");
+	/** Default redirect URI */
+	public static final URI DEFAULT_REDIRECT_URI = URI.create("http://localhost:8080");
 	/** Default client app instance */
 	public static final ClientApp DEFAULT = Builder.createDefault().build();
 	
@@ -37,6 +40,8 @@ public class ClientApp implements Bson, WithId {
 	private final String name;
 	/** User owner of the client application */
 	private final UUID ownerId;
+	/** Oauth2 redirect URI */
+	private final URI redirectURI;
 	/** App creation date */
 	private final LocalDateTime creationDate;
 	/** Last time the app was updated */
@@ -46,11 +51,12 @@ public class ClientApp implements Bson, WithId {
 	/** App secret hash salt */
 	private final Object salt;
 	
-	protected ClientApp(UUID id, String name, UUID ownerId, LocalDateTime creationDate, LocalDateTime lastUpdate, String secret, Object salt) {
+	protected ClientApp(UUID id, String name, UUID ownerId, URI redirectURI, LocalDateTime creationDate, LocalDateTime lastUpdate, String secret, Object salt) {
 		this.id = requireNonNull(id, "App Id is mandatory");
 		checkArgument(StringUtils.isNotBlank(name), "Invalid app name");
 		this.name = name;
 		this.ownerId = requireNonNull(ownerId, "App owner Id is mandatory");
+		this.redirectURI = requireNonNull(redirectURI, "Oauth2 redirect URI is mandatory");
 		this.creationDate = requireNonNull(creationDate, "Creation date is mandatory");
 		this.lastUpdate = requireNonNull(lastUpdate, "Last update date is mandatory");
 		checkArgument(StringUtils.isNotBlank(secret), "Invalid app secret");
@@ -62,6 +68,7 @@ public class ClientApp implements Bson, WithId {
 		private UUID id = DEFAULT_ID;
 		private String name = "Default app";
 		private UUID ownerId = User.DEFAULT_ID;
+		private URI redirectURI = DEFAULT_REDIRECT_URI;
 		private LocalDateTime creationDate = LocalDateTime.now();
 		private LocalDateTime lastUpdate = LocalDateTime.now();
 		private String secret = "Default secret";
@@ -90,6 +97,7 @@ public class ClientApp implements Bson, WithId {
             builder.id = otherBuilder.id;
             builder.name = otherBuilder.name;
             builder.ownerId = otherBuilder.ownerId;
+            builder.redirectURI = otherBuilder.redirectURI;
             builder.creationDate = otherBuilder.creationDate;
             builder.lastUpdate = otherBuilder.lastUpdate;
             builder.secret = otherBuilder.secret;
@@ -110,6 +118,7 @@ public class ClientApp implements Bson, WithId {
             builder.id = app.id;
             builder.name = app.name;
             builder.ownerId = app.ownerId;
+            builder.redirectURI = app.redirectURI;
             builder.creationDate = app.creationDate;
             builder.lastUpdate = app.lastUpdate;
             builder.secret = app.secret;
@@ -120,7 +129,7 @@ public class ClientApp implements Bson, WithId {
         
 		@Override
 		public ClientApp build() {
-			return new ClientApp(id, name, ownerId, creationDate, lastUpdate, secret, salt);
+			return new ClientApp(id, name, ownerId, redirectURI, creationDate, lastUpdate, secret, salt);
 		}
 		
 		public Builder withId(UUID id) {
@@ -145,6 +154,11 @@ public class ClientApp implements Bson, WithId {
         
         public Builder withOwnerId(UUID ownerId) {
             this.ownerId = requireNonNull(ownerId);
+            return this;
+        }
+        
+        public Builder withRedirectURI(URI redirectURI) {
+            this.redirectURI = redirectURI;
             return this;
         }
         
@@ -182,6 +196,10 @@ public class ClientApp implements Bson, WithId {
 		return ownerId;
 	}
 	
+	public URI getRedirectURI() {
+		return redirectURI;
+	}
+	
 	public LocalDateTime getCreationDate() {
 		return creationDate;
 	}
@@ -200,7 +218,7 @@ public class ClientApp implements Bson, WithId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, ownerId, secret, salt);
+		return Objects.hash(id, name, ownerId, redirectURI);
 	}
 
 	@Override
@@ -215,8 +233,7 @@ public class ClientApp implements Bson, WithId {
         return Objects.equals(this.id, that.id)
             && Objects.equals(this.name, that.name)
             && Objects.equals(this.ownerId, that.ownerId)
-	        && Objects.equals(this.secret, that.secret)
-	        && Objects.equals(this.salt, that.salt);
+            && Objects.equals(this.redirectURI, that.redirectURI);
     }
 	
 	@Override
@@ -224,6 +241,7 @@ public class ClientApp implements Bson, WithId {
 		return MoreObjects.toStringHelper(this)
 			.add("id", id).add("name", name)
 			.add("ownerId", ownerId)
+			.add("redirectURI", redirectURI)
 			.add("created", creationDate)
 			.add("lastUpdate", lastUpdate)
 			.toString();

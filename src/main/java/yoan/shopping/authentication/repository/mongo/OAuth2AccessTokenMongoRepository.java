@@ -24,6 +24,7 @@ import yoan.shopping.infra.db.mongo.MongoIndexEnsurer;
 import yoan.shopping.infra.util.helper.MongoRepositoryHelper;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 
@@ -31,6 +32,7 @@ import com.mongodb.client.MongoCollection;
  * Mongo implementation of the OAuth2 access token repository	
  * @author yoan
  */
+@Singleton
 public class OAuth2AccessTokenMongoRepository extends OAuth2AccessTokenRepository {
 public static final String ACCESS_TOKEN_COLLECTION = "accessToken";
 	

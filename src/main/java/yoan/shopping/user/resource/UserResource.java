@@ -1,6 +1,3 @@
-/**
- * 
- */
 package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
@@ -75,7 +72,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@GET
-	@ApiOperation(value = "Get user API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiOperation(value = "Get user API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
 	@Override
 	public Response root() {

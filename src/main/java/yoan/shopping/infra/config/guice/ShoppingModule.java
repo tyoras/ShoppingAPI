@@ -16,6 +16,7 @@ import yoan.shopping.authentication.resource.RedirectResource;
 import yoan.shopping.authentication.resource.TokenResource;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.client.app.repository.mongo.ClientAppMongoRepository;
+import yoan.shopping.client.app.resource.ClientAppResource;
 import yoan.shopping.infra.config.api.Config;
 import yoan.shopping.infra.config.api.repository.ConfigRepository;
 import yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesRepository;
@@ -68,6 +69,7 @@ public class ShoppingModule extends AbstractModule {
 		bind(ShoppingItemResource.class);
 		bind(AuthorizationResource.class);
 		bind(TokenResource.class);
+		bind(ClientAppResource.class);
 		
 		//providers
 		bind(GlobalExceptionMapper.class);

@@ -5,6 +5,8 @@ import java.util.UUID;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Fake implementation of Client app repository
  * Test purpose only
@@ -24,4 +26,12 @@ public class ClientAppFakeRepository extends ClientAppRepository {
 
 	@Override
 	protected void processDeleteById(UUID clientId) { }
+
+	@Override
+	protected void processUpdate(ClientApp clientAppToUpdate) { }
+
+	@Override
+	protected ImmutableList<ClientApp> processGetByOwner(UUID ownerId) {
+		return ImmutableList.of();
+	}
 }

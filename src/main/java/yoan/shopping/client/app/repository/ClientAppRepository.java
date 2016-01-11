@@ -10,14 +10,15 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import yoan.shopping.client.app.ClientApp;
-import yoan.shopping.infra.config.guice.ShiroSecurityModule;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.RepositoryErrorCode;
+import yoan.shopping.infra.util.helper.SecurityHelper;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Client application repository
@@ -28,7 +29,7 @@ public abstract class ClientAppRepository {
 	public static final Logger LOGGER = LoggerFactory.getLogger(ClientAppRepository.class);
 	
 	/**
-	 * Create a new User
+	 * Create a new client app
 	 * @param userToCreate
 	 */
 	public void create(ClientApp appToCreate, String secret) {
@@ -77,7 +78,7 @@ public abstract class ClientAppRepository {
 	}
 	
 	public String hashSecret(String secret, Object salt) {
-		return new Sha256Hash(secret, salt, ShiroSecurityModule.NB_HASH_ITERATION).toBase64();
+		return SecurityHelper.hash(secret, salt);
 	}
 	
 	/**
@@ -93,19 +94,33 @@ public abstract class ClientAppRepository {
 	}
 	
 	/**
-	 * Get a user by its Id and fail if it does not exist
-	 * @param userId
+	 * Get a client app by its Id and fail if it does not exist
+	 * @param clientId
 	 * @return found app
-	 * @throws ApplicationException if user not found
+	 * @throws ApplicationException if client app not found
 	 */
 	public final ClientApp findClientAppById(UUID clientId) {
 		ClientApp foundApp = getById(clientId);
-		
+		ensureAppfound(foundApp);
+		return foundApp;
+	}
+	
+	/**
+	 * Get all client apps of an user
+	 * @param ownerId
+	 * @return found apps
+	 */
+	public final ImmutableList<ClientApp> getByOwner(UUID ownerId) {
+		if (ownerId == null) {
+			return ImmutableList.of();
+		}
+		return processGetByOwner(ownerId);
+	}
+	
+	private void ensureAppfound(ClientApp foundApp) {
 		if (foundApp == null) {
 			throw new ApplicationException(INFO, RepositoryErrorCode.NOT_FOUND, NOT_FOUND.getDevReadableMessage("Client app"));
 		}
-		
-		return foundApp;
 	}
 	
 	/**
@@ -145,7 +160,30 @@ public abstract class ClientAppRepository {
 	}
 	
 	/**
-	 * Create a new ClientApp
+	 * Update a Client app
+	 * @param askedClientAppToUpdate
+	 */
+	public final void update(ClientApp askedClientAppToUpdate) {
+		if (askedClientAppToUpdate == null) {
+			LOGGER.warn("Client app update asked with null client app");
+			return;
+		}
+		ClientApp existingClientApp = findClientAppById(askedClientAppToUpdate.getId());
+		
+		ClientApp clientAppToUpdate = mergeUpdatesInExistingClientApp(existingClientApp, askedClientAppToUpdate);
+		processUpdate(clientAppToUpdate);
+	}
+	
+	private ClientApp mergeUpdatesInExistingClientApp(ClientApp existingClientApp, ClientApp askedClientAppToUpdate) {
+		return ClientApp.Builder.createFrom(existingClientApp)
+				.withLastUpdate(LocalDateTime.now())
+				.withName(askedClientAppToUpdate.getName())
+				.withRedirectURI(askedClientAppToUpdate.getRedirectURI())
+				.build();
+	}
+	
+	/**
+	 * Create a new client app
 	 * @param appToCreate
 	 */
 	protected abstract void processCreate(ClientApp appToCreate);
@@ -157,10 +195,23 @@ public abstract class ClientAppRepository {
 	protected abstract ClientApp processGetById(UUID clientId);
 	
 	/**
+	 * Get all client apps of an user
+	 * @param ownerId
+	 * @return found apps
+	 */
+	protected abstract ImmutableList<ClientApp> processGetByOwner(UUID ownerId);
+	
+	/**
 	 * Update secret
 	 * @param userToUpdate
 	 */
 	protected abstract void processChangeSecret(ClientApp clientAppToUpdate);
+	
+	/**
+	 * Update an existing client app
+	 * @param clientAppToUpdate
+	 */
+	protected abstract void processUpdate(ClientApp clientAppToUpdate);
 	
 	/**
 	 * Delete a client app by its Id
