@@ -36,5 +36,5 @@ local.properties
 src/main/java/yoan/shopping/TestMain.java
 
 #docker build folder
-docker/configAPI.properties
-docker/wars/*.war
+docker/tomcat/configAPI.properties
+docker/tomcat/wars/*.war
