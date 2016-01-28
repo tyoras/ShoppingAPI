@@ -30,9 +30,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.oltu.oauth2.as.issuer.MD5Generator;
-import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
-import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.request.OAuthTokenRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
@@ -48,6 +45,7 @@ import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
+import yoan.shopping.infra.util.helper.SecurityHelper;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.repository.SecuredUserRepository;
 
@@ -170,7 +168,7 @@ public class TokenResource {
 		String userEmail = oauthRequest.getUsername();
 		String password =  oauthRequest.getPassword();
 		SecuredUser foundUser = userRepository.getByEmail(userEmail);
-		if (!checkUserPassword(foundUser, password)) {
+		if (foundUser == null || !checkUserPassword(foundUser, password)) {
 			throw new OAuthException(buildInvalidUserPassResponse());
 		}
 		return foundUser.getId();
@@ -181,9 +179,8 @@ public class TokenResource {
 		return foundUser.getPassword().equals(hashedPassword);
 	}
 	
-	protected String generateAccessToken(UUID userId) throws OAuthSystemException {
-		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
-		String accessToken = oauthIssuer.accessToken();
+	protected String generateAccessToken(UUID userId) {
+		String accessToken = SecurityHelper.generateJWT(userId);
 		accessTokenRepository.create(accessToken, userId);
 		return accessToken;
 	}

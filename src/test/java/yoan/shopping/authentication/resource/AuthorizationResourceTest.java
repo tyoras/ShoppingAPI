@@ -124,7 +124,7 @@ public class AuthorizationResourceTest {
 		assertThat(response.getStatus()).isEqualTo(FOUND.getStatusCode());
 		assertThat(response.getLocation().toString()).startsWith(VALID_REDIRECT_URI);
 		
-		verify(testedResource).generateAuthorizationCode(any());
+		verify(testedResource).generateAuthorizationCode();
 	}
 	
 	@Test
@@ -146,7 +146,7 @@ public class AuthorizationResourceTest {
 		assertThat(response.getStatus()).isEqualTo(FOUND.getStatusCode());
 		assertThat(response.getLocation().toString()).startsWith(VALID_REDIRECT_URI);
 		
-		verify(testedResource).generateAccessToken(any());
+		verify(testedResource).generateAccessToken();
 	}
 	
 	@Test(expected = WebApiException.class)
@@ -167,7 +167,7 @@ public class AuthorizationResourceTest {
 			testedResource.authorize(invalidRequest);
 		} catch(WebApiException wae) {
 		//then
-			verify(testedResource, never()).generateAccessToken(any());
+			verify(testedResource, never()).generateAccessToken();
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
@@ -191,7 +191,7 @@ public class AuthorizationResourceTest {
 			testedResource.authorize(invalidRequest);
 		} catch(WebApiException wae) {
 		//then
-			verify(testedResource, never()).generateAccessToken(any());
+			verify(testedResource, never()).generateAccessToken();
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, WARNING, API_RESPONSE, expectedMessage);
 			throw wae;
 		}

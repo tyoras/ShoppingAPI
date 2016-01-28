@@ -137,6 +137,11 @@
             <artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
             <version>${oltu-version}</version>
         </dependency>
+        <dependency>
+		    <groupId>io.jsonwebtoken</groupId>
+		    <artifactId>jjwt</artifactId>
+		    <version>0.6.0</version>
+		</dependency>
 
 		<!-- Unit Test -->
 		<dependency>
