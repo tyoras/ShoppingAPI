@@ -1,1 +1,1 @@
-docker create -v /var/lib/mongodb:/data/db --name mongo_data_docker mongo
+docker create -v /var/lib/mongodb:/data/db --name mongo_shopping_data mongo
