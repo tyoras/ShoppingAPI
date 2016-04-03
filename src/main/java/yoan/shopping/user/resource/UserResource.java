@@ -40,7 +40,6 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
-import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.infra.util.error.ApplicationException;
@@ -69,15 +68,6 @@ public class UserResource extends RestAPI {
 		this.connectedUser = requireNonNull(connectedUser);
 		this.userRepo = Objects.requireNonNull(userRepo);
 		this.securedUserRepo = Objects.requireNonNull(securedUserRepo);
-	}
-	
-	@GET
-	@ApiOperation(value = "Get user API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
-	@Override
-	public Response root() {
-		RestRepresentation rootRepresentation = new RestRepresentation(getRootLinks());
-		return Response.ok().entity(rootRepresentation).build();
 	}
 	
 	@Override
