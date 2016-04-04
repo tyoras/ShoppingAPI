@@ -35,6 +35,7 @@ import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.repository.mongo.SecuredUserMongoRepository;
 import yoan.shopping.user.repository.mongo.UserMongoRepository;
+import yoan.shopping.user.resource.RegisterUserResource;
 import yoan.shopping.user.resource.UserResource;
 
 import com.google.inject.AbstractModule;
@@ -70,6 +71,7 @@ public class ShoppingModule extends AbstractModule {
 		bind(AuthorizationResource.class);
 		bind(TokenResource.class);
 		bind(ClientAppResource.class);
+		bind(RegisterUserResource.class);
 		
 		//providers
 		bind(GlobalExceptionMapper.class);

@@ -36,7 +36,7 @@ public class ShoppingWebModule extends ServletModule {
 		bind(CORSFilter.class).in(Singleton.class);
 		filter("/", "/*").through(CORSFilter.class);
 		
-		filter("/rest/api", "/rest/api/*", "/rest/auth", "/rest/auth/*").through(GuiceShiroFilter.class);
+		filter("/rest/api", "/rest/api/*", "/rest/auth", "/rest/auth/*", "/rest/public", "/rest/public/*").through(GuiceShiroFilter.class);
 		
 		//filtering to authenticate the current user
 		filter("/rest/api", "/rest/api/*", "/rest/auth/authorization").through(RequestScopeFilter.class);

@@ -2,20 +2,16 @@ package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.user.repository.UserRepositoryErrorCode.UNSECURE_PASSWORD;
-import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.ws.rs.DELETE;
@@ -42,8 +38,8 @@ import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
-import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
+import yoan.shopping.user.UserCreationHelper;
 import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.representation.SecuredUserRepresentation;
@@ -66,8 +62,8 @@ public class UserResource extends RestAPI {
 	public UserResource(@Named(CONNECTED_USER) User connectedUser, UserRepository userRepo, SecuredUserRepository securedUserRepo) {
 		super();
 		this.connectedUser = requireNonNull(connectedUser);
-		this.userRepo = Objects.requireNonNull(userRepo);
-		this.securedUserRepo = Objects.requireNonNull(securedUserRepo);
+		this.userRepo = requireNonNull(userRepo);
+		this.securedUserRepo = requireNonNull(securedUserRepo);
 	}
 	
 	@Override
@@ -102,8 +98,8 @@ public class UserResource extends RestAPI {
 			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
 		}
 		
-		ensureUserNotExists(userCreated.getId());
-		createUser(userCreated, password);
+		UserCreationHelper.ensureUserNotExists(userRepo, userCreated.getId());
+		UserCreationHelper.createUser(securedUserRepo, userCreated, password);
 		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, getUriInfo());
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
         URI location = ub.path(userCreated.getId().toString()).build();
@@ -202,25 +198,6 @@ public class UserResource extends RestAPI {
 	private void ensureFoundUser(User foundUser) {
 		if (foundUser == null) {
 			throw new WebApiException(NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
-		}
-	}
-	
-	private void ensureUserNotExists(UUID userId) {
-		User foundUser = userRepo.getById(userId);
-		
-		if (foundUser != null) {
-			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getDevReadableMessage(userId));
-		}
-	}
-	
-	private void createUser(User userCreated, String password) {
-		try {
-			securedUserRepo.create(userCreated, password);
-		} catch (ApplicationException ae) {
-			if (ae.getErrorCode() == UNSECURE_PASSWORD) {
-				throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, ae.getMessage());
-			}
-			throw ae;
 		}
 	}
 	
