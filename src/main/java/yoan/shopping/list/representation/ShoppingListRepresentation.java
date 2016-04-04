@@ -68,7 +68,7 @@ public class ShoppingListRepresentation extends RestRepresentation {
 	public ShoppingListRepresentation(ShoppingList list, UriInfo uriInfo) {
 		requireNonNull(list);
 		requireNonNull(uriInfo);
-		URI selfURI = uriInfo.getAbsolutePathBuilder().path(ShoppingListResource.class).path(ShoppingListResource.class, "getById").build(list.getId().toString());
+		URI selfURI = uriInfo.getBaseUriBuilder().path(ShoppingListResource.class).path(ShoppingListResource.class, "getById").build(list.getId().toString());
 		this.links.add(Link.self(selfURI));
 		this.id = list.getId();
 		this.name = list.getName();

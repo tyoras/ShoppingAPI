@@ -63,7 +63,7 @@ public class UserRepresentation extends RestRepresentation {
 		super();
 		requireNonNull(user);
 		requireNonNull(uriInfo);
-		URI selfURI = uriInfo.getAbsolutePathBuilder().path(UserResource.class).path(UserResource.class, "getById").build(user.getId());
+		URI selfURI = uriInfo.getBaseUriBuilder().path(UserResource.class).path(UserResource.class, "getById").build(user.getId());
 		this.links.add(Link.self(selfURI));
 		this.id = user.getId();
 		this.name = user.getName();

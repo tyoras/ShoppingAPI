@@ -77,15 +77,15 @@ public class ClientAppResource extends RestAPI {
 		
 		URI createURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("create", createURI));
-		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "getById").build("{appId}");
+		URI getByIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getById").build("{appId}");
 		links.add(new Link("getById", getByIdURI));
-		URI getByOwnerIdURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "getByOwnerId").build(connectedUser.getId().toString());
+		URI getByOwnerIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getByOwnerId").build(connectedUser.getId().toString());
 		links.add(new Link("getByOwnerId", getByOwnerIdURI));
 		URI updateURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("update", updateURI));
-		URI changeSecretKeyURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "changeSecretKey").build("{appId}");
+		URI changeSecretKeyURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "changeSecretKey").build("{appId}");
 		links.add(new Link("changeSecretKey", changeSecretKeyURI));
-		URI deleteByIdURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "deleteById").build("{appId}");
+		URI deleteByIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "deleteById").build("{appId}");
 		links.add(new Link("deleteById", deleteByIdURI));
 		
 		return links;
