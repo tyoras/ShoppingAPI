@@ -50,7 +50,7 @@ import yoan.shopping.user.representation.UserRepresentation;
  * @author yoan
  */
 @Path("/api/user")
-@Api(value = "/user")
+@Api(value = "User")
 @Produces({ "application/json", "application/xml" })
 public class UserResource extends RestAPI {
 	/** Currently connected user */

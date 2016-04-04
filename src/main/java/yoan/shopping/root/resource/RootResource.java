@@ -39,7 +39,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api")
-@Api(value = "/root")
+@Api(value = "Root")
 @Produces({ "application/json", "application/xml" })
 public class RootResource extends RestAPI {
 	/** Currently connected user */

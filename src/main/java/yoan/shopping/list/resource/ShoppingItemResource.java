@@ -51,7 +51,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api/list/{listId}/item")
-@Api(value = "item")
+@Api(value = "Shopping Item")
 @Produces({ "application/json", "application/xml" })
 public class ShoppingItemResource extends RestAPI {
 	/** Currently connected user */

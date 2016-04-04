@@ -56,7 +56,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/auth/authorization")
-@Api(value = "authorization")
+@Api(value = "Oauth2 Authorization")
 public class AuthorizationResource {
 	
 	/** Currently connected user */

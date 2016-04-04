@@ -50,7 +50,7 @@ import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.repository.SecuredUserRepository;
 
 @Path("/auth/token")
-@Api(value = "token")
+@Api(value = "Oauth2 Token")
 public class TokenResource {
 
 	private final OAuth2AuthorizationCodeRepository authzCodeRepository;
