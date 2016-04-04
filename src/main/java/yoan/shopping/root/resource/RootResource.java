@@ -5,6 +5,7 @@ package yoan.shopping.root.resource;
 
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.root.RootKey.CLIENT_APP;
 import static yoan.shopping.root.RootKey.ITEM;
 import static yoan.shopping.root.RootKey.LIST;
@@ -56,7 +57,7 @@ public class RootResource extends RestAPI {
 	
 	@OPTIONS
 	@Override
-	@ApiOperation(value = "Get API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = RootRepresentation.class)
+	@ApiOperation(value = "Get API root", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.", response = RootRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root") })
 	public Response root() {
 		List<Link> links = getRootLinks();

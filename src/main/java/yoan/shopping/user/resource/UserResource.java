@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
@@ -85,7 +86,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create user", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Create user", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User"),
@@ -108,7 +109,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/{userId}")
-	@ApiOperation(value = "Get user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiOperation(value = "Get user by Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found user"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -121,7 +122,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/email/{userEmail}")
-	@ApiOperation(value = "Get user by Email adress", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiOperation(value = "Get user by Email adress", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found user"),
 		@ApiResponse(code = 400, message = "Invalid user email"),
@@ -133,7 +134,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Update", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "User updated"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -150,7 +151,7 @@ public class UserResource extends RestAPI {
 	
 	@PUT
 	@Path("/{userId}/password/{newPassword}")
-	@ApiOperation(value = "Change password", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Change password", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Password changed"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -168,7 +169,7 @@ public class UserResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{userId}")
-	@ApiOperation(value = "Delete user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Delete user by Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "User deleted"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
