@@ -48,6 +48,7 @@ import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
+import yoan.shopping.infra.util.helper.SecurityHelper;
 import yoan.shopping.user.User;
 
 /**
@@ -55,7 +56,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/auth/authorization")
-@Api(value = "authorization")
+@Api(value = "Oauth2 Authorization")
 public class AuthorizationResource {
 	
 	/** Currently connected user */
@@ -73,7 +74,7 @@ public class AuthorizationResource {
 	}
 	
 	@GET
-	@ApiOperation(value = "Get Oauth2 authorization", notes = "This will can only be done by an authenticated client")
+	@ApiOperation(value = "Get Oauth2 authorization", notes = "This can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "response_type", value = "Response type", required = true, dataType = "string", paramType = "query", allowableValues = "code, token"),
 	    @ApiImplicitParam(name = "client_id", value = "Client Id", required = true, dataType = "string", paramType = "query"),
@@ -98,15 +99,14 @@ public class AuthorizationResource {
 		
 		//build response according to response_type
 		OAuthASResponse.OAuthAuthorizationResponseBuilder oAuthResponseBuilder = OAuthASResponse.authorizationResponse(request, Status.FOUND.getStatusCode());
-		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
 		ResponseType responseType = extractResponseType(oauthRequest);
 		switch(responseType) {
 		    case CODE : 
-		    	String authorizationCode = generateAuthorizationCode(oauthIssuer);
+		    	String authorizationCode = generateAuthorizationCode();
 		        oAuthResponseBuilder.setCode(authorizationCode);
 		        break;
 		    case TOKEN :
-		    	String accessToken = generateAccessToken(oauthIssuer);
+		    	String accessToken = generateAccessToken();
 		        oAuthResponseBuilder.setAccessToken(accessToken);
 		        oAuthResponseBuilder.setExpiresIn(3600l);
 		        break;
@@ -131,14 +131,15 @@ public class AuthorizationResource {
         return ResponseType.valueOf(responseTypeParam.toUpperCase());
 	}
 	
-	protected String generateAuthorizationCode(OAuthIssuer oauthIssuer) throws OAuthSystemException {
+	protected String generateAuthorizationCode() throws OAuthSystemException {
+		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
 		String authorizationCode = oauthIssuer.authorizationCode();
 		authzCodeRepository.create(authorizationCode, authenticatedUser.getId());
 		return authorizationCode;
 	}
 	
-	protected String generateAccessToken(OAuthIssuer oauthIssuer) throws OAuthSystemException {
-		String accessToken = oauthIssuer.accessToken();
+	protected String generateAccessToken() {
+		String accessToken = SecurityHelper.generateJWT(authenticatedUser.getId());
 		accessTokenRepository.create(accessToken, authenticatedUser.getId());
 		return accessToken;
 	}

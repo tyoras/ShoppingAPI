@@ -26,6 +26,7 @@ import io.swagger.models.Swagger;
 import io.swagger.models.auth.OAuth2Definition;
 import io.swagger.models.auth.SecuritySchemeDefinition;
 import yoan.shopping.infra.config.api.Config;
+import yoan.shopping.root.BuildInfo;
 
 /**
  * Guice Module to bootstrap swagger
@@ -33,14 +34,17 @@ import yoan.shopping.infra.config.api.Config;
  */
 public class SwaggerModule extends AbstractModule {
 
+	public static final String SECURITY_DEFINITION_OAUTH2 = "oauth2";
 	private final ServletContext servletContext;
 	private final Reflections reflections;
 	private final Config configAppli;
+	private final BuildInfo buildInfo;
 
-	public SwaggerModule(ServletContext servletContext, Reflections reflections, Config configAppli) {
+	public SwaggerModule(ServletContext servletContext, Reflections reflections, Config configAppli, BuildInfo buildInfo) {
 		this.servletContext = requireNonNull(servletContext);
 		this.reflections = requireNonNull(reflections);
 		this.configAppli = requireNonNull(configAppli);
+		this.buildInfo = requireNonNull(buildInfo);
 	}
 
 	@Override
@@ -50,13 +54,13 @@ public class SwaggerModule extends AbstractModule {
 
 		Info info = new Info()
         .title("Shopping API")
-        .description("API to manage and share a shopping list")
-        .version("0.1.2")
+        .description("Rest API to manage and share a shopping list")
+        .version(buildInfo.getVersion())
         .termsOfService("https://github.com/tyoras/ShoppingAPI")
         .contact(new Contact().email("tyoras@gmail.com"))
         .license(new License().name("No license for the moment").url("https://github.com/tyoras/ShoppingAPI"));
 
-		MyReflectiveJaxrsScanner scanner = new MyReflectiveJaxrsScanner();
+		CustomReflectiveJaxrsScanner scanner = new CustomReflectiveJaxrsScanner();
 		scanner.setReflections(reflections);
 		scanner.setInfo(info);
 		scanner.setConfigAppli(configAppli);
@@ -69,11 +73,11 @@ public class SwaggerModule extends AbstractModule {
 			//.implicit(authorizationURL) //to get directly the token from the authz endpoint
 			.accessCode(authorizationURL, tokenURL);
 		
-		swagger.securityDefinition("oauth2", oauth2SecurityDefinition);
+		swagger.securityDefinition(SECURITY_DEFINITION_OAUTH2, oauth2SecurityDefinition);
 		servletContext.setAttribute("swagger", swagger);
 	}
 
-	private static class MyReflectiveJaxrsScanner extends ReflectiveJaxrsScanner {
+	private static class CustomReflectiveJaxrsScanner extends ReflectiveJaxrsScanner {
 		private Info info;
 		private Config configAppli;
 

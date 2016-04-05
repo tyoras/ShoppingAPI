@@ -5,23 +5,28 @@ package yoan.shopping.root.resource;
 
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.root.RootKey.CLIENT_APP;
 import static yoan.shopping.root.RootKey.ITEM;
 import static yoan.shopping.root.RootKey.LIST;
 import static yoan.shopping.root.RootKey.USER;
+
+import java.util.List;
+
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-
-import java.util.List;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
-
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.root.BuildInfo;
@@ -29,17 +34,13 @@ import yoan.shopping.root.repository.BuildInfoRepository;
 import yoan.shopping.root.representation.RootRepresentation;
 import yoan.shopping.user.User;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
 
 /**
  * Root Resource
  * @author yoan
  */
 @Path("/api")
-@Api(value = "/root")
+@Api(value = "Root", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class RootResource extends RestAPI {
 	/** Currently connected user */
@@ -54,10 +55,10 @@ public class RootResource extends RestAPI {
 		this.connectedUser = requireNonNull(connectedUser);
 	}
 	
-	@GET
+	@OPTIONS
 	@Override
-	@ApiOperation(value = "Get API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = RootRepresentation.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root") })
+	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RootRepresentation.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RootRepresentation.class) })
 	public Response root() {
 		List<Link> links = getRootLinks();
 		BuildInfo buildInfo = buildInfoRepository.getCurrentBuildInfos();

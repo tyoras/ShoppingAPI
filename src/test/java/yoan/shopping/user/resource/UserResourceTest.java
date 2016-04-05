@@ -7,6 +7,8 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
@@ -34,10 +36,9 @@ import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
-import yoan.shopping.user.representation.SecuredUserRepresentation;
+import yoan.shopping.user.representation.SecuredUserWriteRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
-
-import com.google.common.collect.Lists;
+import yoan.shopping.user.representation.UserWriteRepresentation;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserResourceTest {
@@ -97,7 +98,7 @@ public class UserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		SecuredUserRepresentation representation = new SecuredUserRepresentation(expectedID, expectedName, expectedMail, Lists.newArrayList(), "password");
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedID, expectedName, expectedMail, "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -121,7 +122,7 @@ public class UserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		SecuredUserRepresentation representationwithoutId = new SecuredUserRepresentation(null, expectedName, expectedMail, Lists.newArrayList(), "password");
+		SecuredUserWriteRepresentation representationwithoutId = new SecuredUserWriteRepresentation(null, expectedName, expectedMail, "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -143,10 +144,12 @@ public class UserResourceTest {
 	public void create_should_return_409_with_already_existing_user() {
 		//given
 		UUID alreadyExistingUserId = UUID.randomUUID();
-		@SuppressWarnings("deprecation")
-		SecuredUserRepresentation representation = new SecuredUserRepresentation(alreadyExistingUserId, "name", "mail", Lists.newArrayList(), "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
-		when(mockedUserRepo.getById(alreadyExistingUserId)).thenReturn(User.Builder.createDefault().withId(alreadyExistingUserId).build());
+		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
+		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		@SuppressWarnings("deprecation")
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(alreadyExistingUserId, "name", "mail", "password");
+		when(mockedUserRepo.checkUserExistsByIdOrEmail(eq(alreadyExistingUserId), any())).thenReturn(true);
 		String expectedMessage = ALREADY_EXISTING_USER.getDevReadableMessage(alreadyExistingUserId);
 		
 		//when
@@ -223,7 +226,7 @@ public class UserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		UserRepresentation representation = new UserRepresentation(expectedID, expectedName, expectedMail, Lists.newArrayList());
+		UserWriteRepresentation representation = new UserWriteRepresentation(expectedID, expectedName, expectedMail);
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		User existingUser = User.Builder.createDefault().withId(expectedID).build();
 		when(mockedUserRepo.getById(expectedID)).thenReturn(existingUser);
@@ -242,7 +245,7 @@ public class UserResourceTest {
 	public void update_should_return_400_with_input_representation_without_id() {
 		//given
 		@SuppressWarnings("deprecation")
-		UserRepresentation representationWithoutId = new UserRepresentation(null, "name", "mail", Lists.newArrayList());
+		UserWriteRepresentation representationWithoutId = new UserWriteRepresentation(null, "name", "mail");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		String expectedMessage = UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE.getDevReadableMessage();
 		
@@ -260,7 +263,7 @@ public class UserResourceTest {
 	public void update_should_return_404_with_unknown_user() {
 		//given
 		@SuppressWarnings("deprecation")
-		UserRepresentation representation = new UserRepresentation(UUID.randomUUID(), "name", "mail", Lists.newArrayList());
+		UserWriteRepresentation representation = new UserWriteRepresentation(UUID.randomUUID(), "name", "mail");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		String expectedMessage = "User not found";
 		

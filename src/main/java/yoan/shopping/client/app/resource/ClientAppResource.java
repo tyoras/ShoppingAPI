@@ -10,15 +10,10 @@ import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.CL
 import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.CLIENT_APP_NOT_FOUND;
 import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.MISSING_CLIENT_APP_ID_FOR_UPDATE;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -36,29 +31,35 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.client.app.representation.ClientAppRepresentation;
+import yoan.shopping.client.app.representation.ClientAppWriteRepresentation;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
-import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.list.representation.ShoppingListRepresentation;
 import yoan.shopping.user.User;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
 /**
  * Client application API
  * @author yoan
  */
 @Path("/api/client/app")
-@Api(value = "/client/app")
+@Api(value = "Client App", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class ClientAppResource extends RestAPI {
 	/** Currently connected user */
@@ -72,43 +73,34 @@ public class ClientAppResource extends RestAPI {
 		this.clientAppRepo = Objects.requireNonNull(clientAppRepo);
 	}
 	
-	@GET
-	@ApiOperation(value = "Get client application API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
-	@Override
-	public Response root() {
-		RestRepresentation rootRepresentation = new RestRepresentation(getRootLinks());
-		return Response.ok().entity(rootRepresentation).build();
-	}
-	
 	@Override
 	public List<Link> getRootLinks() {
 		List<Link> links = Lists.newArrayList(Link.self(getUriInfo()));
 		
 		URI createURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("create", createURI));
-		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "getById").build("{appId}");
+		URI getByIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getById").build("{appId}");
 		links.add(new Link("getById", getByIdURI));
-		URI getByOwnerIdURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "getByOwnerId").build(connectedUser.getId().toString());
+		URI getByOwnerIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getByOwnerId").build(connectedUser.getId().toString());
 		links.add(new Link("getByOwnerId", getByOwnerIdURI));
 		URI updateURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("update", updateURI));
-		URI changeSecretKeyURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "changeSecretKey").build("{appId}");
+		URI changeSecretKeyURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "changeSecretKey").build("{appId}");
 		links.add(new Link("changeSecretKey", changeSecretKeyURI));
-		URI deleteByIdURI = getUriInfo().getAbsolutePathBuilder().path(ClientAppResource.class, "deleteById").build("{appId}");
+		URI deleteByIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "deleteById").build("{appId}");
 		links.add(new Link("deleteById", deleteByIdURI));
 		
 		return links;
 	}
 	
 	@POST
-	@ApiOperation(value = "Create client app", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Create client app", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User"),
 		@ApiResponse(code = 409, message = "Already existing user")})
-	public Response create(@ApiParam(value = "Client application to create", required = true) ClientAppRepresentation clientAppToCreate) {
-		ClientApp clientAppCreated = ClientAppRepresentation.toClientApp(clientAppToCreate);
+	public Response create(@ApiParam(value = "Client application to create", required = true) ClientAppWriteRepresentation clientAppToCreate) {
+		ClientApp clientAppCreated = ClientAppWriteRepresentation.toClientApp(clientAppToCreate);
 		//if the Id was not provided we generate one
 		if (clientAppCreated.getId().equals(ClientApp.DEFAULT_ID)) {
 			clientAppCreated = ClientApp.Builder.createFrom(clientAppCreated).withRandomId().build();
@@ -126,7 +118,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@GET
 	@Path("/{appId}")
-	@ApiOperation(value = "Get client app by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = ClientAppRepresentation.class)
+	@ApiOperation(value = "Get client app by Id", notes = "This can only be done by the logged in user.", response = ClientAppRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found client application"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
@@ -139,7 +131,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@GET
 	@Path("/user/{ownerId}")
-	@ApiOperation(value = "Get client apps by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
+	@ApiOperation(value = "Get client apps by Id", notes = "This can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found client applications"),
 		@ApiResponse(code = 400, message = "Invalid owner Id"),
@@ -152,13 +144,13 @@ public class ClientAppResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Client application updated"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
 		@ApiResponse(code = 404, message = "Client application not found") })
-	public Response update(@ApiParam(value = "Client application to update", required = true) ClientAppRepresentation appToUpdate) {
-		ClientApp updatedClientApp = ClientAppRepresentation.toClientApp(appToUpdate);
+	public Response update(@ApiParam(value = "Client application to update", required = true) ClientAppWriteRepresentation appToUpdate) {
+		ClientApp updatedClientApp = ClientAppWriteRepresentation.toClientApp(appToUpdate);
 		ensureAppIdProvidedForUpdate(updatedClientApp.getId());
 		clientAppRepo.update(updatedClientApp);
 
@@ -178,7 +170,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@POST
 	@Path("/{appId}/secret")
-	@ApiOperation(value = "Change secret key", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Change secret key", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Secret key changed"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
@@ -197,7 +189,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{appId}")
-	@ApiOperation(value = "Delete client application by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Delete client application by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Client application deleted"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),

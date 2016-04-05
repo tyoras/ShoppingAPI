@@ -15,6 +15,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletModule;
+import com.thetransactioncompany.cors.CORSFilter;
 
 /**
  * Guice module to configure servlet
@@ -31,7 +32,11 @@ public class ShoppingWebModule extends ServletModule {
 		serve("/rest").with(HttpServletDispatcher.class);
 		serve("/rest/*").with(HttpServletDispatcher.class);
 		
-		filter("/rest/api", "/rest/api/*", "/rest/auth", "/rest/auth/*").through(GuiceShiroFilter.class);
+		//allow CORS
+		bind(CORSFilter.class).in(Singleton.class);
+		filter("/", "/*").through(CORSFilter.class);
+		
+		filter("/rest/api", "/rest/api/*", "/rest/auth", "/rest/auth/*", "/rest/public", "/rest/public/*").through(GuiceShiroFilter.class);
 		
 		//filtering to authenticate the current user
 		filter("/rest/api", "/rest/api/*", "/rest/auth/authorization").through(RequestScopeFilter.class);

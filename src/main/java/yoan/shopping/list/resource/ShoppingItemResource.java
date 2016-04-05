@@ -5,6 +5,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
@@ -39,12 +40,12 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
-import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.list.ShoppingItem;
 import yoan.shopping.list.repository.ShoppingItemRepository;
 import yoan.shopping.list.representation.ShoppingItemRepresentation;
+import yoan.shopping.list.representation.ShoppingItemWriteRepresentation;
 import yoan.shopping.user.User;
 
 /**
@@ -52,7 +53,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api/list/{listId}/item")
-@Api(value = "item")
+@Api(value = "Shopping Item", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class ShoppingItemResource extends RestAPI {
 	/** Currently connected user */
@@ -65,15 +66,6 @@ public class ShoppingItemResource extends RestAPI {
 		super();
 		this.connectedUser = requireNonNull(connectedUser);
 		this.itemRepo = Objects.requireNonNull(itemRepo);
-	}
-	
-	@GET
-	@ApiOperation(value = "Get shopping item API root", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = RestRepresentation.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
-	@Override
-	public Response root() {
-		RestRepresentation rootRepresentation = new RestRepresentation(getRootLinks());
-		return Response.ok().entity(rootRepresentation).build();
 	}
 	
 	@Override
@@ -93,16 +85,16 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create shopping item", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Create shopping item", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "Item created"),
 		@ApiResponse(code = 400, message = "Invalid item"),
 		@ApiResponse(code = 404, message = "List not found"),
 		@ApiResponse(code = 409, message = "Already existing item")})
 	public Response create(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
-						   @ApiParam(value = "Item to create", required = true) ShoppingItemRepresentation itemToCreate) {
+						   @ApiParam(value = "Item to create", required = true) ShoppingItemWriteRepresentation itemToCreate) {
 		UUID listId = extractListId(listIdStr);
-		ShoppingItem createdItem = ShoppingItemRepresentation.toShoppingItem(itemToCreate);
+		ShoppingItem createdItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToCreate);
 		//if the Id was not provided we generate one
 		if (createdItem.getId().equals(ShoppingItem.DEFAULT_ID)) {
 			createdItem = ShoppingItem.Builder.createFrom(createdItem).withRandomId().build();
@@ -118,7 +110,7 @@ public class ShoppingItemResource extends RestAPI {
 	
 	@GET
 	@Path("/{itemId}")
-	@ApiOperation(value = "Get shopping item by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingItemRepresentation.class)
+	@ApiOperation(value = "Get shopping item by Id", notes = "This can only be done by the logged in user.", response = ShoppingItemRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found item"),
 		@ApiResponse(code = 400, message = "Invalid item Id"),
@@ -132,15 +124,15 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Shopping item updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "Item not found") })
 	public Response update(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
-						   @ApiParam(value = "Item to update", required = true) ShoppingItemRepresentation itemToUpdate) {
+						   @ApiParam(value = "Item to update", required = true) ShoppingItemWriteRepresentation itemToUpdate) {
 		UUID listId = extractListId(listIdStr);
-		ShoppingItem updatedItem = ShoppingItemRepresentation.toShoppingItem(itemToUpdate);
+		ShoppingItem updatedItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToUpdate);
 		ensureItemIdProvidedForUpdate(updatedItem.getId());
 		itemRepo.update(listId, updatedItem);
 
@@ -151,7 +143,7 @@ public class ShoppingItemResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{itemId}")
-	@ApiOperation(value = "Delete item by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Delete item by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Item deleted"),
 		@ApiResponse(code = 400, message = "Invalid item Id"),

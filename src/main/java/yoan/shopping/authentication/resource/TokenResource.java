@@ -30,9 +30,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.oltu.oauth2.as.issuer.MD5Generator;
-import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
-import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.request.OAuthTokenRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
@@ -48,11 +45,12 @@ import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
+import yoan.shopping.infra.util.helper.SecurityHelper;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.repository.SecuredUserRepository;
 
 @Path("/auth/token")
-@Api(value = "token")
+@Api(value = "Oauth2 Token")
 public class TokenResource {
 
 	private final OAuth2AuthorizationCodeRepository authzCodeRepository;
@@ -73,7 +71,7 @@ public class TokenResource {
 	@POST
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces("application/json")
-	@ApiOperation(value = "Get Oauth2 access token", notes = "This will can only be done by an authenticated client")
+	@ApiOperation(value = "Get Oauth2 access token", notes = "This can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "grant_type", value = "Grant type", required = true, dataType = "string", paramType = "form", allowableValues = "authorization_code, password, refresh_token, client_credentials"),
 	    @ApiImplicitParam(name = "redirect_uri", value = "Redirect URI", required = false, dataType = "string", paramType = "form"),
@@ -170,7 +168,7 @@ public class TokenResource {
 		String userEmail = oauthRequest.getUsername();
 		String password =  oauthRequest.getPassword();
 		SecuredUser foundUser = userRepository.getByEmail(userEmail);
-		if (!checkUserPassword(foundUser, password)) {
+		if (foundUser == null || !checkUserPassword(foundUser, password)) {
 			throw new OAuthException(buildInvalidUserPassResponse());
 		}
 		return foundUser.getId();
@@ -181,9 +179,8 @@ public class TokenResource {
 		return foundUser.getPassword().equals(hashedPassword);
 	}
 	
-	protected String generateAccessToken(UUID userId) throws OAuthSystemException {
-		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
-		String accessToken = oauthIssuer.accessToken();
+	protected String generateAccessToken(UUID userId) {
+		String accessToken = SecurityHelper.generateJWT(userId);
 		accessTokenRepository.create(accessToken, userId);
 		return accessToken;
 	}

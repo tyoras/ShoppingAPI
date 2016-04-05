@@ -27,9 +27,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.common.collect.ImmutableList;
+
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.client.app.representation.ClientAppRepresentation;
+import yoan.shopping.client.app.representation.ClientAppWriteRepresentation;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
@@ -37,9 +40,6 @@ import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.RepositoryErrorCode;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClientAppResourceTest {
@@ -97,7 +97,7 @@ public class ClientAppResourceTest {
 		URI expectedRedirectURI = TestHelper.TEST_URI;
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ClientAppRepresentation representation = new ClientAppRepresentation(expectedID, expectedName, expectedOwnerId, expectedRedirectURI.toString(), null, Lists.newArrayList());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(expectedID, expectedName, expectedOwnerId, expectedRedirectURI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -123,7 +123,7 @@ public class ClientAppResourceTest {
 		URI expectedRedirectURI = TestHelper.TEST_URI;
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ClientAppRepresentation representationwithoutId = new ClientAppRepresentation(null, expectedName, expectedOwnerId, expectedRedirectURI.toString(), null, Lists.newArrayList());
+		ClientAppWriteRepresentation representationwithoutId = new ClientAppWriteRepresentation(null, expectedName, expectedOwnerId, expectedRedirectURI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -147,7 +147,7 @@ public class ClientAppResourceTest {
 		//given
 		UUID alreadyExistingAppId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ClientAppRepresentation representation = new ClientAppRepresentation(alreadyExistingAppId, "name", UUID.randomUUID(), TestHelper.TEST_URI.toString(), null, Lists.newArrayList());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(alreadyExistingAppId, "name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		when(mockedClientAppRepo.getById(alreadyExistingAppId)).thenReturn(ClientApp.Builder.createDefault().withId(alreadyExistingAppId).build());
 		String expectedMessage = ALREADY_EXISTING_CLIENT_APP.getDevReadableMessage(alreadyExistingAppId);
@@ -279,7 +279,7 @@ public class ClientAppResourceTest {
 		String expectedName = "name";
 		URI expectedRedirectURI = TestHelper.TEST_URI;
 		@SuppressWarnings("deprecation")
-		ClientAppRepresentation representation = new ClientAppRepresentation(expectedID, expectedName, UUID.randomUUID(), expectedRedirectURI.toString(), null, Lists.newArrayList());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(expectedID, expectedName, UUID.randomUUID(), expectedRedirectURI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		ClientApp existingApp = ClientApp.Builder.createDefault().withId(expectedID).build();
 		when(mockedClientAppRepo.getById(expectedID)).thenReturn(existingApp);
@@ -298,7 +298,7 @@ public class ClientAppResourceTest {
 	public void update_should_return_400_with_input_representation_without_id() {
 		//given
 		@SuppressWarnings("deprecation")
-		ClientAppRepresentation representationWithoutId = new ClientAppRepresentation(null, "name", UUID.randomUUID(), TestHelper.TEST_URI.toString(), null, Lists.newArrayList());
+		ClientAppWriteRepresentation representationWithoutId = new ClientAppWriteRepresentation(null, "name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		String expectedMessage = ClientAppResourceErrorMessage.MISSING_CLIENT_APP_ID_FOR_UPDATE.getDevReadableMessage();
 		
@@ -316,7 +316,7 @@ public class ClientAppResourceTest {
 	public void update_should_return_404_with_unknown_client_app() {
 		//given
 		@SuppressWarnings("deprecation")
-		ClientAppRepresentation representation = new ClientAppRepresentation(UUID.randomUUID(), "name", UUID.randomUUID(), TestHelper.TEST_URI.toString(), null, Lists.newArrayList());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(UUID.randomUUID(), "name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Client app not found";
 		

@@ -37,6 +37,7 @@ import yoan.shopping.infra.util.error.RepositoryErrorCode;
 import yoan.shopping.list.ShoppingItem;
 import yoan.shopping.list.repository.ShoppingItemRepository;
 import yoan.shopping.list.representation.ShoppingItemRepresentation;
+import yoan.shopping.list.representation.ShoppingItemWriteRepresentation;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 
@@ -98,7 +99,7 @@ public class ShoppingItemResourceTest {
 		String expectedState = TO_BUY.name();
 		
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representation = new ShoppingItemRepresentation(expectedID, expectedName, expectedQuantity, expectedState, null, null);
+		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(expectedID, expectedName, expectedQuantity, expectedState);
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -126,7 +127,7 @@ public class ShoppingItemResourceTest {
 		String expectedState = TO_BUY.name();
 		
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representationwithoutId = new ShoppingItemRepresentation(null, expectedName, expectedQuantity, expectedState, null, null);
+		ShoppingItemWriteRepresentation representationwithoutId = new ShoppingItemWriteRepresentation(null, expectedName, expectedQuantity, expectedState);
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -151,7 +152,7 @@ public class ShoppingItemResourceTest {
 		UUID listId = UUID.randomUUID();
 		UUID alreadyExistingShoppingItemId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representation = new ShoppingItemRepresentation(alreadyExistingShoppingItemId, "name", 10, TO_BUY.toString(), null, null);
+		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(alreadyExistingShoppingItemId, "name", 10, TO_BUY.toString());
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		when(mockeItemRepo.getById(listId, alreadyExistingShoppingItemId)).thenReturn(ShoppingItem.Builder.createDefault().withId(alreadyExistingShoppingItemId).build());
 		String expectedMessage = ALREADY_EXISTING_ITEM.getDevReadableMessage(alreadyExistingShoppingItemId);
@@ -170,7 +171,7 @@ public class ShoppingItemResourceTest {
 	public void create_should_return_400_with_invalid_list_Id() {
 		//given
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representation = new ShoppingItemRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString(), null, null);
+		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString());
 		String invalidListId = "invalid ID";
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named listId : invalid ID";
@@ -274,7 +275,7 @@ public class ShoppingItemResourceTest {
 		String expectedState = TO_BUY.name();
 		
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representation = new ShoppingItemRepresentation(expectedID, expectedName, expectedQuantity, expectedState, null, null);
+		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(expectedID, expectedName, expectedQuantity, expectedState);
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		ShoppingItem existingShoppingItem = ShoppingItem.Builder.createDefault().withId(expectedID).build();
 		when(mockeItemRepo.getById(listId, expectedID)).thenReturn(existingShoppingItem);
@@ -294,7 +295,7 @@ public class ShoppingItemResourceTest {
 		//given
 		String listIdStr = UUID.randomUUID().toString();
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representationWithoutId = new ShoppingItemRepresentation(null, "name", 10, TO_BUY.toString(), null, null);
+		ShoppingItemWriteRepresentation representationWithoutId = new ShoppingItemWriteRepresentation(null, "name", 10, TO_BUY.toString());
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = MISSING_ITEM_ID_FOR_UPDATE.getDevReadableMessage();
 		
@@ -312,7 +313,7 @@ public class ShoppingItemResourceTest {
 	public void update_should_return_400_with_invalid_list_Id() {
 		//given
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representation = new ShoppingItemRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString(), null, null);
+		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString());
 		String invalidListId = "invalid ID";
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named listId : invalid ID";
@@ -332,7 +333,7 @@ public class ShoppingItemResourceTest {
 		//given
 		String listIdStr = UUID.randomUUID().toString();
 		@SuppressWarnings("deprecation")
-		ShoppingItemRepresentation representation = new ShoppingItemRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString(), null, null);
+		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString());
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Item not found";
 		
