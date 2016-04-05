@@ -5,6 +5,8 @@ import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.any;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER;
@@ -22,8 +24,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.collect.Lists;
-
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
@@ -31,7 +31,7 @@ import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
-import yoan.shopping.user.representation.SecuredUserRepresentation;
+import yoan.shopping.user.representation.SecuredUserWriteRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,7 +88,7 @@ public class RegisterUserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		SecuredUserRepresentation representation = new SecuredUserRepresentation(expectedID, expectedName, expectedMail, Lists.newArrayList(), "password");
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedID, expectedName, expectedMail, "password");
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
@@ -111,7 +111,7 @@ public class RegisterUserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		SecuredUserRepresentation representationwithoutId = new SecuredUserRepresentation(null, expectedName, expectedMail, Lists.newArrayList(), "password");
+		SecuredUserWriteRepresentation representationwithoutId = new SecuredUserWriteRepresentation(null, expectedName, expectedMail, "password");
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
@@ -132,9 +132,11 @@ public class RegisterUserResourceTest {
 	public void register_should_return_409_with_already_existing_user() {
 		//given
 		UUID alreadyExistingUserId = UUID.randomUUID();
+		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
+		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		@SuppressWarnings("deprecation")
-		SecuredUserRepresentation representation = new SecuredUserRepresentation(alreadyExistingUserId, "name", "mail", Lists.newArrayList(), "password");
-		when(mockedUserRepo.getById(alreadyExistingUserId)).thenReturn(User.Builder.createDefault().withId(alreadyExistingUserId).build());
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(alreadyExistingUserId, "name", "mail", "password");
+		when(mockedUserRepo.checkUserExistsByIdOrEmail(eq(alreadyExistingUserId), any())).thenReturn(true);
 		String expectedMessage = ALREADY_EXISTING_USER.getDevReadableMessage(alreadyExistingUserId);
 		
 		//when

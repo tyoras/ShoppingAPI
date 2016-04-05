@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
@@ -166,5 +167,20 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 		//then
 		User result = testedRepo.getById(existingUser.getId());
 		assertThat(result).isNull();
+	}
+	
+	@Test
+	@Ignore //does not work because there is a bug with fongo parsing uuid when uusing count
+	public void countByIdOrEmail_should_work_with_existing_user_id_and_blank_email() {
+		//given
+		String blankEmail = "re  ";
+		User existingUser = TestHelper.generateRandomUser();
+		testedRepo.create(existingUser);
+
+		//when
+		long result = testedRepo.countByIdOrEmail(existingUser.getId(), blankEmail);
+		
+		//then
+		assertThat(result).isEqualTo(1);
 	}
 }

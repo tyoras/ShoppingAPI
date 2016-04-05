@@ -6,13 +6,9 @@ import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -22,60 +18,45 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.MoreObjects;
 
 import io.swagger.annotations.ApiModel;
-import yoan.shopping.infra.rest.Link;
-import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.user.User;
-import yoan.shopping.user.resource.UserResource;
 
 /**
  * User Rest Representation
  * @author yoan
  */
 @XmlRootElement(name = "user")
-@ApiModel(value = "User", subTypes = {SecuredUserRepresentation.class})
-public class UserRepresentation extends RestRepresentation {
+@ApiModel(value = "User write", subTypes = {SecuredUserWriteRepresentation.class})
+public class UserWriteRepresentation {
 	/** User unique ID */
 	private UUID id;
 	/** User last name */
 	private String name;
 	/** User email */
 	private String email;
-	/** user creation date */
-	private LocalDateTime creationDate;
-	/** Last time the user was updated */
-	private LocalDateTime lastUpdate;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserRepresentation.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserWriteRepresentation.class);
 	
-	public UserRepresentation() {
-		super();
-	}
+	public UserWriteRepresentation() { }
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public UserRepresentation(UUID id, String name, String email, List<Link> links) {
-		super(links);
+	public UserWriteRepresentation(UUID id, String name, String email) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 	}
 	
-	public UserRepresentation(User user, UriInfo uriInfo) {
+	public UserWriteRepresentation(User user) {
 		super();
 		requireNonNull(user);
-		requireNonNull(uriInfo);
-		URI selfURI = uriInfo.getBaseUriBuilder().path(UserResource.class).path(UserResource.class, "getById").build(user.getId());
-		this.links.add(Link.self(selfURI));
 		this.id = user.getId();
 		this.name = user.getName();
 		this.email = user.getEmail();
-		this.creationDate = user.getCreationDate();
-		this.lastUpdate = user.getLastUpdate();
 	}
 	
-	public static User toUser(UserRepresentation representation) {
-		requireNonNull(representation, "Unable to create User from null UserRepresentation");
+	public static User toUser(UserWriteRepresentation representation) {
+		requireNonNull(representation, "Unable to create User from null UserWriteRepresentation");
 		
 		User.Builder userBuilder = User.Builder.createDefault()
 						   .withName(representation.name)
@@ -111,16 +92,6 @@ public class UserRepresentation extends RestRepresentation {
 		return email;
 	}
 	
-	@XmlElement(name = "creationDate")
-	public LocalDateTime getCreationDate() {
-		return creationDate;
-	}
-	
-	@XmlElement(name = "lastUpdate")
-	public LocalDateTime getLastUpdate() {
-		return lastUpdate;
-	}
-	
 	public void setId(UUID id) {
 		this.id = id;
 	}
@@ -133,17 +104,9 @@ public class UserRepresentation extends RestRepresentation {
 		this.email = email;
 	}
 	
-	public void setCreationDate(LocalDateTime creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	public void setLastUpdate(LocalDateTime lastUpdate) {
-		this.lastUpdate = lastUpdate;
-	}
-	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, email, creationDate, lastUpdate);
+		return Objects.hash(id, name, email);
 	}
 
 	@Override
@@ -154,12 +117,10 @@ public class UserRepresentation extends RestRepresentation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        UserRepresentation that = (UserRepresentation) obj;
+        UserWriteRepresentation that = (UserWriteRepresentation) obj;
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
-                && Objects.equals(this.email, that.email)
-                && Objects.equals(this.creationDate, that.creationDate)
-                && Objects.equals(this.lastUpdate, that.lastUpdate);
+                && Objects.equals(this.email, that.email);
     }
 	
 	@Override
@@ -167,8 +128,6 @@ public class UserRepresentation extends RestRepresentation {
 		return MoreObjects.toStringHelper(this).add("id", id)
 											   .add("name", name)
 											   .add("email", email)
-											   .add("created", creationDate)
-											   .add("lastUpdate", lastUpdate)
 											   .toString();
 	}
 }

@@ -21,12 +21,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
+import yoan.shopping.infra.rest.error.ErrorRepresentation;
 import yoan.shopping.user.User;
 import yoan.shopping.user.UserCreationHelper;
 import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
-import yoan.shopping.user.representation.SecuredUserRepresentation;
+import yoan.shopping.user.representation.SecuredUserWriteRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
+import yoan.shopping.user.representation.UserWriteRepresentation;
 
 /**
  * User registration API
@@ -58,20 +60,20 @@ public class RegisterUserResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Register new user", notes = "This can be done without authenticated user.")
+	@ApiOperation(value = "Register new user", notes = "This can be done without authenticated user.", code = 201)
 	@ApiResponses(value = {
-		@ApiResponse(code = 201, message = "User created"),
-		@ApiResponse(code = 400, message = "Invalid User"),
-		@ApiResponse(code = 409, message = "Already existing user")})
-	public Response register(@ApiParam(value = "User to create", required = true) SecuredUserRepresentation userToCreate) {
+		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),
+		@ApiResponse(code = 400, message = "Invalid User", response = ErrorRepresentation.class),
+		@ApiResponse(code = 409, message = "Already existing user", response = ErrorRepresentation.class)})
+	public Response register(@ApiParam(value = "User to create", required = true) SecuredUserWriteRepresentation userToCreate) {
 		String password = userToCreate.getPassword();
-		User userCreated = UserRepresentation.toUser(userToCreate);
+		User userCreated = UserWriteRepresentation.toUser(userToCreate);
 		//if the Id was not provided we generate one
 		if (userCreated.getId().equals(User.DEFAULT_ID)) {
 			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
 		}
 		
-		UserCreationHelper.ensureUserNotExists(userRepo, userCreated.getId());
+		UserCreationHelper.ensureUserNotExists(userRepo, userCreated.getId(), userCreated.getEmail());
 		UserCreationHelper.createUser(securedUserRepo, userCreated, password);
 		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, getUriInfo());
 		UriBuilder ub = getUriInfo().getBaseUriBuilder();

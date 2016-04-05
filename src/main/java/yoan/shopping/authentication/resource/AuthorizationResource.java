@@ -56,7 +56,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/auth/authorization")
-@Api(value = "authorization")
+@Api(value = "Oauth2 Authorization")
 public class AuthorizationResource {
 	
 	/** Currently connected user */
@@ -74,7 +74,7 @@ public class AuthorizationResource {
 	}
 	
 	@GET
-	@ApiOperation(value = "Get Oauth2 authorization", notes = "This will can only be done by an authenticated client")
+	@ApiOperation(value = "Get Oauth2 authorization", notes = "This can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "response_type", value = "Response type", required = true, dataType = "string", paramType = "query", allowableValues = "code, token"),
 	    @ApiImplicitParam(name = "client_id", value = "Client Id", required = true, dataType = "string", paramType = "query"),

@@ -50,7 +50,7 @@ import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.repository.SecuredUserRepository;
 
 @Path("/auth/token")
-@Api(value = "token")
+@Api(value = "Oauth2 Token")
 public class TokenResource {
 
 	private final OAuth2AuthorizationCodeRepository authzCodeRepository;
@@ -71,7 +71,7 @@ public class TokenResource {
 	@POST
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces("application/json")
-	@ApiOperation(value = "Get Oauth2 access token", notes = "This will can only be done by an authenticated client")
+	@ApiOperation(value = "Get Oauth2 access token", notes = "This can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "grant_type", value = "Grant type", required = true, dataType = "string", paramType = "form", allowableValues = "authorization_code, password, refresh_token, client_credentials"),
 	    @ApiImplicitParam(name = "redirect_uri", value = "Redirect URI", required = false, dataType = "string", paramType = "form"),

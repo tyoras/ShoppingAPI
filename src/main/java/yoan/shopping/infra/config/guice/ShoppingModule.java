@@ -28,6 +28,7 @@ import yoan.shopping.list.repository.mongo.ShoppingItemMongoRepository;
 import yoan.shopping.list.repository.mongo.ShoppingListMongoRepository;
 import yoan.shopping.list.resource.ShoppingItemResource;
 import yoan.shopping.list.resource.ShoppingListResource;
+import yoan.shopping.root.BuildInfo;
 import yoan.shopping.root.repository.BuildInfoRepository;
 import yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository;
 import yoan.shopping.root.resource.RootResource;
@@ -47,6 +48,7 @@ import com.google.inject.Provides;
  */
 public class ShoppingModule extends AbstractModule {
 	private static final Config configAppli;
+	private static final BuildInfo buildInfo;
 	
 	private final ServletContext servletContext;
 	
@@ -57,11 +59,13 @@ public class ShoppingModule extends AbstractModule {
 	static {
 		ConfigRepository configRepo = new ConfigPropertiesRepository();
 		configAppli = configRepo.readConfig();
+		BuildInfoRepository buildInfoRepo = new BuildInfoPropertiesRepository(BUILD_INFO_DEFAULT_PROPERTIES_FILE_NAME);
+		buildInfo = buildInfoRepo.getCurrentBuildInfos();
 	}
 	
 	@Override
 	protected void configure() {
-		install(new SwaggerModule(servletContext, new Reflections("yoan.shopping"), configAppli));
+		install(new SwaggerModule(servletContext, new Reflections("yoan.shopping"), configAppli, buildInfo));
 		
 		//resources
 		bind(RootResource.class);

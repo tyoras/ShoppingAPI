@@ -107,4 +107,18 @@ public class UserMongoRepository extends UserRepository {
 		}
 		return foundUser;
 	}
+
+	@Override
+	protected long countByIdOrEmail(UUID userId, String email) {
+		Bson filter = Filters.or(Filters.eq(FIELD_ID, userId), Filters.eq(FIELD_EMAIL, email));
+//		Bson filter = Filters.eq(FIELD_ID, userId);
+		long count = 0;
+		try {
+			
+			count = userCollection.count(filter);
+		} catch(MongoException e) {
+			MongoRepositoryHelper.handleMongoError(LOGGER, e, PROBLEM_READ_USER);
+		}
+		return count;
+	}
 }

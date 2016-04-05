@@ -31,4 +31,8 @@ public class UserFakeRepository extends UserRepository {
 		return null;
 	}
 
+	@Override
+	protected long countByIdOrEmail(UUID userId, String email) {
+		return 0;
+	}
 }

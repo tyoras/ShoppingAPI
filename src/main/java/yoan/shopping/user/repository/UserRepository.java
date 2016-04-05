@@ -121,6 +121,20 @@ public abstract class UserRepository {
 	}
 	
 	/**
+	 * Check if a user exists with given id or email
+	 * @param userId
+	 * @param email
+	 * @return boolean
+	 */
+	public boolean checkUserExistsByIdOrEmail(UUID userId, String email) {
+		if (userId == null && StringUtils.isBlank(email)) {
+			LOGGER.warn("Checking user existence with null Id or email");
+			return false;
+		}
+		return countByIdOrEmail(userId, email) > 0;
+	}
+	
+	/**
 	 * Create a new user
 	 * @param userToCreate
 	 */
@@ -149,4 +163,12 @@ public abstract class UserRepository {
 	 * @param userId
 	 */
 	protected abstract void processDeleteById(UUID userId);
+	
+	/**
+	 * Count users whit id or email
+	 * @param userId
+	 * @param email
+	 * @return number of user with id or email
+	 */
+	protected abstract long countByIdOrEmail(UUID userId, String email);
 }

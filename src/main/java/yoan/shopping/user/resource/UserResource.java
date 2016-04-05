@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
+import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
@@ -36,21 +37,23 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
+import yoan.shopping.infra.rest.error.ErrorRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.user.User;
 import yoan.shopping.user.UserCreationHelper;
 import yoan.shopping.user.repository.SecuredUserRepository;
 import yoan.shopping.user.repository.UserRepository;
-import yoan.shopping.user.representation.SecuredUserRepresentation;
+import yoan.shopping.user.representation.SecuredUserWriteRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
+import yoan.shopping.user.representation.UserWriteRepresentation;
 
 /**
  * User API
  * @author yoan
  */
 @Path("/api/user")
-@Api(value = "/user")
+@Api(value = "User", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class UserResource extends RestAPI {
 	/** Currently connected user */
@@ -85,20 +88,20 @@ public class UserResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create user", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Create user", notes = "This can only be done by the logged in user.", code = 201, response = UserRepresentation.class)
 	@ApiResponses(value = {
-		@ApiResponse(code = 201, message = "User created"),
-		@ApiResponse(code = 400, message = "Invalid User"),
-		@ApiResponse(code = 409, message = "Already existing user")})
-	public Response create(@ApiParam(value = "User to create", required = true) SecuredUserRepresentation userToCreate) {
+		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),
+		@ApiResponse(code = 400, message = "Invalid User", response = ErrorRepresentation.class),
+		@ApiResponse(code = 409, message = "Already existing user", response = ErrorRepresentation.class)})
+	public Response create(@ApiParam(value = "User to create", required = true) SecuredUserWriteRepresentation userToCreate) {
 		String password = userToCreate.getPassword();
-		User userCreated = UserRepresentation.toUser(userToCreate);
+		User userCreated = UserWriteRepresentation.toUser(userToCreate);
 		//if the Id was not provided we generate one
 		if (userCreated.getId().equals(User.DEFAULT_ID)) {
 			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
 		}
 		
-		UserCreationHelper.ensureUserNotExists(userRepo, userCreated.getId());
+		UserCreationHelper.ensureUserNotExists(userRepo, userCreated.getId(), userCreated.getEmail());
 		UserCreationHelper.createUser(securedUserRepo, userCreated, password);
 		UserRepresentation createdUserRepresentation = new UserRepresentation(userCreated, getUriInfo());
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -108,12 +111,12 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/{userId}")
-	@ApiOperation(value = "Get user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiOperation(value = "Get user by Id", notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
-		@ApiResponse(code = 200, message = "Found user"),
-		@ApiResponse(code = 400, message = "Invalid user Id"),
-		@ApiResponse(code = 404, message = "User not found") })
-	public Response getById(@PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
+		@ApiResponse(code = 200, message = "Found user", response = UserRepresentation.class),
+		@ApiResponse(code = 400, message = "Invalid user Id", response = ErrorRepresentation.class),
+		@ApiResponse(code = 404, message = "User not found", response = ErrorRepresentation.class) })
+	public Response getById(@PathParam("userId") @ApiParam(value = "User identifier", required = true, example = "a7b58ac5-ecc0-43b0-b07e-8396b2065439") String userIdStr) {
 		User foundUser = findUserById(userIdStr);
 		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, getUriInfo());
 		return Response.ok().entity(foundUserRepresentation).build();
@@ -121,7 +124,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/email/{userEmail}")
-	@ApiOperation(value = "Get user by Email adress", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiOperation(value = "Get user by Email adress", notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found user"),
 		@ApiResponse(code = 400, message = "Invalid user email"),
@@ -133,13 +136,13 @@ public class UserResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "User updated"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
-	public Response update(@ApiParam(value = "User to update", required = true) UserRepresentation userToUpdate) {
-		User updatedUser = UserRepresentation.toUser(userToUpdate);
+	public Response update(@ApiParam(value = "User to update", required = true) UserWriteRepresentation userToUpdate) {
+		User updatedUser = UserWriteRepresentation.toUser(userToUpdate);
 		ensureUserIdProvidedForUpdate(updatedUser.getId());
 		userRepo.update(updatedUser);
 
@@ -150,7 +153,7 @@ public class UserResource extends RestAPI {
 	
 	@PUT
 	@Path("/{userId}/password/{newPassword}")
-	@ApiOperation(value = "Change password", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Change password", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Password changed"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
@@ -168,7 +171,7 @@ public class UserResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{userId}")
-	@ApiOperation(value = "Delete user by Id", authorizations = { @Authorization(value = "oauth2", scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Delete user by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "User deleted"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
