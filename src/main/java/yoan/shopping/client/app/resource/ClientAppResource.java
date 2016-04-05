@@ -58,7 +58,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api/client/app")
-@Api(value = "Client App")
+@Api(value = "Client App", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class ClientAppResource extends RestAPI {
 	/** Currently connected user */
@@ -93,7 +93,7 @@ public class ClientAppResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create client app", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Create client app", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User"),
@@ -117,7 +117,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@GET
 	@Path("/{appId}")
-	@ApiOperation(value = "Get client app by Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.", response = ClientAppRepresentation.class)
+	@ApiOperation(value = "Get client app by Id", notes = "This can only be done by the logged in user.", response = ClientAppRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found client application"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
@@ -130,7 +130,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@GET
 	@Path("/user/{ownerId}")
-	@ApiOperation(value = "Get client apps by Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
+	@ApiOperation(value = "Get client apps by Id", notes = "This can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found client applications"),
 		@ApiResponse(code = 400, message = "Invalid owner Id"),
@@ -143,7 +143,7 @@ public class ClientAppResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Client application updated"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
@@ -169,7 +169,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@POST
 	@Path("/{appId}/secret")
-	@ApiOperation(value = "Change secret key", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Change secret key", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Secret key changed"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
@@ -188,7 +188,7 @@ public class ClientAppResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{appId}")
-	@ApiOperation(value = "Delete client application by Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.")
+	@ApiOperation(value = "Delete client application by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Client application deleted"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),

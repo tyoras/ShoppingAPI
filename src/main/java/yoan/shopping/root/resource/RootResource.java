@@ -40,7 +40,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api")
-@Api(value = "Root")
+@Api(value = "Root", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class RootResource extends RestAPI {
 	/** Currently connected user */
@@ -57,8 +57,8 @@ public class RootResource extends RestAPI {
 	
 	@OPTIONS
 	@Override
-	@ApiOperation(value = "Get API root", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.", response = RootRepresentation.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root") })
+	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RootRepresentation.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RootRepresentation.class) })
 	public Response root() {
 		List<Link> links = getRootLinks();
 		BuildInfo buildInfo = buildInfoRepository.getCurrentBuildInfos();

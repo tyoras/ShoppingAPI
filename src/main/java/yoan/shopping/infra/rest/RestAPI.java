@@ -3,8 +3,6 @@
  */
 package yoan.shopping.infra.rest;
 
-import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
-
 import java.util.List;
 
 import javax.ws.rs.OPTIONS;
@@ -15,7 +13,7 @@ import javax.ws.rs.core.UriInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 
 /**
  * Restful API
@@ -30,8 +28,9 @@ public abstract class RestAPI {
 	 * @return HTTP response
 	 */
 	@OPTIONS
-	@ApiOperation(value = "Get API root", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root"), @ApiResponse(code = 401, message = "Not authenticated") })
+	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RestRepresentation.class), 
+							@ApiResponse(code = 401, message = "Not authenticated" , responseHeaders = { @ResponseHeader(name = "WWW-Authenticate", response = String.class) }) })
 	public Response root() {
 		RestRepresentation rootRepresentation = new RestRepresentation(getRootLinks());
 		return Response.ok().entity(rootRepresentation).build();

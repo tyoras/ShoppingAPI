@@ -20,10 +20,10 @@ import yoan.shopping.user.repository.UserRepository;
  */
 public final class UserCreationHelper {
 
-	public static void ensureUserNotExists(UserRepository userRepo, UUID userId) {
-		User foundUser = userRepo.getById(userId);
+	public static void ensureUserNotExists(UserRepository userRepo, UUID userId, String email) {
+		boolean userExists = userRepo.checkUserExistsByIdOrEmail(userId, email);
 		
-		if (foundUser != null) {
+		if (userExists) {
 			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getDevReadableMessage(userId));
 		}
 	}

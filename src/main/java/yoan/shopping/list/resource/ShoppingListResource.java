@@ -55,7 +55,7 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api/list")
-@Api(value = "Shopping List")
+@Api(value = "Shopping List", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class ShoppingListResource extends RestAPI {
 	/** Currently connected user */
@@ -88,7 +88,7 @@ public class ShoppingListResource extends RestAPI {
 	}
 	
 	@POST
-	@ApiOperation(value = "Create shopping list", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Create shopping list", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "List created"),
 		@ApiResponse(code = 400, message = "Invalid list"),
@@ -110,7 +110,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@GET
 	@Path("/{listId}")
-	@ApiOperation(value = "Get shopping list by Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
+	@ApiOperation(value = "Get shopping list by Id", notes = "This can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found list"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
@@ -123,7 +123,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@GET
 	@Path("/user/{ownerId}")
-	@ApiOperation(value = "Get shopping list by owner Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.", response = ShoppingListRepresentation.class)
+	@ApiOperation(value = "Get shopping list by owner Id", notes = "This can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found lists"),
 		@ApiResponse(code = 400, message = "Invalid owner Id"),
@@ -136,7 +136,7 @@ public class ShoppingListResource extends RestAPI {
 	}
 	
 	@PUT
-	@ApiOperation(value = "Update", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Shopping list updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
@@ -153,7 +153,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{listId}")
-	@ApiOperation(value = "Delete list by Id", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})}, notes = "This will can only be done by the logged in user.")
+	@ApiOperation(value = "Delete list by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "List deleted"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
