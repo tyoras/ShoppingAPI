@@ -48,6 +48,7 @@ import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.list.ShoppingList;
 import yoan.shopping.list.repository.ShoppingListRepository;
 import yoan.shopping.list.representation.ShoppingListRepresentation;
+import yoan.shopping.list.representation.ShoppingListWriteRepresentation;
 import yoan.shopping.user.User;
 
 /**
@@ -93,8 +94,8 @@ public class ShoppingListResource extends RestAPI {
 		@ApiResponse(code = 201, message = "List created"),
 		@ApiResponse(code = 400, message = "Invalid list"),
 		@ApiResponse(code = 409, message = "Already existing list")})
-	public Response create(@ApiParam(value = "List to create", required = true) ShoppingListRepresentation listToCreate) {
-		ShoppingList createdList = ShoppingListRepresentation.toShoppingList(listToCreate);
+	public Response create(@ApiParam(value = "List to create", required = true) ShoppingListWriteRepresentation listToCreate) {
+		ShoppingList createdList = ShoppingListWriteRepresentation.toShoppingList(listToCreate);
 		//if the Id was not provided we generate one
 		if (createdList.getId().equals(ShoppingList.DEFAULT_ID)) {
 			createdList = ShoppingList.Builder.createFrom(createdList).withRandomId().build();
@@ -141,8 +142,8 @@ public class ShoppingListResource extends RestAPI {
 		@ApiResponse(code = 204, message = "Shopping list updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "List not found") })
-	public Response update(@ApiParam(value = "List to update", required = true) ShoppingListRepresentation listToUpdate) {
-		ShoppingList updatedList = ShoppingListRepresentation.toShoppingList(listToUpdate);
+	public Response update(@ApiParam(value = "List to update", required = true) ShoppingListWriteRepresentation listToUpdate) {
+		ShoppingList updatedList = ShoppingListWriteRepresentation.toShoppingList(listToUpdate);
 		ensureListIdProvidedForUpdate(updatedList.getId());
 		listRepo.update(updatedList);
 

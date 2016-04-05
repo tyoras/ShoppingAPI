@@ -45,6 +45,7 @@ import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.list.ShoppingItem;
 import yoan.shopping.list.repository.ShoppingItemRepository;
 import yoan.shopping.list.representation.ShoppingItemRepresentation;
+import yoan.shopping.list.representation.ShoppingItemWriteRepresentation;
 import yoan.shopping.user.User;
 
 /**
@@ -91,9 +92,9 @@ public class ShoppingItemResource extends RestAPI {
 		@ApiResponse(code = 404, message = "List not found"),
 		@ApiResponse(code = 409, message = "Already existing item")})
 	public Response create(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
-						   @ApiParam(value = "Item to create", required = true) ShoppingItemRepresentation itemToCreate) {
+						   @ApiParam(value = "Item to create", required = true) ShoppingItemWriteRepresentation itemToCreate) {
 		UUID listId = extractListId(listIdStr);
-		ShoppingItem createdItem = ShoppingItemRepresentation.toShoppingItem(itemToCreate);
+		ShoppingItem createdItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToCreate);
 		//if the Id was not provided we generate one
 		if (createdItem.getId().equals(ShoppingItem.DEFAULT_ID)) {
 			createdItem = ShoppingItem.Builder.createFrom(createdItem).withRandomId().build();
@@ -129,9 +130,9 @@ public class ShoppingItemResource extends RestAPI {
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "Item not found") })
 	public Response update(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
-						   @ApiParam(value = "Item to update", required = true) ShoppingItemRepresentation itemToUpdate) {
+						   @ApiParam(value = "Item to update", required = true) ShoppingItemWriteRepresentation itemToUpdate) {
 		UUID listId = extractListId(listIdStr);
-		ShoppingItem updatedItem = ShoppingItemRepresentation.toShoppingItem(itemToUpdate);
+		ShoppingItem updatedItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToUpdate);
 		ensureItemIdProvidedForUpdate(updatedItem.getId());
 		itemRepo.update(listId, updatedItem);
 

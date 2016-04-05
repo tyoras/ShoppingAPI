@@ -6,7 +6,6 @@ import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,8 +30,8 @@ import yoan.shopping.list.ShoppingItem;
  * @author yoan
  */
 @XmlRootElement(name = "item")
-@ApiModel(value = "Shopping item")
-public class ShoppingItemRepresentation {
+@ApiModel(value = "Shopping item write")
+public class ShoppingItemWriteRepresentation {
 	/** Item unique ID */
 	private UUID id;
 	/** Item name */
@@ -41,40 +40,32 @@ public class ShoppingItemRepresentation {
 	private int quantity;
 	/** Current item state */
 	private String state;
-	/** Item creation date */
-	private LocalDateTime creationDate;
-	/** Last time the item was updated */
-	private LocalDateTime lastUpdate;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingItemRepresentation.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingItemWriteRepresentation.class);
 	
-	public ShoppingItemRepresentation() {
+	public ShoppingItemWriteRepresentation() {
 		super();
 	}
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public ShoppingItemRepresentation(UUID id, String name, int quantity, String state, LocalDateTime creationDate, LocalDateTime lastUpdate) {
+	public ShoppingItemWriteRepresentation(UUID id, String name, int quantity, String state) {
 		this.id = id;
 		this.name = name;
 		this.quantity = quantity;
 		this.state = state;
-		this.creationDate = creationDate;
-		this.lastUpdate = lastUpdate;
 	}
 	
-	public ShoppingItemRepresentation(ShoppingItem item) {
+	public ShoppingItemWriteRepresentation(ShoppingItem item) {
 		super();
 		requireNonNull(item);
 		this.id = item.getId();
 		this.name = item.getName();
 		this.quantity = item.getQuantity();
 		this.state = item.getState().name();
-		this.creationDate = item.getCreationDate();
-		this.lastUpdate = item.getLastUpdate();
 	}
 	
-	public static ShoppingItem toShoppingItem(ShoppingItemRepresentation representation) {
+	public static ShoppingItem toShoppingItem(ShoppingItemWriteRepresentation representation) {
 		requireNonNull(representation, "Unable to create ShoppingItem from null ShoppingItemRepresentation");
 		
 		ShoppingItem.Builder itemBuilder = ShoppingItem.Builder.createDefault()
@@ -97,8 +88,8 @@ public class ShoppingItemRepresentation {
 		return item;
 	}
 	
-	public static List<ShoppingItem> toShoppingItemList(List<ShoppingItemRepresentation> representations) {
-		requireNonNull(representations, "Unable to create ShoppingItems from null ShoppingItemRepresentations");
+	public static List<ShoppingItem> toShoppingItemList(List<ShoppingItemWriteRepresentation> representations) {
+		requireNonNull(representations, "Unable to create ShoppingItems from null ShoppingItemWriteRepresentation");
 		
 		List<ShoppingItem> items = new ArrayList<>();
 		representations.forEach(representation -> items.add(toShoppingItem(representation)));
@@ -106,9 +97,9 @@ public class ShoppingItemRepresentation {
 		return items;
 	}
 	
-	public static  List<ShoppingItemRepresentation> extractItemListRepresentations(ImmutableList<ShoppingItem> items) {
-		List<ShoppingItemRepresentation> itemList = new ArrayList<>();
-		items.forEach(item -> itemList.add(new ShoppingItemRepresentation(item)));
+	public static  List<ShoppingItemWriteRepresentation> extractItemListRepresentations(ImmutableList<ShoppingItem> items) {
+		List<ShoppingItemWriteRepresentation> itemList = new ArrayList<>();
+		items.forEach(item -> itemList.add(new ShoppingItemWriteRepresentation(item)));
 		return itemList;
 	}
 
@@ -148,24 +139,6 @@ public class ShoppingItemRepresentation {
 		this.state = state;
 	}
 	
-	@XmlElement(name = "creationDate")
-	public LocalDateTime getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(LocalDateTime creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	@XmlElement(name = "lastUpdate")
-	public LocalDateTime getLastUpdate() {
-		return lastUpdate;
-	}
-
-	public void setLastUpdate(LocalDateTime lastUpdate) {
-		this.lastUpdate = lastUpdate;
-	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, name, quantity, state);
@@ -179,7 +152,7 @@ public class ShoppingItemRepresentation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ShoppingItemRepresentation that = (ShoppingItemRepresentation) obj;
+        ShoppingItemWriteRepresentation that = (ShoppingItemWriteRepresentation) obj;
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.quantity, that.quantity)
@@ -192,8 +165,6 @@ public class ShoppingItemRepresentation {
 											   .add("name", name)
 											   .add("quantity", quantity)
 											   .add("state", state)
-											   .add("created", creationDate)
-											   .add("lastUpdate", lastUpdate)
 											   .toString();
 	}
 }

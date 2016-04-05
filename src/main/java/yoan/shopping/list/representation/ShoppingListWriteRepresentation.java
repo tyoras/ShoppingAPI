@@ -6,13 +6,10 @@ import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
-import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,70 +20,55 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.MoreObjects;
 
 import io.swagger.annotations.ApiModel;
-import yoan.shopping.infra.rest.Link;
-import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.list.ShoppingList;
-import yoan.shopping.list.resource.ShoppingListResource;
 
 /**
  * Shopping list Rest Representation
  * @author yoan
  */
 @XmlRootElement(name = "list")
-@ApiModel(value = "Shopping list")
-public class ShoppingListRepresentation extends RestRepresentation {
+@ApiModel(value = "Shopping list write")
+public class ShoppingListWriteRepresentation {
 	/** List unique ID */
 	private UUID id;
 	/** List name */
 	private String name;
 	/** User owner of the list unique ID */
 	private UUID ownerId;
-	/** List creation date */
-	private LocalDateTime creationDate;
-	/** Last time the list was updated */
-	private LocalDateTime lastUpdate;
 	/** All items in the shopping list */
-	private List<ShoppingItemRepresentation> itemList;
+	private List<ShoppingItemWriteRepresentation> itemList;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingListRepresentation.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingListWriteRepresentation.class);
 	
-	public ShoppingListRepresentation() {
+	public ShoppingListWriteRepresentation() {
 		super();
 	}
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public ShoppingListRepresentation(UUID id, String name, UUID ownerId, LocalDateTime creationDate, LocalDateTime lastUpdate, List<ShoppingItemRepresentation> itemList, List<Link> links) {
-		super(links);
+	public ShoppingListWriteRepresentation(UUID id, String name, UUID ownerId, List<ShoppingItemWriteRepresentation> itemList) {
 		this.id = id;
 		this.name = name;
 		this.ownerId = ownerId;
-		this.creationDate = creationDate;
-		this.lastUpdate = lastUpdate;
 		this.itemList = itemList;
 	}
 	
-	public ShoppingListRepresentation(ShoppingList list, UriInfo uriInfo) {
+	public ShoppingListWriteRepresentation(ShoppingList list) {
 		requireNonNull(list);
-		requireNonNull(uriInfo);
-		URI selfURI = uriInfo.getBaseUriBuilder().path(ShoppingListResource.class).path(ShoppingListResource.class, "getById").build(list.getId().toString());
-		this.links.add(Link.self(selfURI));
 		this.id = list.getId();
 		this.name = list.getName();
 		this.ownerId = list.getOwnerId();
-		this.creationDate = list.getCreationDate();
-		this.lastUpdate = list.getLastUpdate();
-		this.itemList = ShoppingItemRepresentation.extractItemListRepresentations(list.getItemList());
+		this.itemList = ShoppingItemWriteRepresentation.extractItemListRepresentations(list.getItemList());
 	}
 	
-	public static ShoppingList toShoppingList(ShoppingListRepresentation representation) {
+	public static ShoppingList toShoppingList(ShoppingListWriteRepresentation representation) {
 		requireNonNull(representation, "Unable to create ShoppingList from null ShoppingListRepresentation");
 		
 		ShoppingList.Builder listBuilder = ShoppingList.Builder.createDefault()
 						   .withName(representation.name)
 						   .withOwnerId(representation.getOwnerId())
-						   .withItemList(ShoppingItemRepresentation.toShoppingItemList(representation.getItemList()));
+						   .withItemList(ShoppingItemWriteRepresentation.toShoppingItemList(representation.getItemList()));
 		//if no ID provided, we let the default one
 		if (representation.id != null) {
 			listBuilder.withId(representation.id);
@@ -122,31 +104,13 @@ public class ShoppingListRepresentation extends RestRepresentation {
 		this.ownerId = ownerId;
 	}
 
-	@XmlElement(name = "creationDate")
-	public LocalDateTime getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(LocalDateTime creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	@XmlElement(name = "lastUpdate")
-	public LocalDateTime getLastUpdate() {
-		return lastUpdate;
-	}
-
-	public void setLastUpdate(LocalDateTime lastUpdate) {
-		this.lastUpdate = lastUpdate;
-	}
-
 	@XmlElementWrapper(name = "itemList")
 	@XmlElement(name = "item")
-	public List<ShoppingItemRepresentation> getItemList() {
+	public List<ShoppingItemWriteRepresentation> getItemList() {
 		return itemList;
 	}
 
-	public void setItemList(List<ShoppingItemRepresentation> itemList) {
+	public void setItemList(List<ShoppingItemWriteRepresentation> itemList) {
 		this.itemList = itemList;
 	}
 
@@ -171,7 +135,7 @@ public class ShoppingListRepresentation extends RestRepresentation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ShoppingListRepresentation that = (ShoppingListRepresentation) obj;
+        ShoppingListWriteRepresentation that = (ShoppingListWriteRepresentation) obj;
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.ownerId, that.ownerId);
@@ -182,8 +146,6 @@ public class ShoppingListRepresentation extends RestRepresentation {
 		return MoreObjects.toStringHelper(this)
 			.add("id", id).add("name", name)
 			.add("ownerId", ownerId)
-			.add("created", creationDate)
-			.add("lastUpdate", lastUpdate)
 			.add("itemList", itemList)
 			.toString();
 	}

@@ -7,12 +7,9 @@ import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -23,9 +20,6 @@ import com.google.common.base.MoreObjects;
 
 import io.swagger.annotations.ApiModel;
 import yoan.shopping.client.app.ClientApp;
-import yoan.shopping.client.app.resource.ClientAppResource;
-import yoan.shopping.infra.rest.Link;
-import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 
 /**
@@ -33,8 +27,8 @@ import yoan.shopping.infra.rest.error.WebApiException;
  * @author yoan
  */
 @XmlRootElement(name = "clientApp")
-@ApiModel(value = "Client App")
-public class ClientAppRepresentation extends RestRepresentation {
+@ApiModel(value = "Client app write")
+public class ClientAppWriteRepresentation {
 	/** Client app unique ID */
 	private UUID id;
 	/** Client app last name */
@@ -43,48 +37,32 @@ public class ClientAppRepresentation extends RestRepresentation {
 	private String redirectURI;
 	/** Client app owner ID */
 	private UUID ownerId;
-	/** Client app secret key */
-	private String secretKey;
-	/** Client app creation date */
-	private LocalDateTime creationDate;
-	/** Last time the client app was updated */
-	private LocalDateTime lastUpdate;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ClientAppRepresentation.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClientAppWriteRepresentation.class);
 	
-	public ClientAppRepresentation() {
+	public ClientAppWriteRepresentation() {
 		super();
 	}
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public ClientAppRepresentation(UUID id, String name, UUID ownerId, String redirectURI, String secretKey, List<Link> links) {
-		super(links);
+	public ClientAppWriteRepresentation(UUID id, String name, UUID ownerId, String redirectURI) {
 		this.id = id;
 		this.name = name;
 		this.ownerId = ownerId;
 		this.redirectURI = redirectURI;
-		this.secretKey = secretKey;
 	}
 	
-	public ClientAppRepresentation(ClientApp clientApp, UriInfo uriInfo) {
-		super();
+	public ClientAppWriteRepresentation(ClientApp clientApp) {
 		requireNonNull(clientApp);
-		requireNonNull(uriInfo);
-		URI selfURI = uriInfo.getBaseUriBuilder().path(ClientAppResource.class).path(ClientAppResource.class, "getById").build(clientApp.getId());
-		this.links.add(Link.self(selfURI));
 		this.id = clientApp.getId();
 		this.name = clientApp.getName();
 		this.ownerId = clientApp.getOwnerId();
 		this.redirectURI = clientApp.getRedirectURI().toString();
-		this.creationDate = clientApp.getCreationDate();
-		this.lastUpdate = clientApp.getLastUpdate();
-		//should be set using setter
-		this.secretKey = null;
 	}
 	
-	public static ClientApp toClientApp(ClientAppRepresentation representation) {
-		requireNonNull(representation, "Unable to create client application from null ClientAppRepresentation");
+	public static ClientApp toClientApp(ClientAppWriteRepresentation representation) {
+		requireNonNull(representation, "Unable to create client application from null ClientAppWriteRepresentation");
 		
 		ClientApp app;
 		try {
@@ -120,25 +98,10 @@ public class ClientAppRepresentation extends RestRepresentation {
 	public UUID getOwnerId() {
 		return ownerId;
 	}
-
+	
 	@XmlElement(name = "redirectURI")
 	public String getRedirectURI() {
 		return redirectURI;
-	}
-	
-	@XmlElement(name = "secretkey")
-	public String getSecretkey() {
-		return secretKey;
-	}
-	
-	@XmlElement(name = "creationDate")
-	public LocalDateTime getCreationDate() {
-		return creationDate;
-	}
-	
-	@XmlElement(name = "lastUpdate")
-	public LocalDateTime getLastUpdate() {
-		return lastUpdate;
 	}
 	
 	public void setId(UUID id) {
@@ -152,26 +115,14 @@ public class ClientAppRepresentation extends RestRepresentation {
 	public void setOwnerId(UUID ownerId) {
 		this.ownerId = ownerId;
 	}
-
+	
 	public void setRedirectURI(String redirectURI) {
 		this.redirectURI = redirectURI;
 	}
 	
-	public void setSecretKey(String secretKey) {
-		this.secretKey = secretKey;
-	}
-	
-	public void setCreationDate(LocalDateTime creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	public void setLastUpdate(LocalDateTime lastUpdate) {
-		this.lastUpdate = lastUpdate;
-	}
-	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, ownerId, redirectURI, creationDate, lastUpdate);
+		return Objects.hash(id, name, ownerId, redirectURI);
 	}
 
 	@Override
@@ -182,13 +133,11 @@ public class ClientAppRepresentation extends RestRepresentation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ClientAppRepresentation that = (ClientAppRepresentation) obj;
+        ClientAppWriteRepresentation that = (ClientAppWriteRepresentation) obj;
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.ownerId, that.ownerId)
-                && Objects.equals(this.redirectURI, that.redirectURI)
-                && Objects.equals(this.creationDate, that.creationDate)
-                && Objects.equals(this.lastUpdate, that.lastUpdate);
+                && Objects.equals(this.redirectURI, that.redirectURI);
     }
 	
 	@Override
@@ -197,8 +146,6 @@ public class ClientAppRepresentation extends RestRepresentation {
 											   .add("name", name)
 											   .add("ownerId", ownerId)
 											   .add("redirectURI", redirectURI)
-											   .add("created", creationDate)
-											   .add("lastUpdate", lastUpdate)
 											   .toString();
 	}
 }

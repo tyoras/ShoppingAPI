@@ -12,7 +12,10 @@ import static org.mockito.Mockito.when;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.*;
+import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.ALREADY_EXISTING_LIST;
+import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.LISTS_NOT_FOUND;
+import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.LIST_NOT_FOUND;
+import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.MISSING_LIST_ID_FOR_UPDATE;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +41,7 @@ import yoan.shopping.list.ShoppingList;
 import yoan.shopping.list.repository.ShoppingListRepository;
 import yoan.shopping.list.representation.ShoppingItemRepresentation;
 import yoan.shopping.list.representation.ShoppingListRepresentation;
+import yoan.shopping.list.representation.ShoppingListWriteRepresentation;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 
@@ -96,7 +100,7 @@ public class ShoppingListResourceTest {
 		String expectedName = "name";
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ShoppingListRepresentation representation = new ShoppingListRepresentation(expectedID, expectedName, expectedOwnerId, null, null, Lists.newArrayList(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(expectedID, expectedName, expectedOwnerId, Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -120,7 +124,7 @@ public class ShoppingListResourceTest {
 		String expectedName = "name";
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ShoppingListRepresentation representationwithoutId = new ShoppingListRepresentation(null, expectedName, expectedOwnerId, null, null, Lists.newArrayList(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representationwithoutId = new ShoppingListWriteRepresentation(null, expectedName, expectedOwnerId, Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -143,7 +147,7 @@ public class ShoppingListResourceTest {
 		//given
 		UUID alreadyExistingShoppingListId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ShoppingListRepresentation representation = new ShoppingListRepresentation(alreadyExistingShoppingListId, "name", UUID.randomUUID(), null, null, Lists.newArrayList(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(alreadyExistingShoppingListId, "name", UUID.randomUUID(), Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		when(mockeListRepo.getById(alreadyExistingShoppingListId)).thenReturn(ShoppingList.Builder.createDefault().withId(alreadyExistingShoppingListId).build());
 		String expectedMessage = ALREADY_EXISTING_LIST.getDevReadableMessage(alreadyExistingShoppingListId);
@@ -223,7 +227,7 @@ public class ShoppingListResourceTest {
 		String expectedName = "name";
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ShoppingListRepresentation representation = new ShoppingListRepresentation(expectedID, expectedName, expectedOwnerId, null, null, Lists.newArrayList(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(expectedID, expectedName, expectedOwnerId, Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		ShoppingList existingShoppingList = ShoppingList.Builder.createDefault().withId(expectedID).build();
 		when(mockeListRepo.getById(expectedID)).thenReturn(existingShoppingList);
@@ -242,7 +246,7 @@ public class ShoppingListResourceTest {
 	public void update_should_return_400_with_input_representation_without_id() {
 		//given
 		@SuppressWarnings("deprecation")
-		ShoppingListRepresentation representationWithoutId = new ShoppingListRepresentation(null, "name", UUID.randomUUID(), null, null, Lists.newArrayList(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representationWithoutId = new ShoppingListWriteRepresentation(null, "name", UUID.randomUUID(), Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		String expectedMessage = MISSING_LIST_ID_FOR_UPDATE.getDevReadableMessage();
 		
@@ -260,7 +264,7 @@ public class ShoppingListResourceTest {
 	public void update_should_return_404_with_unknown_list() {
 		//given
 		@SuppressWarnings("deprecation")
-		ShoppingListRepresentation representation = new ShoppingListRepresentation(UUID.randomUUID(), "name", UUID.randomUUID(), null, null, Lists.newArrayList(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(UUID.randomUUID(), "name", UUID.randomUUID(), Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		String expectedMessage = "List not found";
 		

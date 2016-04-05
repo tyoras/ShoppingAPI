@@ -45,6 +45,7 @@ import io.swagger.annotations.Authorization;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.client.app.representation.ClientAppRepresentation;
+import yoan.shopping.client.app.representation.ClientAppWriteRepresentation;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.error.WebApiException;
@@ -98,8 +99,8 @@ public class ClientAppResource extends RestAPI {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User"),
 		@ApiResponse(code = 409, message = "Already existing user")})
-	public Response create(@ApiParam(value = "Client application to create", required = true) ClientAppRepresentation clientAppToCreate) {
-		ClientApp clientAppCreated = ClientAppRepresentation.toClientApp(clientAppToCreate);
+	public Response create(@ApiParam(value = "Client application to create", required = true) ClientAppWriteRepresentation clientAppToCreate) {
+		ClientApp clientAppCreated = ClientAppWriteRepresentation.toClientApp(clientAppToCreate);
 		//if the Id was not provided we generate one
 		if (clientAppCreated.getId().equals(ClientApp.DEFAULT_ID)) {
 			clientAppCreated = ClientApp.Builder.createFrom(clientAppCreated).withRandomId().build();
@@ -148,8 +149,8 @@ public class ClientAppResource extends RestAPI {
 		@ApiResponse(code = 204, message = "Client application updated"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
 		@ApiResponse(code = 404, message = "Client application not found") })
-	public Response update(@ApiParam(value = "Client application to update", required = true) ClientAppRepresentation appToUpdate) {
-		ClientApp updatedClientApp = ClientAppRepresentation.toClientApp(appToUpdate);
+	public Response update(@ApiParam(value = "Client application to update", required = true) ClientAppWriteRepresentation appToUpdate) {
+		ClientApp updatedClientApp = ClientAppWriteRepresentation.toClientApp(appToUpdate);
 		ensureAppIdProvidedForUpdate(updatedClientApp.getId());
 		clientAppRepo.update(updatedClientApp);
 
