@@ -57,14 +57,14 @@ import yoan.shopping.user.representation.UserWriteRepresentation;
 @Produces({ "application/json", "application/xml" })
 public class UserResource extends RestAPI {
 	/** Currently connected user */
-	private final User connectedUser;
+	//private final User connectedUser;
 	private final UserRepository userRepo;
 	private final SecuredUserRepository securedUserRepo;
 	
 	@Inject
 	public UserResource(@Named(CONNECTED_USER) User connectedUser, UserRepository userRepo, SecuredUserRepository securedUserRepo) {
 		super();
-		this.connectedUser = requireNonNull(connectedUser);
+		//this.connectedUser = requireNonNull(connectedUser);
 		this.userRepo = requireNonNull(userRepo);
 		this.securedUserRepo = requireNonNull(securedUserRepo);
 	}
@@ -75,13 +75,13 @@ public class UserResource extends RestAPI {
 		
 		URI createURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("create", createURI));
-		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getById").build(connectedUser.getId().toString());
+		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getById").build("{userId}");
 		links.add(new Link("getById", getByIdURI));
 		URI updateURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("update", updateURI));
-		URI changePasswordURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "changePassword").build(connectedUser.getId().toString(), "{newPassword}");
+		URI changePasswordURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "changePassword").build("{userId}", "{newPassword}");
 		links.add(new Link("changePassword", changePasswordURI));
-		URI deleteByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "deleteById").build(connectedUser.getId().toString());
+		URI deleteByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "deleteById").build("{userId}");
 		links.add(new Link("deleteById", deleteByIdURI));
 		
 		return links;

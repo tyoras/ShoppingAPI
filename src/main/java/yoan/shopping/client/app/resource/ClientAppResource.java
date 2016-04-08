@@ -1,6 +1,5 @@
 package yoan.shopping.client.app.resource;
 
-import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -63,13 +62,13 @@ import yoan.shopping.user.User;
 @Produces({ "application/json", "application/xml" })
 public class ClientAppResource extends RestAPI {
 	/** Currently connected user */
-	private final User connectedUser;
+	//private final User connectedUser;
 	private final ClientAppRepository clientAppRepo;
 	
 	@Inject
 	public ClientAppResource(@Named(CONNECTED_USER) User connectedUser, ClientAppRepository clientAppRepo) {
 		super();
-		this.connectedUser = requireNonNull(connectedUser);
+		//this.connectedUser = requireNonNull(connectedUser);
 		this.clientAppRepo = Objects.requireNonNull(clientAppRepo);
 	}
 	
@@ -81,7 +80,7 @@ public class ClientAppResource extends RestAPI {
 		links.add(new Link("create", createURI));
 		URI getByIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getById").build("{appId}");
 		links.add(new Link("getById", getByIdURI));
-		URI getByOwnerIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getByOwnerId").build(connectedUser.getId().toString());
+		URI getByOwnerIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getByOwnerId").build("{ownerId}");
 		links.add(new Link("getByOwnerId", getByOwnerIdURI));
 		URI updateURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("update", updateURI));
