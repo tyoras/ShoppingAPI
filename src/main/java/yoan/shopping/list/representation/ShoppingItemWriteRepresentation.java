@@ -32,7 +32,7 @@ import yoan.shopping.list.ShoppingItem;
 @XmlRootElement(name = "item")
 @ApiModel(value = "Shopping item write")
 public class ShoppingItemWriteRepresentation {
-	/** Item unique ID */
+	/** Item Id */
 	private UUID id;
 	/** Item name */
 	private String name;
@@ -59,22 +59,25 @@ public class ShoppingItemWriteRepresentation {
 	public ShoppingItemWriteRepresentation(ShoppingItem item) {
 		super();
 		requireNonNull(item);
-		this.id = item.getId();
 		this.name = item.getName();
 		this.quantity = item.getQuantity();
 		this.state = item.getState().name();
 	}
 	
 	public static ShoppingItem toShoppingItem(ShoppingItemWriteRepresentation representation) {
-		requireNonNull(representation, "Unable to create ShoppingItem from null ShoppingItemRepresentation");
+		return toShoppingItem(representation, null);
+	}
+	
+	public static ShoppingItem toShoppingItem(ShoppingItemWriteRepresentation representation, UUID itemId) {
+		requireNonNull(representation, "Unable to create ShoppingItem from null ShoppingItemWriteRepresentation");
 		
 		ShoppingItem.Builder itemBuilder = ShoppingItem.Builder.createDefault()
 						   .withName(representation.name)
 						   .withQuantity(representation.quantity)
 						   .withState(ItemState.of(representation.state));
 		//if no ID provided, we let the default one
-		if (representation.id != null) {
-			itemBuilder.withId(representation.id);
+		if (itemId != null) {
+			itemBuilder.withId(itemId);
 		}
 		
 		ShoppingItem item;
@@ -92,7 +95,7 @@ public class ShoppingItemWriteRepresentation {
 		requireNonNull(representations, "Unable to create ShoppingItems from null ShoppingItemWriteRepresentation");
 		
 		List<ShoppingItem> items = new ArrayList<>();
-		representations.forEach(representation -> items.add(toShoppingItem(representation)));
+		representations.forEach(representation -> items.add(toShoppingItem(representation, representation.getId())));
 		
 		return items;
 	}

@@ -121,7 +121,7 @@ public class User implements Bson, WithId {
         }
         
         public Builder withId(UUID id) {
-            this.id = Objects.requireNonNull(id);
+            this.id = id;
             return this;
         }
 

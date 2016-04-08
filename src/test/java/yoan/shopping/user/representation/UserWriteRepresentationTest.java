@@ -28,11 +28,12 @@ public class UserWriteRepresentationTest {
 	@Test(expected = NullPointerException.class)
 	public void toUser_should_fail_without_representation() {
 		//given
+		UUID userId = UUID.randomUUID();
 		UserWriteRepresentation nullRepresentation = null;
 		
 		//when
 		try {
-			UserWriteRepresentation.toUser(nullRepresentation);
+			UserWriteRepresentation.toUser(nullRepresentation, userId);
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("Unable to create User from null UserWriteRepresentation");
@@ -41,15 +42,35 @@ public class UserWriteRepresentationTest {
 	}
 	
 	@Test(expected = WebApiException.class)
+	public void toUser_should_fail_without_user_id() {
+		//given
+		UUID nullUserId = null;
+		User user = TestHelper.generateRandomUser();
+		@SuppressWarnings("deprecation")
+		UserWriteRepresentation validUserWriteRepresentation = new UserWriteRepresentation(user.getName(), user.getEmail());
+		String expectedMessage = INVALID.getDevReadableMessage("user") + " : User Id is mandatory";
+		
+		//when
+		try {
+			UserWriteRepresentation.toUser(validUserWriteRepresentation, nullUserId);
+		} catch(WebApiException wae) {
+		//then
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			throw wae;
+		}
+	}
+	
+	@Test(expected = WebApiException.class)
 	public void toUser_should_fail_with_invalid_Representation() {
 		//given
+		UUID userId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation invalidUserWriteRepresentation = new UserWriteRepresentation(UUID.randomUUID(), " ", " ");
+		UserWriteRepresentation invalidUserWriteRepresentation = new UserWriteRepresentation(" ", " ");
 		String expectedMessage = INVALID.getDevReadableMessage("user") + " : Invalid user name";
 		
 		//when
 		try {
-			UserWriteRepresentation.toUser(invalidUserWriteRepresentation);
+			UserWriteRepresentation.toUser(invalidUserWriteRepresentation, userId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
@@ -62,10 +83,10 @@ public class UserWriteRepresentationTest {
 		//given
 		User expectedUser = TestHelper.generateRandomUser();
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation validUserWriteRepresentation = new UserWriteRepresentation(expectedUser.getId(), expectedUser.getName(), expectedUser.getEmail());
+		UserWriteRepresentation validUserWriteRepresentation = new UserWriteRepresentation(expectedUser.getName(), expectedUser.getEmail());
 		
 		//when
-		User result = UserWriteRepresentation.toUser(validUserWriteRepresentation);
+		User result = UserWriteRepresentation.toUser(validUserWriteRepresentation, expectedUser.getId());
 		
 		//then
 		assertThat(result).isNotNull();

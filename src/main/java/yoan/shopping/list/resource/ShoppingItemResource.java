@@ -1,17 +1,12 @@
 package yoan.shopping.list.resource;
 
 import static java.util.Objects.requireNonNull;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.list.resource.ShoppingItemResourceErrorMessage.ALREADY_EXISTING_ITEM;
 import static yoan.shopping.list.resource.ShoppingItemResourceErrorMessage.ITEM_NOT_FOUND;
-import static yoan.shopping.list.resource.ShoppingItemResourceErrorMessage.MISSING_ITEM_ID_FOR_UPDATE;
 
 import java.net.URI;
 import java.util.List;
@@ -89,18 +84,13 @@ public class ShoppingItemResource extends RestAPI {
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "Item created"),
 		@ApiResponse(code = 400, message = "Invalid item"),
-		@ApiResponse(code = 404, message = "List not found"),
-		@ApiResponse(code = 409, message = "Already existing item")})
+		@ApiResponse(code = 404, message = "List not found")})
 	public Response create(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
 						   @ApiParam(value = "Item to create", required = true) ShoppingItemWriteRepresentation itemToCreate) {
 		UUID listId = extractListId(listIdStr);
-		ShoppingItem createdItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToCreate);
-		//if the Id was not provided we generate one
-		if (createdItem.getId().equals(ShoppingItem.DEFAULT_ID)) {
-			createdItem = ShoppingItem.Builder.createFrom(createdItem).withRandomId().build();
-		}
+		UUID newItemId = UUID.randomUUID();
+		ShoppingItem createdItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToCreate, newItemId);
 		
-		ensureShoppingItemNotExists(listId, createdItem.getId());
 		itemRepo.create(listId, createdItem);
 		ShoppingItemRepresentation createdShoppingItemRepresentation = new ShoppingItemRepresentation(createdItem);
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -124,16 +114,18 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@PUT
+	@Path("/{itemId}")
 	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Shopping item updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "Item not found") })
 	public Response update(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
+						   @PathParam("itemId") @ApiParam(value = "Shopping item identifier", required = true) String itemIdStr,
 						   @ApiParam(value = "Item to update", required = true) ShoppingItemWriteRepresentation itemToUpdate) {
 		UUID listId = extractListId(listIdStr);
-		ShoppingItem updatedItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToUpdate);
-		ensureItemIdProvidedForUpdate(updatedItem.getId());
+		UUID itemId = ResourceUtil.getIdfromParam("itemId", itemIdStr);
+		ShoppingItem updatedItem = ShoppingItemWriteRepresentation.toShoppingItem(itemToUpdate, itemId);
 		itemRepo.update(listId, updatedItem);
 
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -167,21 +159,7 @@ public class ShoppingItemResource extends RestAPI {
 		return foundShoppingItem;
 	}
 	
-	private void ensureShoppingItemNotExists(UUID listId, UUID itemId) {
-		ShoppingItem foundShoppingItem = itemRepo.getById(listId, itemId);
-		
-		if (foundShoppingItem != null) {
-			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_ITEM.getDevReadableMessage(itemId));
-		}
-	}
-	
 	private UUID extractListId(String listIdStr) {
 		return ResourceUtil.getIdfromParam("listId", listIdStr);
-	}
-	
-	private void ensureItemIdProvidedForUpdate(UUID itemId) {
-		if (itemId.equals(ShoppingItem.DEFAULT_ID)) {
-			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_ITEM_ID_FOR_UPDATE);
-		}
 	}
 }

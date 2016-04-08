@@ -1,13 +1,10 @@
 package yoan.shopping.client.app.resource;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.client.app.repository.ClientAppRepositoryErrorCode.UNSECURE_SECRET;
-import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.ALREADY_EXISTING_CLIENT_APP;
 import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.CLIENT_APPS_NOT_FOUND;
 import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.CLIENT_APP_NOT_FOUND;
-import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.MISSING_CLIENT_APP_ID_FOR_UPDATE;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
@@ -96,16 +93,11 @@ public class ClientAppResource extends RestAPI {
 	@ApiOperation(value = "Create client app", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
-		@ApiResponse(code = 400, message = "Invalid User"),
-		@ApiResponse(code = 409, message = "Already existing user")})
+		@ApiResponse(code = 400, message = "Invalid User")})
 	public Response create(@ApiParam(value = "Client application to create", required = true) ClientAppWriteRepresentation clientAppToCreate) {
-		ClientApp clientAppCreated = ClientAppWriteRepresentation.toClientApp(clientAppToCreate);
-		//if the Id was not provided we generate one
-		if (clientAppCreated.getId().equals(ClientApp.DEFAULT_ID)) {
-			clientAppCreated = ClientApp.Builder.createFrom(clientAppCreated).withRandomId().build();
-		}
+		UUID newAppId = UUID.randomUUID();
+		ClientApp clientAppCreated = ClientAppWriteRepresentation.toClientApp(clientAppToCreate, newAppId);
 		
-		ensureClientAppNotExists(clientAppCreated.getId());
 		String secretkey = generateNewSecretKey();
 		createClientApp(clientAppCreated, secretkey);
 		ClientAppRepresentation createdAppRepresentation = new ClientAppRepresentation(clientAppCreated, getUriInfo());
@@ -143,14 +135,16 @@ public class ClientAppResource extends RestAPI {
 	}
 	
 	@PUT
+	@Path("/{appId}")
 	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Client application updated"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
 		@ApiResponse(code = 404, message = "Client application not found") })
-	public Response update(@ApiParam(value = "Client application to update", required = true) ClientAppWriteRepresentation appToUpdate) {
-		ClientApp updatedClientApp = ClientAppWriteRepresentation.toClientApp(appToUpdate);
-		ensureAppIdProvidedForUpdate(updatedClientApp.getId());
+	public Response update(@PathParam("appId") @ApiParam(value = "Client application identifier", required = true) String appIdStr, 
+						   @ApiParam(value = "Client application to update", required = true) ClientAppWriteRepresentation appToUpdate) {
+		UUID appId = ResourceUtil.getIdfromParam("appId", appIdStr);
+		ClientApp updatedClientApp = ClientAppWriteRepresentation.toClientApp(appToUpdate, appId);
 		clientAppRepo.update(updatedClientApp);
 
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -216,14 +210,6 @@ public class ClientAppResource extends RestAPI {
 		}
 	}
 	
-	private void ensureClientAppNotExists(UUID appId) {
-		ClientApp foundClientApp = clientAppRepo.getById(appId);
-		
-		if (foundClientApp != null) {
-			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_CLIENT_APP.getDevReadableMessage(appId));
-		}
-	}
-	
 	private void createClientApp(ClientApp clientAppCreated, String secret) {
 		try {
 			clientAppRepo.create(clientAppCreated, secret);
@@ -232,12 +218,6 @@ public class ClientAppResource extends RestAPI {
 				throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, ae.getMessage());
 			}
 			throw ae;
-		}
-	}
-	
-	private void ensureAppIdProvidedForUpdate(UUID appId) {
-		if (appId.equals(ClientApp.DEFAULT_ID)) {
-			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_CLIENT_APP_ID_FOR_UPDATE);
 		}
 	}
 	

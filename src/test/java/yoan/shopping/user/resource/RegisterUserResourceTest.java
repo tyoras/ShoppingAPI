@@ -1,18 +1,11 @@
 package yoan.shopping.user.resource;
 
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.any;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
-import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -26,7 +19,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
-import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 import yoan.shopping.user.repository.SecuredUserRepository;
@@ -84,11 +76,10 @@ public class RegisterUserResourceTest {
 	@Test
 	public void register_should_work_with_valid_input_representation() {
 		//given
-		UUID expectedID = UUID.randomUUID();
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedID, expectedName, expectedMail, "password");
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedName, expectedMail, "password");
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
@@ -100,7 +91,7 @@ public class RegisterUserResourceTest {
 		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
 		UserRepresentation userRepresentation = (UserRepresentation) response.getEntity();
 		assertThat(userRepresentation).isNotNull();
-		assertThat(userRepresentation.getId()).isEqualTo(expectedID);
+		assertThat(userRepresentation.getId()).isNotEqualTo(User.DEFAULT_ID);
 		assertThat(userRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(userRepresentation.getEmail()).isEqualTo(expectedMail);
 	}
@@ -111,7 +102,7 @@ public class RegisterUserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representationwithoutId = new SecuredUserWriteRepresentation(null, expectedName, expectedMail, "password");
+		SecuredUserWriteRepresentation representationwithoutId = new SecuredUserWriteRepresentation(expectedName, expectedMail, "password");
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
@@ -128,24 +119,4 @@ public class RegisterUserResourceTest {
 		assertThat(userRepresentation.getEmail()).isEqualTo(expectedMail);
 	}
 	
-	@Test(expected = WebApiException.class)
-	public void register_should_return_409_with_already_existing_user() {
-		//given
-		UUID alreadyExistingUserId = UUID.randomUUID();
-		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
-		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(alreadyExistingUserId, "name", "mail", "password");
-		when(mockedUserRepo.checkUserExistsByIdOrEmail(eq(alreadyExistingUserId), any())).thenReturn(true);
-		String expectedMessage = ALREADY_EXISTING_USER.getDevReadableMessage(alreadyExistingUserId);
-		
-		//when
-		try {
-			testedResource.register(representation);
-		} catch(WebApiException wae) {
-		//then
-			TestHelper.assertWebApiException(wae, CONFLICT, ERROR, API_RESPONSE, expectedMessage);
-			throw wae;
-		}
-	}
 }

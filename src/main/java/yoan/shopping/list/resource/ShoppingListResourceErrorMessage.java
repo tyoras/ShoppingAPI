@@ -13,11 +13,7 @@ public enum ShoppingListResourceErrorMessage implements ErrorMessage {
 	/** List not found */
 	LIST_NOT_FOUND("List not found"),
 	/** Lists not found */
-	LISTS_NOT_FOUND("Lists not found for owner id : %s"),
-	/** List Id is a mandatory field to update a list */
-	MISSING_LIST_ID_FOR_UPDATE("List Id is a mandatory field to update an list"),
-	/** List with Id : %s aready exists */
-	ALREADY_EXISTING_LIST("List with Id : %s already exists");
+	LISTS_NOT_FOUND("Lists not found for owner id : %s");
 
 	private String message;
 	

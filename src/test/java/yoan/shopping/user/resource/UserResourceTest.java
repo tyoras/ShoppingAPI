@@ -1,20 +1,15 @@
 package yoan.shopping.user.resource;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER;
 
 import java.util.List;
 import java.util.UUID;
@@ -94,11 +89,10 @@ public class UserResourceTest {
 	@Test
 	public void create_should_work_with_valid_input_representation() {
 		//given
-		UUID expectedID = UUID.randomUUID();
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedID, expectedName, expectedMail, "password");
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedName, expectedMail, "password");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -111,55 +105,9 @@ public class UserResourceTest {
 		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
 		UserRepresentation userRepresentation = (UserRepresentation) response.getEntity();
 		assertThat(userRepresentation).isNotNull();
-		assertThat(userRepresentation.getId()).isEqualTo(expectedID);
-		assertThat(userRepresentation.getName()).isEqualTo(expectedName);
-		assertThat(userRepresentation.getEmail()).isEqualTo(expectedMail);
-	}
-	
-	@Test
-	public void create_should_work_with_input_representation_without_id() {
-		//given
-		String expectedName = "name";
-		String expectedMail = "mail";
-		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representationwithoutId = new SecuredUserWriteRepresentation(null, expectedName, expectedMail, "password");
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
-		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
-		
-		//when
-		Response response = testedResource.create(representationwithoutId);
-		
-		//then
-		assertThat(response).isNotNull();
-		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
-		UserRepresentation userRepresentation = (UserRepresentation) response.getEntity();
-		assertThat(userRepresentation).isNotNull();
 		assertThat(userRepresentation.getId()).isNotEqualTo(User.DEFAULT_ID);
 		assertThat(userRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(userRepresentation.getEmail()).isEqualTo(expectedMail);
-	}
-	
-	@Test(expected = WebApiException.class)
-	public void create_should_return_409_with_already_existing_user() {
-		//given
-		UUID alreadyExistingUserId = UUID.randomUUID();
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
-		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
-		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(alreadyExistingUserId, "name", "mail", "password");
-		when(mockedUserRepo.checkUserExistsByIdOrEmail(eq(alreadyExistingUserId), any())).thenReturn(true);
-		String expectedMessage = ALREADY_EXISTING_USER.getDevReadableMessage(alreadyExistingUserId);
-		
-		//when
-		try {
-			testedResource.create(representation);
-		} catch(WebApiException wae) {
-		//then
-			TestHelper.assertWebApiException(wae, CONFLICT, ERROR, API_RESPONSE, expectedMessage);
-			throw wae;
-		}
 	}
 	
 	@Test(expected = WebApiException.class)
@@ -226,7 +174,7 @@ public class UserResourceTest {
 		String expectedName = "name";
 		String expectedMail = "mail";
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation representation = new UserWriteRepresentation(expectedID, expectedName, expectedMail);
+		UserWriteRepresentation representation = new UserWriteRepresentation(expectedName, expectedMail);
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		User existingUser = User.Builder.createDefault().withId(expectedID).build();
 		when(mockedUserRepo.getById(expectedID)).thenReturn(existingUser);
@@ -234,7 +182,7 @@ public class UserResourceTest {
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
 		//when
-		Response response = testedResource.update(representation);
+		Response response = testedResource.update(expectedID.toString(), representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -245,16 +193,35 @@ public class UserResourceTest {
 	public void update_should_return_400_with_input_representation_without_id() {
 		//given
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation representationWithoutId = new UserWriteRepresentation(null, "name", "mail");
+		UserWriteRepresentation representationWithoutId = new UserWriteRepresentation("name", "mail");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
-		String expectedMessage = UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE.getDevReadableMessage();
+		String expectedMessage = "Invalid Param named userId : null";
 		
 		//when
 		try {
-			testedResource.update(representationWithoutId);
+			testedResource.update(null, representationWithoutId);
 		} catch(WebApiException wae) {
 		//then
-			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
+			throw wae;
+		}
+	}
+	
+	@Test(expected = WebApiException.class)
+	public void update_should_return_400_with_input_representation_with_invalid_id() {
+		//given
+		String invalidId = "invalid";
+		@SuppressWarnings("deprecation")
+		UserWriteRepresentation representationWithoutId = new UserWriteRepresentation("name", "mail");
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		String expectedMessage = "Invalid Param named userId : invalid";
+		
+		//when
+		try {
+			testedResource.update(invalidId, representationWithoutId);
+		} catch(WebApiException wae) {
+		//then
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -262,14 +229,15 @@ public class UserResourceTest {
 	@Test(expected = ApplicationException.class)
 	public void update_should_return_404_with_unknown_user() {
 		//given
+		String unknownUserId = UUID.randomUUID().toString();
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation representation = new UserWriteRepresentation(UUID.randomUUID(), "name", "mail");
+		UserWriteRepresentation representation = new UserWriteRepresentation("name", "mail");
 		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
 		String expectedMessage = "User not found";
 		
 		//when
 		try {
-			testedResource.update(representation);
+			testedResource.update(unknownUserId, representation);
 		} catch(ApplicationException ae) {
 		//then
 			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);

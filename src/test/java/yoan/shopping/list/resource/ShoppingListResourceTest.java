@@ -1,7 +1,6 @@
 package yoan.shopping.list.resource;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
@@ -9,13 +8,10 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.ALREADY_EXISTING_LIST;
 import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.LISTS_NOT_FOUND;
 import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.LIST_NOT_FOUND;
-import static yoan.shopping.list.resource.ShoppingListResourceErrorMessage.MISSING_LIST_ID_FOR_UPDATE;
 
 import java.util.List;
 import java.util.UUID;
@@ -96,11 +92,10 @@ public class ShoppingListResourceTest {
 	@Test
 	public void create_should_work_with_valid_input_representation() {
 		//given
-		UUID expectedID = UUID.randomUUID();
 		String expectedName = "name";
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(expectedID, expectedName, expectedOwnerId, Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(expectedName, expectedOwnerId, Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -113,53 +108,9 @@ public class ShoppingListResourceTest {
 		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
 		ShoppingListRepresentation listRepresentation = (ShoppingListRepresentation) response.getEntity();
 		assertThat(listRepresentation).isNotNull();
-		assertThat(listRepresentation.getId()).isEqualTo(expectedID);
-		assertThat(listRepresentation.getName()).isEqualTo(expectedName);
-		assertThat(listRepresentation.getOwnerId()).isEqualTo(expectedOwnerId);
-	}
-	
-	@Test
-	public void create_should_work_with_input_representation_without_id() {
-		//given
-		String expectedName = "name";
-		UUID expectedOwnerId = UUID.randomUUID();
-		@SuppressWarnings("deprecation")
-		ShoppingListWriteRepresentation representationwithoutId = new ShoppingListWriteRepresentation(null, expectedName, expectedOwnerId, Lists.newArrayList());
-		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
-		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
-		
-		//when
-		Response response = testedResource.create(representationwithoutId);
-		
-		//then
-		assertThat(response).isNotNull();
-		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
-		ShoppingListRepresentation listRepresentation = (ShoppingListRepresentation) response.getEntity();
-		assertThat(listRepresentation).isNotNull();
 		assertThat(listRepresentation.getId()).isNotEqualTo(ShoppingList.DEFAULT_ID);
 		assertThat(listRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(listRepresentation.getOwnerId()).isEqualTo(expectedOwnerId);
-	}
-	
-	@Test(expected = WebApiException.class)
-	public void create_should_return_409_with_already_existing_list() {
-		//given
-		UUID alreadyExistingShoppingListId = UUID.randomUUID();
-		@SuppressWarnings("deprecation")
-		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(alreadyExistingShoppingListId, "name", UUID.randomUUID(), Lists.newArrayList());
-		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
-		when(mockeListRepo.getById(alreadyExistingShoppingListId)).thenReturn(ShoppingList.Builder.createDefault().withId(alreadyExistingShoppingListId).build());
-		String expectedMessage = ALREADY_EXISTING_LIST.getDevReadableMessage(alreadyExistingShoppingListId);
-		
-		//when
-		try {
-			testedResource.create(representation);
-		} catch(WebApiException wae) {
-		//then
-			TestHelper.assertWebApiException(wae, CONFLICT, ERROR, API_RESPONSE, expectedMessage);
-			throw wae;
-		}
 	}
 	
 	@Test(expected = WebApiException.class)
@@ -227,7 +178,7 @@ public class ShoppingListResourceTest {
 		String expectedName = "name";
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(expectedID, expectedName, expectedOwnerId, Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(expectedName, expectedOwnerId, Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		ShoppingList existingShoppingList = ShoppingList.Builder.createDefault().withId(expectedID).build();
 		when(mockeListRepo.getById(expectedID)).thenReturn(existingShoppingList);
@@ -235,7 +186,7 @@ public class ShoppingListResourceTest {
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
 		//when
-		Response response = testedResource.update(representation);
+		Response response = testedResource.update(expectedID.toString(), representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -243,19 +194,20 @@ public class ShoppingListResourceTest {
 	}
 	
 	@Test(expected = WebApiException.class)
-	public void update_should_return_400_with_input_representation_without_id() {
+	public void update_should_return_400_with_input_representation_with_invalid_id() {
 		//given
+		String invalidListId = "invalid";
 		@SuppressWarnings("deprecation")
-		ShoppingListWriteRepresentation representationWithoutId = new ShoppingListWriteRepresentation(null, "name", UUID.randomUUID(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation("name", UUID.randomUUID(), Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
-		String expectedMessage = MISSING_LIST_ID_FOR_UPDATE.getDevReadableMessage();
+		String expectedMessage = "Invalid Param named listId : invalid";
 		
 		//when
 		try {
-			testedResource.update(representationWithoutId);
+			testedResource.update(invalidListId, representation);
 		} catch(WebApiException wae) {
 		//then
-			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -263,14 +215,15 @@ public class ShoppingListResourceTest {
 	@Test(expected = ApplicationException.class)
 	public void update_should_return_404_with_unknown_list() {
 		//given
+		String unknownListId = UUID.randomUUID().toString();
 		@SuppressWarnings("deprecation")
-		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation(UUID.randomUUID(), "name", UUID.randomUUID(), Lists.newArrayList());
+		ShoppingListWriteRepresentation representation = new ShoppingListWriteRepresentation("name", UUID.randomUUID(), Lists.newArrayList());
 		ShoppingListResource testedResource = getShoppingListResource(TestHelper.generateRandomUser());
 		String expectedMessage = "List not found";
 		
 		//when
 		try {
-			testedResource.update(representation);
+			testedResource.update(unknownListId, representation);
 		} catch(ApplicationException ae) {
 		//then
 			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);

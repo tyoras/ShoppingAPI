@@ -25,7 +25,7 @@ import yoan.shopping.test.TestHelper;
 public class ShoppingListRepresentationTest {
 	
 	@Test(expected = NullPointerException.class)
-	public void shoppingListRepresentation_should_fail_without_user() {
+	public void shoppingListRepresentation_should_fail_without_list() {
 		//given
 		ShoppingList nullShoppingList = null;
 		

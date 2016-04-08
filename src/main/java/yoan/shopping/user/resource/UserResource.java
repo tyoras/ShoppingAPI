@@ -1,14 +1,11 @@
 package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import static yoan.shopping.user.resource.UserResourceErrorMessage.MISSING_USER_ID_FOR_UPDATE;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
 
 import java.net.URI;
@@ -77,6 +74,8 @@ public class UserResource extends RestAPI {
 		links.add(new Link("create", createURI));
 		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getById").build("{userId}");
 		links.add(new Link("getById", getByIdURI));
+		URI getByEmailURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getByEmail").build("{userEmail}");
+		links.add(new Link("getByEmail", getByEmailURI));
 		URI updateURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("update", updateURI));
 		URI changePasswordURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "changePassword").build("{userId}", "{newPassword}");
@@ -91,15 +90,11 @@ public class UserResource extends RestAPI {
 	@ApiOperation(value = "Create user", notes = "This can only be done by the logged in user.", code = 201, response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),
-		@ApiResponse(code = 400, message = "Invalid User", response = ErrorRepresentation.class),
-		@ApiResponse(code = 409, message = "Already existing user", response = ErrorRepresentation.class)})
+		@ApiResponse(code = 400, message = "Invalid User", response = ErrorRepresentation.class)})
 	public Response create(@ApiParam(value = "User to create", required = true) SecuredUserWriteRepresentation userToCreate) {
 		String password = userToCreate.getPassword();
-		User userCreated = UserWriteRepresentation.toUser(userToCreate);
-		//if the Id was not provided we generate one
-		if (userCreated.getId().equals(User.DEFAULT_ID)) {
-			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
-		}
+		UUID newUserId = UUID.randomUUID();
+		User userCreated = UserWriteRepresentation.toUser(userToCreate, newUserId);
 		
 		UserCreationHelper.ensureUserNotExists(userRepo, userCreated.getId(), userCreated.getEmail());
 		UserCreationHelper.createUser(securedUserRepo, userCreated, password);
@@ -136,14 +131,16 @@ public class UserResource extends RestAPI {
 	}
 	
 	@PUT
+	@Path("/{userId}")
 	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "User updated"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
-	public Response update(@ApiParam(value = "User to update", required = true) UserWriteRepresentation userToUpdate) {
-		User updatedUser = UserWriteRepresentation.toUser(userToUpdate);
-		ensureUserIdProvidedForUpdate(updatedUser.getId());
+	public Response update(@PathParam("userId") @ApiParam(value = "User identifier", required = true, example = "a7b58ac5-ecc0-43b0-b07e-8396b2065439") String userIdStr, 
+						   @ApiParam(value = "User to update", required = true) UserWriteRepresentation userToUpdate) {
+		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
+		User updatedUser = UserWriteRepresentation.toUser(userToUpdate, userId);
 		userRepo.update(updatedUser);
 
 		UriBuilder ub = getUriInfo().getAbsolutePathBuilder();
@@ -201,12 +198,6 @@ public class UserResource extends RestAPI {
 	private void ensureFoundUser(User foundUser) {
 		if (foundUser == null) {
 			throw new WebApiException(NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
-		}
-	}
-	
-	private void ensureUserIdProvidedForUpdate(UUID userId) {
-		if (userId.equals(User.DEFAULT_ID)) {
-			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, MISSING_USER_ID_FOR_UPDATE);
 		}
 	}
 }
