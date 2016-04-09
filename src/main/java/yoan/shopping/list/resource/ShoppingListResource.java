@@ -74,7 +74,7 @@ public class ShoppingListResource extends RestAPI {
 		links.add(new Link("getById", getByIdURI));
 		URI getByOwnerIdURI = getUriInfo().getBaseUriBuilder().path(ShoppingListResource.class, "getByOwnerId").build("{ownerId}");
 		links.add(new Link("getByOwnerId", getByOwnerIdURI));
-		URI updateURI = getUriInfo().getAbsolutePath();
+		URI updateURI = getUriInfo().getBaseUriBuilder().path(ShoppingListResource.class, "update").build("{listId}");
 		links.add(new Link("update", updateURI));
 		URI deleteByIdURI = getUriInfo().getBaseUriBuilder().path(ShoppingListResource.class, "deleteById").build("{listId}");
 		links.add(new Link("deleteById", deleteByIdURI));

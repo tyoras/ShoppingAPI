@@ -76,7 +76,7 @@ public class UserResource extends RestAPI {
 		links.add(new Link("getById", getByIdURI));
 		URI getByEmailURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getByEmail").build("{userEmail}");
 		links.add(new Link("getByEmail", getByEmailURI));
-		URI updateURI = getUriInfo().getAbsolutePath();
+		URI updateURI =  getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "update").build("{userId}");
 		links.add(new Link("update", updateURI));
 		URI changePasswordURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "changePassword").build("{userId}", "{newPassword}");
 		links.add(new Link("changePassword", changePasswordURI));

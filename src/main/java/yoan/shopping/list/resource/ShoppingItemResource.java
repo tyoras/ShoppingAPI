@@ -71,7 +71,7 @@ public class ShoppingItemResource extends RestAPI {
 		links.add(new Link("create", createURI));
 		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(ShoppingItemResource.class, "getById").build("{itemId}");
 		links.add(new Link("getById", getByIdURI));
-		URI updateURI = getUriInfo().getAbsolutePath();
+		URI updateURI = getUriInfo().getAbsolutePathBuilder().path(ShoppingItemResource.class, "update").build("{itemId}");
 		links.add(new Link("update", updateURI));
 		URI deleteByIdURI = getUriInfo().getAbsolutePathBuilder().path(ShoppingItemResource.class, "deleteById").build("{itemId}");
 		links.add(new Link("deleteById", deleteByIdURI));

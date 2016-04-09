@@ -79,7 +79,7 @@ public class ClientAppResource extends RestAPI {
 		links.add(new Link("getById", getByIdURI));
 		URI getByOwnerIdURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "getByOwnerId").build("{ownerId}");
 		links.add(new Link("getByOwnerId", getByOwnerIdURI));
-		URI updateURI = getUriInfo().getAbsolutePath();
+		URI updateURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "update").build("{appId}");
 		links.add(new Link("update", updateURI));
 		URI changeSecretKeyURI = getUriInfo().getBaseUriBuilder().path(ClientAppResource.class, "changeSecretKey").build("{appId}");
 		links.add(new Link("changeSecretKey", changeSecretKeyURI));
