@@ -12,8 +12,8 @@ import yoan.shopping.infra.util.error.ErrorMessage;
 public enum UserResourceErrorMessage  implements ErrorMessage {
 	/** User not found */
 	USER_NOT_FOUND("User not found"),
-	/** User with Id : %s aready exists */
-	ALREADY_EXISTING_USER("User with Id : %s already exists");
+	/** User with email : %s aready exists */
+	ALREADY_EXISTING_USER_WITH_EMAIL("User with email : %s already exists");
 
 	private String message;
 	

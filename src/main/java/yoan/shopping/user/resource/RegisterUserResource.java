@@ -65,7 +65,7 @@ public class RegisterUserResource extends RestAPI {
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),
 		@ApiResponse(code = 400, message = "Invalid User", response = ErrorRepresentation.class),
-		@ApiResponse(code = 409, message = "Already existing user", response = ErrorRepresentation.class)})
+		@ApiResponse(code = 409, message = "User with email adress already exists", response = ErrorRepresentation.class)})
 	public Response register(@ApiParam(value = "User to create", required = true) SecuredUserWriteRepresentation userToCreate) {
 		String password = userToCreate.getPassword();
 		UUID newUserId = UUID.randomUUID();

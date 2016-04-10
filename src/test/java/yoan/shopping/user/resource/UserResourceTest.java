@@ -1,15 +1,22 @@
 package yoan.shopping.user.resource;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import static yoan.shopping.user.repository.UserRepositoryErrorCode.UNSECURE_PASSWORD;
+import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_PASSWORD_VALIDITY;
 
 import java.util.List;
 import java.util.UUID;
@@ -108,6 +115,50 @@ public class UserResourceTest {
 		assertThat(userRepresentation.getId()).isNotEqualTo(User.DEFAULT_ID);
 		assertThat(userRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(userRepresentation.getEmail()).isEqualTo(expectedMail);
+	}
+	
+	@Test(expected = WebApiException.class)
+	public void create_should_fail_with_409_if_user_exist() {
+		//given
+		String alreadyExistingEmail = "already@exist.com";
+		@SuppressWarnings("deprecation")
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", alreadyExistingEmail, "password");
+		when(mockedUserRepo.checkUserExistsByIdOrEmail(any(), eq(alreadyExistingEmail))).thenReturn(true);
+		String expectedMessage = "User with email : " + alreadyExistingEmail + " already exists";
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
+		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		
+		//when
+		try {
+			testedResource.create(representation);
+		} catch(WebApiException wae) {
+		//then
+			TestHelper.assertWebApiException(wae, CONFLICT, ERROR, API_RESPONSE, expectedMessage);
+			throw wae;
+		}
+	}
+	
+	@Test(expected = WebApiException.class)
+	public void create_should_fail_with_401_if_password_is_invalid() {
+		//given
+		String invalidPassword = "invalidPass";
+		@SuppressWarnings("deprecation")
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", "test@mail.com", invalidPassword);
+		String expectedMessage = PROBLEM_PASSWORD_VALIDITY.getDevReadableMessage();
+		doThrow(new ApplicationException(ERROR, UNSECURE_PASSWORD, expectedMessage)).when(mockedSecuredUserRepo).create(any(), eq(invalidPassword));
+		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
+		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		
+		//when
+		try {
+			testedResource.create(representation);
+		} catch(WebApiException wae) {
+		//then
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			throw wae;
+		}
 	}
 	
 	@Test(expected = WebApiException.class)
