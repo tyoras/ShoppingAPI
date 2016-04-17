@@ -30,8 +30,6 @@ import yoan.shopping.list.ShoppingList;
 @XmlRootElement(name = "list")
 @ApiModel(value = "Shopping list write")
 public class ShoppingListWriteRepresentation {
-	/** List unique ID */
-	private UUID id;
 	/** List name */
 	private String name;
 	/** User owner of the list unique ID */
@@ -47,8 +45,7 @@ public class ShoppingListWriteRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public ShoppingListWriteRepresentation(UUID id, String name, UUID ownerId, List<ShoppingItemWriteRepresentation> itemList) {
-		this.id = id;
+	public ShoppingListWriteRepresentation(String name, UUID ownerId, List<ShoppingItemWriteRepresentation> itemList) {
 		this.name = name;
 		this.ownerId = ownerId;
 		this.itemList = itemList;
@@ -56,38 +53,28 @@ public class ShoppingListWriteRepresentation {
 	
 	public ShoppingListWriteRepresentation(ShoppingList list) {
 		requireNonNull(list);
-		this.id = list.getId();
 		this.name = list.getName();
 		this.ownerId = list.getOwnerId();
 		this.itemList = ShoppingItemWriteRepresentation.extractItemListRepresentations(list.getItemList());
 	}
 	
-	public static ShoppingList toShoppingList(ShoppingListWriteRepresentation representation) {
-		requireNonNull(representation, "Unable to create ShoppingList from null ShoppingListRepresentation");
-		
-		ShoppingList.Builder listBuilder = ShoppingList.Builder.createDefault()
-						   .withName(representation.name)
-						   .withOwnerId(representation.getOwnerId())
-						   .withItemList(ShoppingItemWriteRepresentation.toShoppingItemList(representation.getItemList()));
-		//if no ID provided, we let the default one
-		if (representation.id != null) {
-			listBuilder.withId(representation.id);
-		}
+	public static ShoppingList toShoppingList(ShoppingListWriteRepresentation representation, UUID listId) {
+		requireNonNull(representation, "Unable to create ShoppingList from null ShoppingListWriteRepresentation");
 		
 		ShoppingList list;
 		try {
-			list = listBuilder.build();
+			list = ShoppingList.Builder.createDefault()
+			           .withId(listId)
+					   .withName(representation.name)
+					   .withOwnerId(representation.getOwnerId())
+					   .withItemList(ShoppingItemWriteRepresentation.toShoppingItemList(representation.getItemList()))
+					   .build();
 		} catch (NullPointerException | IllegalArgumentException e) {
 			String message = INVALID.getDevReadableMessage("list") + " : " + e.getMessage();
 			LOGGER.error(message, e);
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, message, e);
 		}
 		return list;
-	}
-
-	@XmlElement(name = "id")
-	public UUID getId() {
-		return id;
 	}
 
 	@XmlElement(name = "name")
@@ -114,17 +101,13 @@ public class ShoppingListWriteRepresentation {
 		this.itemList = itemList;
 	}
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, ownerId);
+		return Objects.hash(name, ownerId);
 	}
 
 	@Override
@@ -136,15 +119,13 @@ public class ShoppingListWriteRepresentation {
             return false;
         }
         ShoppingListWriteRepresentation that = (ShoppingListWriteRepresentation) obj;
-        return Objects.equals(this.id, that.id)
-                && Objects.equals(this.name, that.name)
+        return Objects.equals(this.name, that.name)
                 && Objects.equals(this.ownerId, that.ownerId);
     }
 	
 	@Override
 	public final String toString() {
 		return MoreObjects.toStringHelper(this)
-			.add("id", id).add("name", name)
 			.add("ownerId", ownerId)
 			.add("itemList", itemList)
 			.toString();

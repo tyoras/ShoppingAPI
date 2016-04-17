@@ -4,18 +4,21 @@
 package yoan.shopping.infra.config.guice;
 
 
+import java.util.Map;
+
 import org.apache.shiro.guice.web.GuiceShiroFilter;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 
-import yoan.shopping.infra.config.filter.RequestScopeFilter;
-import yoan.shopping.user.User;
-
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletModule;
 import com.thetransactioncompany.cors.CORSFilter;
+
+import yoan.shopping.infra.config.filter.RequestScopeFilter;
+import yoan.shopping.user.User;
 
 /**
  * Guice module to configure servlet
@@ -34,7 +37,8 @@ public class ShoppingWebModule extends ServletModule {
 		
 		//allow CORS
 		bind(CORSFilter.class).in(Singleton.class);
-		filter("/", "/*").through(CORSFilter.class);
+		Map<String, String> corsInitParams = ImmutableMap.of("cors.supportedMethods", "GET, POST, HEAD, PUT, DELETE, OPTIONS");
+		filter("/", "/*").through(CORSFilter.class, corsInitParams);
 		
 		filter("/rest/api", "/rest/api/*", "/rest/auth", "/rest/auth/*", "/rest/public", "/rest/public/*").through(GuiceShiroFilter.class);
 		

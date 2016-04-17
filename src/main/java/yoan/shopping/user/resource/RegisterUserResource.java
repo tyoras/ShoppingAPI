@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -64,14 +65,11 @@ public class RegisterUserResource extends RestAPI {
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),
 		@ApiResponse(code = 400, message = "Invalid User", response = ErrorRepresentation.class),
-		@ApiResponse(code = 409, message = "Already existing user", response = ErrorRepresentation.class)})
+		@ApiResponse(code = 409, message = "User with email adress already exists", response = ErrorRepresentation.class)})
 	public Response register(@ApiParam(value = "User to create", required = true) SecuredUserWriteRepresentation userToCreate) {
 		String password = userToCreate.getPassword();
-		User userCreated = UserWriteRepresentation.toUser(userToCreate);
-		//if the Id was not provided we generate one
-		if (userCreated.getId().equals(User.DEFAULT_ID)) {
-			userCreated = User.Builder.createFrom(userCreated).withRandomId().build();
-		}
+		UUID newUserId = UUID.randomUUID();
+		User userCreated = UserWriteRepresentation.toUser(userToCreate, newUserId);
 		
 		UserCreationHelper.ensureUserNotExists(userRepo, userCreated.getId(), userCreated.getEmail());
 		UserCreationHelper.createUser(securedUserRepo, userCreated, password);

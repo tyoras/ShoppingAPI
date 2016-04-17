@@ -1,7 +1,6 @@
 package yoan.shopping.client.app.resource;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
@@ -9,9 +8,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.ALREADY_EXISTING_CLIENT_APP;
 import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.CLIENT_APPS_NOT_FOUND;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 
@@ -92,12 +89,11 @@ public class ClientAppResourceTest {
 	@Test
 	public void create_should_work_with_valid_input_representation() {
 		//given
-		UUID expectedID = UUID.randomUUID();
 		String expectedName = "name";
 		URI expectedRedirectURI = TestHelper.TEST_URI;
 		UUID expectedOwnerId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(expectedID, expectedName, expectedOwnerId, expectedRedirectURI.toString());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(expectedName, expectedOwnerId, expectedRedirectURI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
@@ -110,56 +106,10 @@ public class ClientAppResourceTest {
 		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
 		ClientAppRepresentation clientAppRepresentation = (ClientAppRepresentation) response.getEntity();
 		assertThat(clientAppRepresentation).isNotNull();
-		assertThat(clientAppRepresentation.getId()).isEqualTo(expectedID);
-		assertThat(clientAppRepresentation.getName()).isEqualTo(expectedName);
-		assertThat(clientAppRepresentation.getOwnerId()).isEqualTo(expectedOwnerId);
-		assertThat(clientAppRepresentation.getRedirectURI()).isEqualTo(expectedRedirectURI.toString());
-	}
-	
-	@Test
-	public void create_should_work_with_input_representation_without_id() {
-		//given
-		String expectedName = "name";
-		URI expectedRedirectURI = TestHelper.TEST_URI;
-		UUID expectedOwnerId = UUID.randomUUID();
-		@SuppressWarnings("deprecation")
-		ClientAppWriteRepresentation representationwithoutId = new ClientAppWriteRepresentation(null, expectedName, expectedOwnerId, expectedRedirectURI.toString());
-		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
-		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
-		
-		//when
-		Response response = testedResource.create(representationwithoutId);
-		
-		//then
-		assertThat(response).isNotNull();
-		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
-		ClientAppRepresentation clientAppRepresentation = (ClientAppRepresentation) response.getEntity();
-		assertThat(clientAppRepresentation).isNotNull();
 		assertThat(clientAppRepresentation.getId()).isNotEqualTo(ClientApp.DEFAULT_ID);
 		assertThat(clientAppRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(clientAppRepresentation.getOwnerId()).isEqualTo(expectedOwnerId);
 		assertThat(clientAppRepresentation.getRedirectURI()).isEqualTo(expectedRedirectURI.toString());
-	}
-	
-	@Test(expected = WebApiException.class)
-	public void create_should_return_409_with_already_existing_app() {
-		//given
-		UUID alreadyExistingAppId = UUID.randomUUID();
-		@SuppressWarnings("deprecation")
-		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(alreadyExistingAppId, "name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
-		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
-		when(mockedClientAppRepo.getById(alreadyExistingAppId)).thenReturn(ClientApp.Builder.createDefault().withId(alreadyExistingAppId).build());
-		String expectedMessage = ALREADY_EXISTING_CLIENT_APP.getDevReadableMessage(alreadyExistingAppId);
-		
-		//when
-		try {
-			testedResource.create(representation);
-		} catch(WebApiException wae) {
-		//then
-			TestHelper.assertWebApiException(wae, CONFLICT, ERROR, API_RESPONSE, expectedMessage);
-			throw wae;
-		}
 	}
 	
 	@Test(expected = WebApiException.class)
@@ -275,19 +225,19 @@ public class ClientAppResourceTest {
 	@Test
 	public void update_should_work_with_existing_client_app() {
 		//given
-		UUID expectedID = UUID.randomUUID();
+		UUID expectedId = UUID.randomUUID();
 		String expectedName = "name";
 		URI expectedRedirectURI = TestHelper.TEST_URI;
 		@SuppressWarnings("deprecation")
-		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(expectedID, expectedName, UUID.randomUUID(), expectedRedirectURI.toString());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(expectedName, UUID.randomUUID(), expectedRedirectURI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
-		ClientApp existingApp = ClientApp.Builder.createDefault().withId(expectedID).build();
-		when(mockedClientAppRepo.getById(expectedID)).thenReturn(existingApp);
+		ClientApp existingApp = ClientApp.Builder.createDefault().withId(expectedId).build();
+		when(mockedClientAppRepo.getById(expectedId)).thenReturn(existingApp);
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
 		//when
-		Response response = testedResource.update(representation);
+		Response response = testedResource.update(expectedId.toString(), representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -295,19 +245,20 @@ public class ClientAppResourceTest {
 	}
 	
 	@Test(expected = WebApiException.class)
-	public void update_should_return_400_with_input_representation_without_id() {
+	public void update_should_return_404_with_invalid_client_app_id() {
 		//given
+		String invalidAppId = "invalid";
 		@SuppressWarnings("deprecation")
-		ClientAppWriteRepresentation representationWithoutId = new ClientAppWriteRepresentation(null, "name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation("name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
-		String expectedMessage = ClientAppResourceErrorMessage.MISSING_CLIENT_APP_ID_FOR_UPDATE.getDevReadableMessage();
+		String expectedMessage = "Invalid Param named appId : invalid";
 		
 		//when
 		try {
-			testedResource.update(representationWithoutId);
+			testedResource.update(invalidAppId, representation);
 		} catch(WebApiException wae) {
 		//then
-			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -315,14 +266,15 @@ public class ClientAppResourceTest {
 	@Test(expected = ApplicationException.class)
 	public void update_should_return_404_with_unknown_client_app() {
 		//given
+		String unknownAppId = UUID.randomUUID().toString();
 		@SuppressWarnings("deprecation")
-		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation(UUID.randomUUID(), "name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
+		ClientAppWriteRepresentation representation = new ClientAppWriteRepresentation("name", UUID.randomUUID(), TestHelper.TEST_URI.toString());
 		ClientAppResource testedResource = getClientAppResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Client app not found";
 		
 		//when
 		try {
-			testedResource.update(representation);
+			testedResource.update(unknownAppId, representation);
 		} catch(ApplicationException ae) {
 		//then
 			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);

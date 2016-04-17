@@ -1,7 +1,5 @@
 package yoan.shopping.user.representation;
 
-import java.util.UUID;
-
 import javax.xml.bind.annotation.XmlElement;
 
 import io.swagger.annotations.ApiModel;
@@ -21,8 +19,8 @@ public class SecuredUserWriteRepresentation extends UserWriteRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public SecuredUserWriteRepresentation(UUID id, String name, String email, String password) {
-		super(id, name, email);
+	public SecuredUserWriteRepresentation(String name, String email, String password) {
+		super(name, email);
 		this.password = password;
 	}
 	

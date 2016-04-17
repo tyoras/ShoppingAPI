@@ -33,7 +33,7 @@
       if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
       } else {
-        url = "http://" + window.location.host + "/shopping/rest/swagger.json";
+        url = window.location.protocol + "//" + window.location.host + "/shopping/rest/swagger.json";
       }
       // Pre load translate...
       if(window.SwaggerTranslator) {

@@ -133,7 +133,7 @@ public class ClientApp implements Bson, WithId {
 		}
 		
 		public Builder withId(UUID id) {
-            this.id = requireNonNull(id);
+            this.id = id;
             return this;
         }
 

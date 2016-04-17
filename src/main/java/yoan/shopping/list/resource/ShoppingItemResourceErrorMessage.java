@@ -10,11 +10,7 @@ import yoan.shopping.infra.util.error.ErrorMessage;
 */
 public enum ShoppingItemResourceErrorMessage implements ErrorMessage {
 	/** Item not found */
-	ITEM_NOT_FOUND("Item not found"),
-	/** Item Id is a mandatory field to update a item */
-	MISSING_ITEM_ID_FOR_UPDATE("Item Id is a mandatory field to update an item"),
-	/** Item with Id : %s aready exists */
-	ALREADY_EXISTING_ITEM("Item with Id : %s already exists");
+	ITEM_NOT_FOUND("Item not found");
 
 	private String message;
 	

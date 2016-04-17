@@ -18,6 +18,7 @@ import com.google.common.base.MoreObjects;
 public class Config {
 	
 	public static final Config DEFAULT = Builder.createDefault().build();
+	private final String apiScheme;
 	private final String apiHost;
 	private final Integer apiPort;
 	
@@ -28,7 +29,9 @@ public class Config {
 	
 	private final String swaggerBasePath;
 
-	protected Config(String apiHost, Integer apiPort, String mongoHost, Integer mongoPort, String mongoUser, String mongoPass, String swaggerBasePath) {
+	protected Config(String apiScheme, String apiHost, Integer apiPort, String mongoHost, Integer mongoPort, String mongoUser, String mongoPass, String swaggerBasePath) {
+		checkArgument(StringUtils.isNotBlank(apiScheme), "API scheme is mandatory");
+		this.apiScheme = apiScheme;
 		checkArgument(StringUtils.isNotBlank(apiHost), "API host is mandatory");
 		this.apiHost = apiHost;
 		this.apiPort = requireNonNull(apiPort, "API port is mandatory");
@@ -42,6 +45,7 @@ public class Config {
 	}
 
 	public static class Builder implements GenericBuilder<Config> {
+		private String apiScheme = "http";
 		private String apiHost = "localhost";
 		private Integer apiPort = 8080;
 		private String mongoHost = "localhost";
@@ -70,6 +74,7 @@ public class Config {
         public static Builder createFrom(final Builder otherBuilder) {
             Builder builder = new Builder();
 
+            builder.apiScheme = otherBuilder.apiScheme;
             builder.apiHost = otherBuilder.apiHost;
             builder.apiPort = otherBuilder.apiPort;
             builder.mongoHost = otherBuilder.mongoHost;
@@ -89,6 +94,7 @@ public class Config {
          */
         public static Builder createFrom(final Config config) {
             return createDefault()
+            		.withApiScheme(config.apiScheme)
 	        		.withApiHost(config.apiHost)
 	            	.withApiPort(config.apiPort)
 	            	.withMongoHost(config.mongoHost)
@@ -100,8 +106,13 @@ public class Config {
         
         @Override
         public Config build() {
-            return new Config(apiHost, apiPort, mongoHost, mongoPort, mongoUser, mongoPass, swaggerBasePath);
+            return new Config(apiScheme, apiHost, apiPort, mongoHost, mongoPort, mongoUser, mongoPass, swaggerBasePath);
         }
+        
+        public Builder withApiScheme(String apiScheme) {
+			this.apiScheme = apiScheme;
+			return this;
+		}
         
 		public Builder withApiHost(String apiHost) {
 			this.apiHost = apiHost;
@@ -140,6 +151,10 @@ public class Config {
 
 	}
 	
+	public String getApiScheme() {
+		return apiScheme;
+	}
+	
 	public String getApiHost() {
 		return apiHost;
 	}
@@ -170,7 +185,7 @@ public class Config {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(apiHost, apiPort, mongoHost, mongoPort, mongoUser, mongoPass, swaggerBasePath);
+		return Objects.hash(apiScheme, apiHost, apiPort, mongoHost, mongoPort, mongoUser, mongoPass, swaggerBasePath);
 	}
 
 	@Override
@@ -182,7 +197,8 @@ public class Config {
             return false;
         }
         Config that = (Config) obj;
-        return Objects.equals(this.apiHost, that.apiHost)
+        return Objects.equals(this.apiScheme, that.apiScheme)
+        		&& Objects.equals(this.apiHost, that.apiHost)
                 && Objects.equals(this.apiPort, that.apiPort)
                 && Objects.equals(this.mongoHost, that.mongoHost)
                 && Objects.equals(this.mongoPort, that.mongoPort)
@@ -193,7 +209,8 @@ public class Config {
 	
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(this).add("apiHost", apiHost)
+		return MoreObjects.toStringHelper(this).add("apiScheme", apiScheme)
+											   .add("apiHost", apiHost)
 											   .add("apiPort", apiPort)
 											   .add("mongoHost", mongoHost)
 											   .add("mongoPort", mongoPort)

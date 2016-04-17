@@ -1,7 +1,6 @@
 package yoan.shopping.list.resource;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
@@ -9,13 +8,10 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.list.ItemState.TO_BUY;
-import static yoan.shopping.list.resource.ShoppingItemResourceErrorMessage.ALREADY_EXISTING_ITEM;
 import static yoan.shopping.list.resource.ShoppingItemResourceErrorMessage.ITEM_NOT_FOUND;
-import static yoan.shopping.list.resource.ShoppingItemResourceErrorMessage.MISSING_ITEM_ID_FOR_UPDATE;
 
 import java.util.List;
 import java.util.UUID;
@@ -112,7 +108,7 @@ public class ShoppingItemResourceTest {
 		assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
 		ShoppingItemRepresentation itemRepresentation = (ShoppingItemRepresentation) response.getEntity();
 		assertThat(itemRepresentation).isNotNull();
-		assertThat(itemRepresentation.getId()).isEqualTo(expectedID);
+		assertThat(itemRepresentation.getId()).isNotEqualTo(ShoppingItem.DEFAULT_ID);
 		assertThat(itemRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(itemRepresentation.getQuantity()).isEqualTo(expectedQuantity);
 		assertThat(itemRepresentation.getState()).isEqualTo(expectedState);
@@ -144,27 +140,6 @@ public class ShoppingItemResourceTest {
 		assertThat(itemRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(itemRepresentation.getQuantity()).isEqualTo(expectedQuantity);
 		assertThat(itemRepresentation.getState()).isEqualTo(expectedState);
-	}
-	
-	@Test(expected = WebApiException.class)
-	public void create_should_return_409_with_already_existing_item() {
-		//given
-		UUID listId = UUID.randomUUID();
-		UUID alreadyExistingShoppingItemId = UUID.randomUUID();
-		@SuppressWarnings("deprecation")
-		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(alreadyExistingShoppingItemId, "name", 10, TO_BUY.toString());
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
-		when(mockeItemRepo.getById(listId, alreadyExistingShoppingItemId)).thenReturn(ShoppingItem.Builder.createDefault().withId(alreadyExistingShoppingItemId).build());
-		String expectedMessage = ALREADY_EXISTING_ITEM.getDevReadableMessage(alreadyExistingShoppingItemId);
-		
-		//when
-		try {
-			testedResource.create(listId.toString(), representation);
-		} catch(WebApiException wae) {
-		//then
-			TestHelper.assertWebApiException(wae, CONFLICT, ERROR, API_RESPONSE, expectedMessage);
-			throw wae;
-		}
 	}
 	
 	@Test(expected = WebApiException.class)
@@ -283,7 +258,7 @@ public class ShoppingItemResourceTest {
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
 		//when
-		Response response = testedResource.update(listId.toString(), representation);
+		Response response = testedResource.update(listId.toString(), expectedID.toString(), representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -291,20 +266,21 @@ public class ShoppingItemResourceTest {
 	}
 	
 	@Test(expected = WebApiException.class)
-	public void update_should_return_400_with_input_representation_without_id() {
+	public void update_should_return_400_with_input_representation_with_invalid_id() {
 		//given
 		String listIdStr = UUID.randomUUID().toString();
+		String invalidItemId = "invalid";
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representationWithoutId = new ShoppingItemWriteRepresentation(null, "name", 10, TO_BUY.toString());
 		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
-		String expectedMessage = MISSING_ITEM_ID_FOR_UPDATE.getDevReadableMessage();
+		String expectedMessage = "Invalid Param named itemId : invalid";
 		
 		//when
 		try {
-			testedResource.update(listIdStr, representationWithoutId);
+			testedResource.update(listIdStr, invalidItemId, representationWithoutId);
 		} catch(WebApiException wae) {
 		//then
-			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
+			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
 	}
@@ -320,7 +296,7 @@ public class ShoppingItemResourceTest {
 		
 		//when
 		try {
-			testedResource.update(invalidListId, representation);
+			testedResource.update(invalidListId, representation.getId().toString(), representation);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -339,7 +315,7 @@ public class ShoppingItemResourceTest {
 		
 		//when
 		try {
-			testedResource.update(listIdStr, representation);
+			testedResource.update(listIdStr, representation.getId().toString(), representation);
 		} catch(ApplicationException ae) {
 		//then
 			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);

@@ -2,6 +2,7 @@ package yoan.shopping.client.app.resource;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import yoan.shopping.infra.util.error.ErrorMessage;
 
 /**
@@ -12,11 +13,7 @@ public enum ClientAppResourceErrorMessage implements ErrorMessage {
 	/** Client application not found */
 	CLIENT_APP_NOT_FOUND("Client application not found"),
 	/** Client application not found */
-	CLIENT_APPS_NOT_FOUND("Client applications not found for owner id : %s"),
-	/** Client application Id is a mandatory field to update a client application */
-	MISSING_CLIENT_APP_ID_FOR_UPDATE("Client application Id is a mandatory field to update a client application"),
-	/** Client application with Id : %s aready exists */
-	ALREADY_EXISTING_CLIENT_APP("Client application with Id : %s aready exists");
+	CLIENT_APPS_NOT_FOUND("Client applications not found for owner id : %s");
 
 	private String message;
 	

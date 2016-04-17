@@ -29,8 +29,6 @@ import yoan.shopping.infra.rest.error.WebApiException;
 @XmlRootElement(name = "clientApp")
 @ApiModel(value = "Client app write")
 public class ClientAppWriteRepresentation {
-	/** Client app unique ID */
-	private UUID id;
 	/** Client app last name */
 	private String name;
 	/** Oauth2 redirect URI */
@@ -46,8 +44,7 @@ public class ClientAppWriteRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public ClientAppWriteRepresentation(UUID id, String name, UUID ownerId, String redirectURI) {
-		this.id = id;
+	public ClientAppWriteRepresentation(String name, UUID ownerId, String redirectURI) {
 		this.name = name;
 		this.ownerId = ownerId;
 		this.redirectURI = redirectURI;
@@ -55,38 +52,28 @@ public class ClientAppWriteRepresentation {
 	
 	public ClientAppWriteRepresentation(ClientApp clientApp) {
 		requireNonNull(clientApp);
-		this.id = clientApp.getId();
 		this.name = clientApp.getName();
 		this.ownerId = clientApp.getOwnerId();
 		this.redirectURI = clientApp.getRedirectURI().toString();
 	}
 	
-	public static ClientApp toClientApp(ClientAppWriteRepresentation representation) {
+	public static ClientApp toClientApp(ClientAppWriteRepresentation representation, UUID appId) {
 		requireNonNull(representation, "Unable to create client application from null ClientAppWriteRepresentation");
 		
 		ClientApp app;
 		try {
-			ClientApp.Builder appBuilder = ClientApp.Builder.createDefault()
-							   .withName(representation.name)
-							   .withOwnerId(representation.ownerId)
-							   .withRedirectURI(URI.create(representation.redirectURI));
-			//if no ID provided, we let the default one
-			if (representation.id != null) {
-				appBuilder.withId(representation.id);
-			}
-		
-			app = appBuilder.build();
+			app =  ClientApp.Builder.createDefault()
+								   .withId(appId)
+								   .withName(representation.name)
+								   .withOwnerId(representation.ownerId)
+								   .withRedirectURI(URI.create(representation.redirectURI))
+								   .build();
 		} catch (NullPointerException | IllegalArgumentException e) {
 			String message = INVALID.getDevReadableMessage("client application") + " : " + e.getMessage();
 			LOGGER.error(message, e);
 			throw new WebApiException(BAD_REQUEST, ERROR, API_RESPONSE, message, e);
 		}
 		return app;
-	}
-
-	@XmlElement(name = "id")
-	public UUID getId() {
-		return id;
 	}
 
 	@XmlElement(name = "name")
@@ -103,10 +90,6 @@ public class ClientAppWriteRepresentation {
 	public String getRedirectURI() {
 		return redirectURI;
 	}
-	
-	public void setId(UUID id) {
-		this.id = id;
-	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -122,7 +105,7 @@ public class ClientAppWriteRepresentation {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, ownerId, redirectURI);
+		return Objects.hash(name, ownerId, redirectURI);
 	}
 
 	@Override
@@ -134,16 +117,14 @@ public class ClientAppWriteRepresentation {
             return false;
         }
         ClientAppWriteRepresentation that = (ClientAppWriteRepresentation) obj;
-        return Objects.equals(this.id, that.id)
-                && Objects.equals(this.name, that.name)
+        return Objects.equals(this.name, that.name)
                 && Objects.equals(this.ownerId, that.ownerId)
                 && Objects.equals(this.redirectURI, that.redirectURI);
     }
 	
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(this).add("id", id)
-											   .add("name", name)
+		return MoreObjects.toStringHelper(this).add("name", name)
 											   .add("ownerId", ownerId)
 											   .add("redirectURI", redirectURI)
 											   .toString();

@@ -5,7 +5,7 @@ import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.user.repository.UserRepositoryErrorCode.UNSECURE_PASSWORD;
-import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.ALREADY_EXISTING_USER_WITH_EMAIL;
 
 import java.util.UUID;
 
@@ -24,7 +24,7 @@ public final class UserCreationHelper {
 		boolean userExists = userRepo.checkUserExistsByIdOrEmail(userId, email);
 		
 		if (userExists) {
-			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER.getDevReadableMessage(userId));
+			throw new WebApiException(CONFLICT, ERROR, API_RESPONSE, ALREADY_EXISTING_USER_WITH_EMAIL.getDevReadableMessage(email));
 		}
 	}
 	
