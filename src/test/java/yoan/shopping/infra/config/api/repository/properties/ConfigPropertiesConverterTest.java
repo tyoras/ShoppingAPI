@@ -7,7 +7,7 @@ import static yoan.shopping.infra.config.api.repository.properties.ConfigPropert
 import static yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesConverter.MONGO_PASS_FIELD;
 import static yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesConverter.MONGO_PORT_FIELD;
 import static yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesConverter.MONGO_USER_FIELD;
-import static yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesConverter.SWAGGER_BASE_PATH_FIELD;
+import static yoan.shopping.infra.config.api.repository.properties.ConfigPropertiesConverter.*;
 
 import java.util.Properties;
 
@@ -34,6 +34,7 @@ public class ConfigPropertiesConverterTest {
 	
 	private Properties getValidConfigProperties(Config config) {
 		Properties properties = new Properties();
+		properties.setProperty(API_SCHEME_FIELD, config.getApiScheme());
 		properties.setProperty(API_HOST_FIELD, config.getApiHost());
 		properties.setProperty(API_PORT_FIELD, config.getApiPort().toString());
 		properties.setProperty(MONGO_HOST_FIELD, config.getMongoHost());
