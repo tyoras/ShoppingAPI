@@ -17,5 +17,6 @@ api_shopping:
   image: tyoras/shopping_api:${SHOPPING_API_VERSION}
   ports:
    - "8080:8080"
+   - "8443:8443"
   links:
    - mongo_shopping
