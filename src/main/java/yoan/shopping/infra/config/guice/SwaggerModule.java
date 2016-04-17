@@ -67,8 +67,8 @@ public class SwaggerModule extends AbstractModule {
 		ScannerFactory.setScanner(scanner);
 		
 		Swagger swagger = new Swagger();
-		String authorizationURL = "http://" + configAppli.getApiHost() + ":" + configAppli.getApiPort()+"/shopping/rest/auth/authorization";
-		String tokenURL = "http://" + configAppli.getApiHost() + ":" + configAppli.getApiPort()+"/shopping/rest/auth/token";
+		String authorizationURL = configAppli.getApiScheme() + "://" + configAppli.getApiHost() + ":" + configAppli.getApiPort()+"/shopping/rest/auth/authorization";
+		String tokenURL = configAppli.getApiScheme() + "://" + configAppli.getApiHost() + ":" + configAppli.getApiPort()+"/shopping/rest/auth/token";
 		SecuritySchemeDefinition oauth2SecurityDefinition = new OAuth2Definition()
 			//.implicit(authorizationURL) //to get directly the token from the authz endpoint
 			.accessCode(authorizationURL, tokenURL);
@@ -89,7 +89,7 @@ public class SwaggerModule extends AbstractModule {
 		@Override
 		public Swagger configure(Swagger swagger) {
 			swagger.setInfo(info);
-			swagger.scheme(Scheme.HTTP);
+			swagger.scheme(Scheme.forValue(configAppli.getApiScheme()));
 			swagger.setBasePath(configAppli.getSwaggerBasePath());
 			return swagger;
 		}

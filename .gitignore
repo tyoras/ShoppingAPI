@@ -21,6 +21,7 @@ tmp/**/*
 *.bak
 *.swp
 *~.nib
+*.pem
 local.properties
 .classpath
 .settings/
@@ -38,3 +39,5 @@ src/main/java/yoan/shopping/TestMain.java
 #docker build folder
 docker/tomcat/configAPI.properties
 docker/tomcat/wars/*.war
+docker/tomcat/certs/shopping.jks
+docker/tomcat/server.xml
