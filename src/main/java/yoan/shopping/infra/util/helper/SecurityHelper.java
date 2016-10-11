@@ -2,6 +2,8 @@ package yoan.shopping.infra.util.helper;
 
 import io.jsonwebtoken.Jwts;
 
+import static yoan.shopping.authentication.repository.OAuth2AccessTokenRepository.ACCESS_TOKEN_TTL_IN_MINUTES;
+
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +37,8 @@ public final class SecurityHelper {
 	 */
 	public static String generateJWT(UUID userId) {
 		Date now = new Date();
-		Date expiration = new Date(now.getTime() + TimeUnit.SECONDS.toMillis(3600));
+		long expiresInSeconds = ACCESS_TOKEN_TTL_IN_MINUTES * 60;
+		Date expiration = new Date(now.getTime() + TimeUnit.SECONDS.toMillis(expiresInSeconds));
 		return Jwts.builder()
 			.setSubject(userId.toString())
 			.setIssuedAt(now)

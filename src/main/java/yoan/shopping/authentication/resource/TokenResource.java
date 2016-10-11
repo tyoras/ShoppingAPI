@@ -2,6 +2,7 @@ package yoan.shopping.authentication.resource;
 
 import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static yoan.shopping.authentication.repository.OAuth2AccessTokenRepository.ACCESS_TOKEN_TTL_IN_MINUTES;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.GRANT_TYPE_NOT_IMPLEMENTED;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.INVALID_AUTHZ_CODE;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.INVALID_CLIENT_SECRET;
@@ -116,7 +117,8 @@ public class TokenResource {
 		
 		String accessToken = generateAccessToken(userId);
 
-		OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setExpiresIn("3600").buildJSONMessage();
+		String expiresInSeconds = Long.toString(ACCESS_TOKEN_TTL_IN_MINUTES * 60);
+		OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setExpiresIn(expiresInSeconds).buildJSONMessage();
 		return response;
 	}
 

@@ -3,6 +3,7 @@ package yoan.shopping.authentication.resource;
 import static java.util.Objects.requireNonNull;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.FOUND;
+import static yoan.shopping.authentication.repository.OAuth2AccessTokenRepository.ACCESS_TOKEN_TTL_IN_MINUTES;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.INVALID_REDIRECT_URI;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.MISSING_REDIRECT_URI;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.UNKNOWN_CLIENT;
@@ -108,7 +109,7 @@ public class AuthorizationResource {
 		    case TOKEN :
 		    	String accessToken = generateAccessToken();
 		        oAuthResponseBuilder.setAccessToken(accessToken);
-		        oAuthResponseBuilder.setExpiresIn(3600l);
+		        oAuthResponseBuilder.setExpiresIn(ACCESS_TOKEN_TTL_IN_MINUTES * 60);
 		        break;
 		    default :
 		    	break;
