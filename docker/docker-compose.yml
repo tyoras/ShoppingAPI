@@ -14,7 +14,7 @@ mongo_shopping:
   command: mongod --smallfiles
 
 api_shopping:
-  image: tyoras/shopping_api:0.2.0
+  image: tyoras/shopping_api:0.2.1
   ports:
    - "8080:8080"
    - "8443:8443"
