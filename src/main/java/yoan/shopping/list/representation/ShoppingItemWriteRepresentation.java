@@ -92,11 +92,11 @@ public class ShoppingItemWriteRepresentation {
 	}
 	
 	public static List<ShoppingItem> toShoppingItemList(List<ShoppingItemWriteRepresentation> representations) {
-		requireNonNull(representations, "Unable to create ShoppingItems from null ShoppingItemWriteRepresentation");
 		
 		List<ShoppingItem> items = new ArrayList<>();
-		representations.forEach(representation -> items.add(toShoppingItem(representation, representation.getId())));
-		
+		if (representations != null) {
+			representations.forEach(representation -> items.add(toShoppingItem(representation, representation.getId())));
+		}
 		return items;
 	}
 	

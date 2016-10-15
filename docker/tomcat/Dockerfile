@@ -33,7 +33,7 @@ RUN gpg --keyserver pool.sks-keyservers.net --recv-keys \
 	F7DA48BB64BCB84ECBA7EE6935CD23C10D498E23
 
 ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.28
+ENV TOMCAT_VERSION 8.0.37
 ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \
@@ -43,7 +43,9 @@ RUN set -x \
 	&& tar -xvf tomcat.tar.gz --strip-components=1 \
 	&& rm bin/*.bat \
 	&& rm tomcat.tar.gz* \
-	&& rm -rf $CATALINA_HOME/webapps/ROOT
+	&& rm -rf $CATALINA_HOME/webapps/ROOT \
+	&& rm -rf $CATALINA_HOME/webapps/examples \
+	&& rm -rf $CATALINA_HOME/webapps/docs
 
 # Config Catalina
 ENV CATALINA_OPTS="-Xms900m -Xmx900m -verbose:gc -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -server"
@@ -54,5 +56,39 @@ ADD /wars/shopping.war ${CATALINA_HOME}/webapps/shopping.war
 ADD /certs/shopping.jks /certs/shopping.jks
 ADD /server.xml ${CATALINA_HOME}/conf/server.xml
 
+RUN update-ca-certificates -f
+
+# New Relic integration
+ARG NEWRELIC_KEY=default_key
+ENV NEWRELIC_APP_NAME Shopping_API 
+
+RUN apt-get update && apt-get install -y \ 
+	unzip \
+	wget
+
+RUN ln -sf ${CATALINA_HOME}/webapps /webapps && \
+	wget -q "https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip" -O /tmp/newrelic.zip && \
+	unzip /tmp/newrelic.zip -d ${CATALINA_HOME}/ && \
+	rm /tmp/newrelic.zip && \
+	cd /usr/local/tomcat/newrelic && \
+	java -jar newrelic.jar install
+
+RUN cp ${CATALINA_HOME}/newrelic/newrelic.yml ${CATALINA_HOME}/newrelic/newrelic.yml.original && \
+	cat ${CATALINA_HOME}/newrelic/newrelic.yml.original | sed -e "s/'<\%= license_key \%>'/\'${NEWRELIC_KEY}\'/g" | sed -e "s/app_name:\ My\ Application/app_name:\ ${NEWRELIC_APP_NAME}/g" > ${CATALINA_HOME}/newrelic/newrelic.yml
+
 EXPOSE 8080 8080
 CMD ["catalina.sh", "run"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+

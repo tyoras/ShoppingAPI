@@ -5,7 +5,8 @@ import static yoan.shopping.root.repository.properties.BuildInfoPropertiesReposi
 
 import javax.servlet.ServletContext;
 
-import org.reflections.Reflections;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
@@ -39,9 +40,6 @@ import yoan.shopping.user.repository.mongo.UserMongoRepository;
 import yoan.shopping.user.resource.RegisterUserResource;
 import yoan.shopping.user.resource.UserResource;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-
 /**
  * Guice Module to configure bindings
  * @author yoan
@@ -65,7 +63,7 @@ public class ShoppingModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {
-		install(new SwaggerModule(servletContext, new Reflections("yoan.shopping"), configAppli, buildInfo));
+		install(new SwaggerModule(servletContext, configAppli, buildInfo));
 		
 		//resources
 		bind(RootResource.class);

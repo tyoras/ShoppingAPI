@@ -70,13 +70,13 @@ public class ShoppingListResource extends RestAPI {
 		
 		URI createURI = getUriInfo().getAbsolutePath();
 		links.add(new Link("create", createURI));
-		URI getByIdURI = getUriInfo().getBaseUriBuilder().path(ShoppingListResource.class, "getById").build("{listId}");
+		URI getByIdURI = getUriInfo().getAbsolutePathBuilder().path(ShoppingListResource.class, "getById").build("{listId}");
 		links.add(new Link("getById", getByIdURI));
-		URI getByOwnerIdURI = getUriInfo().getBaseUriBuilder().path(ShoppingListResource.class, "getByOwnerId").build("{ownerId}");
+		URI getByOwnerIdURI = getUriInfo().getAbsolutePathBuilder().path(ShoppingListResource.class, "getByOwnerId").build("{ownerId}");
 		links.add(new Link("getByOwnerId", getByOwnerIdURI));
-		URI updateURI = getUriInfo().getBaseUriBuilder().path(ShoppingListResource.class, "update").build("{listId}");
+		URI updateURI = getUriInfo().getAbsolutePathBuilder().path(ShoppingListResource.class, "update").build("{listId}");
 		links.add(new Link("update", updateURI));
-		URI deleteByIdURI = getUriInfo().getBaseUriBuilder().path(ShoppingListResource.class, "deleteById").build("{listId}");
+		URI deleteByIdURI = getUriInfo().getAbsolutePathBuilder().path(ShoppingListResource.class, "deleteById").build("{listId}");
 		links.add(new Link("deleteById", deleteByIdURI));
 		
 		return links;

@@ -17,7 +17,7 @@ import org.slf4j.Marker;
  */
 public abstract class OAuth2AccessTokenRepository {
 	
-	public static final long ACCESS_TOKEN_TTL_IN_MINUTES = 10;
+	public static final long ACCESS_TOKEN_TTL_IN_MINUTES = 60;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2AuthorizationCodeRepository.class);
 	private static final Marker AUTH_MARKER = AUTHENTICATION.getMarker();
