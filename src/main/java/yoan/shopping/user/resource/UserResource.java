@@ -150,14 +150,14 @@ public class UserResource extends RestAPI {
 	}
 	
 	@PUT
-	@Path("/{userId}/password/{newPassword}")
+	@Path("/{userId}/password")
 	@ApiOperation(value = "Change password", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Password changed"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response changePassword(@PathParam("userId") @ApiParam(value = "Id of the user to update", required = true) String userIdStr, 
-								   @PathParam("newPassword") @ApiParam(value = "new password", required = true) String newPassword) {
+								   @ApiParam(value = "new password", required = true) String newPassword) {
 		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
 		
 		securedUserRepo.changePassword(userId, newPassword);
