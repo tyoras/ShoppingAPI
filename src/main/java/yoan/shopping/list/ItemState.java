@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
  * @author yoan
  */
 public enum ItemState {
-	TO_BUY("Item not already bought");
+	TO_BUY("Item not already bought"),
+	BOUGHT("Item already bought"),
+	CANCELLED("Item not required anymore");
 	
 	/** State decription */
 	private final String description;
