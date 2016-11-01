@@ -12,7 +12,7 @@ import yoan.shopping.infra.util.error.ErrorMessage;
 public enum ShoppingListResourceErrorMessage implements ErrorMessage {
 	/** List not found */
 	LIST_NOT_FOUND("List not found"),
-	/** Lists not found */
+	/** Lists not found for owner id : %s */
 	LISTS_NOT_FOUND("Lists not found for owner id : %s");
 
 	private String message;

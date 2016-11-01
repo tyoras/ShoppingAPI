@@ -14,6 +14,8 @@ import yoan.shopping.infra.util.error.ErrorMessage;
 public enum UserRepositoryErrorMessage implements ErrorMessage {
 	/** Error while reading user : %s */
 	PROBLEM_READ_USER("Error while reading user : %s"),
+	/** Error while searching users : %s */
+	PROBLEM_SEARCH_USER("Error while searching users : %s"),
 	/** Error while creating user : %s */
 	PROBLEM_CREATION_USER("Error while creating user : %s"),
 	/** Error while updating user : %s */
@@ -24,8 +26,10 @@ public enum UserRepositoryErrorMessage implements ErrorMessage {
 	PROBLEM_PASSWORD_VALIDITY("Password does not comply to the minimum security level")
 	/** Unable to convert unsecure user : %s */,
 	UNABLE_TO_CONVERT_UNSECURE_USER("Unable to convert unsecure user : %s"),
-	/** Error while updating user pasword : %s */
-	PROBLEM_UPDATE_USER_PASSWORD("Error while updating user pasword : %s");
+	/** Error while updating user password : %s */
+	PROBLEM_UPDATE_USER_PASSWORD("Error while updating user password : %s"),
+	/** Too much users (%s) for search : %s */
+	TOO_MUCH_RESULT_FOR_SEARCH("Too much users (%s) for search : %s");
 	
 	private String message;
 	

@@ -12,6 +12,7 @@ import org.bson.codecs.Codec;
 
 import yoan.shopping.infra.db.mongo.MongoDocumentConverter;
 import yoan.shopping.infra.util.helper.DateHelper;
+import yoan.shopping.user.ProfileVisibility;
 import yoan.shopping.user.User;
 
 /**
@@ -21,6 +22,7 @@ import yoan.shopping.user.User;
 public class UserMongoConverter extends MongoDocumentConverter<User> {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_EMAIL = "email";
+    public static final String FIELD_PROFILE_VISIBILITY = "profileVisibility";
     public static final String FIELD_CREATED = "created";
     public static final String FIELD_LAST_UPDATE = "lastUpdate";
     
@@ -41,6 +43,8 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
         UUID id = doc.get(FIELD_ID, UUID.class);
         String name = doc.getString(FIELD_NAME);
         String email = doc.getString(FIELD_EMAIL);
+        String profileVisibilityCode = doc.getString(FIELD_PROFILE_VISIBILITY);
+        ProfileVisibility profileVisibility = ProfileVisibility.valueOfOrNull(profileVisibilityCode);
         Date created = doc.getDate(FIELD_CREATED);
         LocalDateTime creationDate = DateHelper.toLocalDateTime(created);
         Date lastUpdated = doc.getDate(FIELD_LAST_UPDATE);
@@ -52,6 +56,7 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
         				   .withLastUpdate(lastUpdate)
         				   .withName(name)
         				   .withEmail(email)
+        				   .withProfileVisibility(profileVisibility)
         				   .build();
 	}
 
@@ -64,6 +69,7 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
 		return new Document(FIELD_ID, user.getId())
 				.append(FIELD_NAME, user.getName())
 				.append(FIELD_EMAIL, user.getEmail())
+				.append(FIELD_PROFILE_VISIBILITY, user.getProfileVisibility().name())
 				.append(FIELD_CREATED, DateHelper.toDate(user.getCreationDate()))
 				.append(FIELD_LAST_UPDATE, DateHelper.toDate(user.getLastUpdate()));
 	}
@@ -81,7 +87,8 @@ public class UserMongoConverter extends MongoDocumentConverter<User> {
 	public static Document getUserUpdate(User userToUpdate) {
 		Document updateDoc = new Document(FIELD_LAST_UPDATE, DateHelper.toDate(userToUpdate.getLastUpdate()))
 									.append(FIELD_EMAIL, userToUpdate.getEmail())
-									.append(FIELD_NAME, userToUpdate.getName());
+									.append(FIELD_NAME, userToUpdate.getName())
+									.append(FIELD_PROFILE_VISIBILITY, userToUpdate.getProfileVisibility().name());
 		return new Document("$set", updateDoc);
 	}
 }

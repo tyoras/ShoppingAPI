@@ -10,15 +10,29 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import yoan.shopping.infra.rest.Link;
-import yoan.shopping.root.repository.fake.BuildInfoFakeRepository;
+import yoan.shopping.root.BuildInfo;
+import yoan.shopping.root.repository.BuildInfoRepository;
 import yoan.shopping.root.representation.RootRepresentation;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RootResourceTest {
+	
+	@Mock
+	private BuildInfoRepository mockedBuildInfoRepo;
+	
+	@Before
+	public void beforeClass() {
+		when(mockedBuildInfoRepo.getCurrentBuildInfos()).thenReturn(BuildInfo.DEFAULT);
+	}
 	
 	@Test
 	public void getRootLinks_should_contains_self_link() {
@@ -59,7 +73,7 @@ public class RootResourceTest {
 	}
 	
 	private RootResource getRootResource(User connectedUser) {
-		RootResource testedResource = new RootResource(connectedUser, new BuildInfoFakeRepository());
+		RootResource testedResource = new RootResource(connectedUser, mockedBuildInfoRepo);
 		return spy(testedResource);
 	}
 }

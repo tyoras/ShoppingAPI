@@ -1,6 +1,7 @@
 package yoan.shopping.list.repository;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -13,22 +14,21 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Spy;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.google.common.collect.ImmutableList;
 
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.infra.util.error.CommonErrorMessage;
 import yoan.shopping.list.ShoppingList;
-import yoan.shopping.list.repository.fake.ShoppingListFakeRepository;
 import yoan.shopping.test.TestHelper;
-
-import com.google.common.collect.ImmutableList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShoppingListRepositoryTest {
 
-	@Spy
-	ShoppingListRepository testedRepo = new ShoppingListFakeRepository();
+	@Mock(answer= CALLS_REAL_METHODS)
+	ShoppingListRepository testedRepo;
 	
 	@Test
 	public void create_should_do_nothing_with_null_list() {

@@ -1,6 +1,7 @@
 package yoan.shopping.user;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,7 +16,7 @@ public class SecuredUserTest {
 		
 		//when
 		try {
-			new SecuredUser(nullId, "name", "mail", LocalDateTime.now(), LocalDateTime.now(), "Password", UUID.randomUUID());
+			new SecuredUser(nullId, "name", "mail", PUBLIC, LocalDateTime.now(), LocalDateTime.now(), "Password", UUID.randomUUID());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("User Id is mandatory");
@@ -30,7 +31,7 @@ public class SecuredUserTest {
 		
 		//when
 		try {
-			new SecuredUser(UUID.randomUUID(), blankName, "mail", LocalDateTime.now(), LocalDateTime.now(), "Password", UUID.randomUUID());
+			new SecuredUser(UUID.randomUUID(), blankName, "mail", PUBLIC, LocalDateTime.now(), LocalDateTime.now(), "Password", UUID.randomUUID());
 		} catch(IllegalArgumentException iae) {
 		//then
 			assertThat(iae.getMessage()).isEqualTo("Invalid user name");
@@ -45,7 +46,7 @@ public class SecuredUserTest {
 		
 		//when
 		try {
-			new SecuredUser(UUID.randomUUID(), "name", "mail", LocalDateTime.now(), LocalDateTime.now(), blankPassword, UUID.randomUUID());
+			new SecuredUser(UUID.randomUUID(), "name", "mail", PUBLIC, LocalDateTime.now(), LocalDateTime.now(), blankPassword, UUID.randomUUID());
 		} catch(IllegalArgumentException iae) {
 		//then
 			assertThat(iae.getMessage()).isEqualTo("Invalid user password");
@@ -60,7 +61,7 @@ public class SecuredUserTest {
 		
 		//when
 		try {
-			new SecuredUser(UUID.randomUUID(), "name", "mail", LocalDateTime.now(), LocalDateTime.now(), "Password", nullSalt);
+			new SecuredUser(UUID.randomUUID(), "name", "mail", PUBLIC, LocalDateTime.now(), LocalDateTime.now(), "Password", nullSalt);
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("The password hash salt is mandatory");

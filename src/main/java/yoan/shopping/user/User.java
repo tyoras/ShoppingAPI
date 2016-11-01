@@ -5,6 +5,7 @@ package yoan.shopping.user;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -38,6 +39,8 @@ public class User implements Bson, WithId {
 	private final String name;
 	/** User email */
 	private final String email;
+	/** Profile visibility **/
+	private final ProfileVisibility profileVisibility;
 	/** user creation date */
 	private final LocalDateTime creationDate;
 	/** Last time the user was updated */
@@ -47,16 +50,18 @@ public class User implements Bson, WithId {
 		id = null;
 		name = null;
 		email = null;
+		profileVisibility = null;
 		creationDate = null;
 		lastUpdate = null;
 	}
 	
-	protected User(UUID id, String name, String email, LocalDateTime creationDate, LocalDateTime lastUpdate) {
+	protected User(UUID id, String name, String email, ProfileVisibility profileVisibility, LocalDateTime creationDate, LocalDateTime lastUpdate) {
 		this.id = requireNonNull(id, "User Id is mandatory");
 		checkArgument(StringUtils.isNotBlank(name), "Invalid user name");
 		this.name = name;
 		checkArgument(StringUtils.isNotBlank(email), "Invalid user email");
 		this.email = email;
+		this.profileVisibility = requireNonNull(profileVisibility, "Profile visibility is mandatory");
 		this.creationDate = requireNonNull(creationDate, "Creation date is mandatory");
 		this.lastUpdate = requireNonNull(lastUpdate, "Last update date is mandatory");
 	}
@@ -65,6 +70,7 @@ public class User implements Bson, WithId {
 		private UUID id = DEFAULT_ID;
 		private String name = "Default name";
 		private String email = "default@default.com";
+		private ProfileVisibility profileVisibility = PUBLIC;
 		private LocalDateTime creationDate = LocalDateTime.now();
 		private LocalDateTime lastUpdate = LocalDateTime.now();
 		
@@ -91,6 +97,7 @@ public class User implements Bson, WithId {
             builder.id = otherBuilder.id;
             builder.name = otherBuilder.name;
             builder.email = otherBuilder.email;
+            builder.profileVisibility = otherBuilder.profileVisibility;
             builder.creationDate = otherBuilder.creationDate;
             builder.lastUpdate = otherBuilder.lastUpdate;
 
@@ -109,6 +116,7 @@ public class User implements Bson, WithId {
             builder.id = user.id;
             builder.name = user.name;
             builder.email = user.email;
+            builder.profileVisibility = user.profileVisibility;
             builder.creationDate = user.creationDate;
             builder.lastUpdate = user.lastUpdate;
             
@@ -117,7 +125,7 @@ public class User implements Bson, WithId {
         
         @Override
         public User build() {
-            return new User(id, name, email, creationDate, lastUpdate);
+            return new User(id, name, email, profileVisibility, creationDate, lastUpdate);
         }
         
         public Builder withId(UUID id) {
@@ -145,6 +153,11 @@ public class User implements Bson, WithId {
             return this;
         }
         
+        public Builder withProfileVisibility(ProfileVisibility profileVisibility) {
+            this.profileVisibility = profileVisibility;
+            return this;
+        }
+        
         public Builder withCreationDate(LocalDateTime creationDate) {
             this.creationDate = creationDate;
             return this;
@@ -169,6 +182,10 @@ public class User implements Bson, WithId {
 		return email;
 	}
 	
+	public ProfileVisibility getProfileVisibility() {
+		return profileVisibility;
+	}
+	
 	public LocalDateTime getCreationDate() {
 		return creationDate;
 	}
@@ -179,7 +196,7 @@ public class User implements Bson, WithId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, email);
+		return Objects.hash(id, name, email, profileVisibility);
 	}
 
 	@Override
@@ -193,7 +210,8 @@ public class User implements Bson, WithId {
         User that = (User) obj;
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
-        		&& Objects.equals(this.email, that.email);
+        		&& Objects.equals(this.email, that.email)
+        		&& this.profileVisibility == that.profileVisibility;
     }
 	
 	protected ToStringHelper toStringHelper() {
@@ -201,6 +219,7 @@ public class User implements Bson, WithId {
 					.add("id", id)
 					.add("name", name)
 					.add("email", email)
+					.add("profileVisibility", profileVisibility)
 					.add("created", creationDate)
 					.add("lastUpdate", lastUpdate);
    }

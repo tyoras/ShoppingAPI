@@ -105,11 +105,12 @@ public class TestHelper {
 		return User.Builder.createDefault()
 						   .withRandomId()
 						   .withName(generateRandomName())
+						   .withEmail(generateRandomEmail())
 						   .build();
 	}
 	
 	public static SecuredUser generateRandomSecuredUser() {
-		User user = User.Builder.createDefault().withRandomId().build();
+		User user = generateRandomUser();
 		return SecuredUser.Builder.createFrom(user)
 								  .withSalt(UUID.randomUUID().toString())
 								  .withRawPassword(UUID.randomUUID().toString())
@@ -167,6 +168,10 @@ public class TestHelper {
 	
 	public static String generateRandomName() {
 		return generateString(generateRandomInt(1, 3));
+	}
+	
+	public static String generateRandomEmail() {
+		return generateString(generateRandomInt(1, 3)) + "@" + generateString(generateRandomInt(1, 3)) + ".com";
 	}
 	
 	public static int generateRandomInt(int min, int max) {

@@ -9,7 +9,8 @@ import yoan.shopping.infra.util.error.ErrorCode;
  * @author yoan
  */
 public enum UserRepositoryErrorCode implements ErrorCode {
-	UNSECURE_PASSWORD("UNSECURE_PASSWORD");
+	UNSECURE_PASSWORD("UNSECURE_PASSWORD"),
+	TOO_MUCH_RESULT("TOO_MUCH_RESULT");
 
 	private String code;
 	

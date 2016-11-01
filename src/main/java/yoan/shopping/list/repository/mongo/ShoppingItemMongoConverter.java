@@ -41,7 +41,7 @@ public class ShoppingItemMongoConverter extends MongoDocumentConverter<ShoppingI
         String name = doc.getString(FIELD_NAME);
         int quantity = doc.getInteger(FIELD_QUANTITY);
         String stateCode = doc.getString(FIELD_STATE);
-        ItemState state = ItemState.of(stateCode);
+        ItemState state = ItemState.valueOfOrNull(stateCode);
         Date created = doc.getDate(FIELD_CREATED);
         LocalDateTime creationDate = DateHelper.toLocalDateTime(created);
         Date lastUpdated = doc.getDate(FIELD_LAST_UPDATE);

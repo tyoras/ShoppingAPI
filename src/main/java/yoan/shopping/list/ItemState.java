@@ -27,7 +27,7 @@ public enum ItemState {
 		return description;
 	}
 	
-	public static ItemState of(String codeStr) {
+	public static ItemState valueOfOrNull(String codeStr) {
 		try {
 			return ItemState.valueOf(codeStr);
 		} catch(IllegalArgumentException iae) {

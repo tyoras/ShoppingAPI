@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiModel;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
+import yoan.shopping.user.ProfileVisibility;
 import yoan.shopping.user.User;
 import yoan.shopping.user.resource.UserResource;
 
@@ -41,7 +42,9 @@ public class UserRepresentation extends RestRepresentation {
 	private String name;
 	/** User email */
 	private String email;
-	/** user creation date */
+	/** Profile visibility level */
+	private String profileVisibility;
+	/** User creation date */
 	private LocalDateTime creationDate;
 	/** Last time the user was updated */
 	private LocalDateTime lastUpdate;
@@ -54,11 +57,12 @@ public class UserRepresentation extends RestRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public UserRepresentation(UUID id, String name, String email, List<Link> links) {
+	public UserRepresentation(UUID id, String name, String email, String profileVisibility, List<Link> links) {
 		super(links);
 		this.id = id;
 		this.name = name;
 		this.email = email;
+		this.profileVisibility = profileVisibility;
 	}
 	
 	public UserRepresentation(User user, UriInfo uriInfo) {
@@ -70,6 +74,7 @@ public class UserRepresentation extends RestRepresentation {
 		this.id = user.getId();
 		this.name = user.getName();
 		this.email = user.getEmail();
+		this.profileVisibility = user.getProfileVisibility().name();
 		this.creationDate = user.getCreationDate();
 		this.lastUpdate = user.getLastUpdate();
 	}
@@ -79,7 +84,8 @@ public class UserRepresentation extends RestRepresentation {
 		
 		User.Builder userBuilder = User.Builder.createDefault()
 						   .withName(representation.name)
-						   .withEmail(representation.email);
+						   .withEmail(representation.email)
+						   .withProfileVisibility(ProfileVisibility.valueOfOrNull(representation.profileVisibility));
 		//if no ID provided, we let the default one
 		if (representation.id != null) {
 			userBuilder.withId(representation.id);
@@ -111,6 +117,11 @@ public class UserRepresentation extends RestRepresentation {
 		return email;
 	}
 	
+	@XmlElement(name = "profileVisibility")
+	public String getProfileVisibility() {
+		return profileVisibility;
+	}
+	
 	@XmlElement(name = "creationDate")
 	public LocalDateTime getCreationDate() {
 		return creationDate;
@@ -133,6 +144,10 @@ public class UserRepresentation extends RestRepresentation {
 		this.email = email;
 	}
 	
+	public void setProfileVisibility(String profileVisibility) {
+		this.profileVisibility = profileVisibility;
+	}
+	
 	public void setCreationDate(LocalDateTime creationDate) {
 		this.creationDate = creationDate;
 	}
@@ -143,7 +158,7 @@ public class UserRepresentation extends RestRepresentation {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, email, creationDate, lastUpdate);
+		return Objects.hash(id, name, email, profileVisibility, creationDate, lastUpdate);
 	}
 
 	@Override
@@ -158,6 +173,7 @@ public class UserRepresentation extends RestRepresentation {
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.email, that.email)
+                && this.profileVisibility == that.profileVisibility
                 && Objects.equals(this.creationDate, that.creationDate)
                 && Objects.equals(this.lastUpdate, that.lastUpdate);
     }
@@ -167,6 +183,7 @@ public class UserRepresentation extends RestRepresentation {
 		return MoreObjects.toStringHelper(this).add("id", id)
 											   .add("name", name)
 											   .add("email", email)
+											   .add("profileVisibility", profileVisibility)
 											   .add("created", creationDate)
 											   .add("lastUpdate", lastUpdate)
 											   .toString();

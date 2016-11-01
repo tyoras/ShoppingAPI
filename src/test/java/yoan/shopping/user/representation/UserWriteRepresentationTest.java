@@ -5,6 +5,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.util.UUID;
 
@@ -47,7 +48,7 @@ public class UserWriteRepresentationTest {
 		UUID nullUserId = null;
 		User user = TestHelper.generateRandomUser();
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation validUserWriteRepresentation = new UserWriteRepresentation(user.getName(), user.getEmail());
+		UserWriteRepresentation validUserWriteRepresentation = new UserWriteRepresentation(user.getName(), user.getEmail(), user.getProfileVisibility().name());
 		String expectedMessage = INVALID.getDevReadableMessage("user") + " : User Id is mandatory";
 		
 		//when
@@ -65,7 +66,7 @@ public class UserWriteRepresentationTest {
 		//given
 		UUID userId = UUID.randomUUID();
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation invalidUserWriteRepresentation = new UserWriteRepresentation(" ", " ");
+		UserWriteRepresentation invalidUserWriteRepresentation = new UserWriteRepresentation(" ", " ", PUBLIC.name());
 		String expectedMessage = INVALID.getDevReadableMessage("user") + " : Invalid user name";
 		
 		//when
@@ -83,7 +84,7 @@ public class UserWriteRepresentationTest {
 		//given
 		User expectedUser = TestHelper.generateRandomUser();
 		@SuppressWarnings("deprecation")
-		UserWriteRepresentation validUserWriteRepresentation = new UserWriteRepresentation(expectedUser.getName(), expectedUser.getEmail());
+		UserWriteRepresentation validUserWriteRepresentation = new UserWriteRepresentation(expectedUser.getName(), expectedUser.getEmail(), expectedUser.getProfileVisibility().name());
 		
 		//when
 		User result = UserWriteRepresentation.toUser(validUserWriteRepresentation, expectedUser.getId());

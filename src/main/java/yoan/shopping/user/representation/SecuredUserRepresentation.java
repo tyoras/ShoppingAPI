@@ -23,8 +23,8 @@ public class SecuredUserRepresentation extends UserRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public SecuredUserRepresentation(UUID id, String name, String email, List<Link> links, String password) {
-		super(id, name, email, links);
+	public SecuredUserRepresentation(UUID id, String name, String email, String profileVisibility, List<Link> links, String password) {
+		super(id, name, email, profileVisibility, links);
 		this.password = password;
 	}
 	

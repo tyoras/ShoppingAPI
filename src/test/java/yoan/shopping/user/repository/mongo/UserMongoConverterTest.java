@@ -8,7 +8,8 @@ import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_CREAT
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_EMAIL;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_ID;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_LAST_UPDATE;
-import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_NAME;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
+import static yoan.shopping.user.repository.mongo.UserMongoConverter.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import org.junit.Test;
 
 import yoan.shopping.infra.util.helper.DateHelper;
 import yoan.shopping.test.TestHelper;
+import yoan.shopping.user.ProfileVisibility;
 import yoan.shopping.user.User;
 
 /**
@@ -45,12 +47,14 @@ public class UserMongoConverterTest {
 		UUID expectId = UUID.randomUUID();
 		String expectedName = "name";
 		String expectedMail = "mail";
+		ProfileVisibility expectedProfileVisibility = PUBLIC;
 		LocalDateTime expectedCreationDate = LocalDateTime.now();
 		LocalDateTime expectedLastUpdate = LocalDateTime.now();
 		
 		Document doc = new Document(FIELD_ID, expectId)
 							.append(FIELD_NAME, expectedName)
 							.append(FIELD_EMAIL, expectedMail)
+							.append(FIELD_PROFILE_VISIBILITY, expectedProfileVisibility.name())
 							.append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
 							.append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedLastUpdate));
 		UserMongoConverter testedConverter = new UserMongoConverter();
@@ -63,6 +67,7 @@ public class UserMongoConverterTest {
 		assertThat(result.getId()).isEqualTo(expectId);
 		assertThat(result.getName()).isEqualTo(expectedName);
 		assertThat(result.getEmail()).isEqualTo(expectedMail);
+		assertThat(result.getProfileVisibility()).isEqualTo(expectedProfileVisibility);
 		assertThat(result.getCreationDate()).isEqualTo(expectedCreationDate);
 		assertThat(result.getLastUpdate()).isEqualTo(expectedLastUpdate);
 	}
@@ -95,6 +100,7 @@ public class UserMongoConverterTest {
 		assertThat(result.get(FIELD_ID)).isEqualTo(user.getId());
 		assertThat(result.getString(FIELD_NAME)).isEqualTo(user.getName());
 		assertThat(result.getString(FIELD_EMAIL)).isEqualTo(user.getEmail());
+		assertThat(ProfileVisibility.valueOfOrNull(result.getString(FIELD_PROFILE_VISIBILITY))).isEqualTo(user.getProfileVisibility());
 		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_CREATED))).isEqualTo(user.getCreationDate());
 		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_LAST_UPDATE))).isEqualTo(user.getLastUpdate());
 	}

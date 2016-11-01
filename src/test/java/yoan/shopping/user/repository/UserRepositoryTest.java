@@ -1,7 +1,9 @@
 package yoan.shopping.user.repository;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -9,24 +11,27 @@ import static org.mockito.Mockito.when;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.RepositoryErrorCode.NOT_FOUND;
 import static yoan.shopping.test.TestHelper.assertApplicationException;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Spy;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.google.common.collect.ImmutableList;
 
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
-import yoan.shopping.user.repository.fake.UserFakeRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserRepositoryTest {
 	
-	@Spy
-	UserRepository testedRepo = new UserFakeRepository();
+	@Mock(answer= CALLS_REAL_METHODS)
+	UserRepository testedRepo;
+	
 	
 	@Test
 	public void create_should_do_nothing_with_null_user() {
@@ -162,5 +167,59 @@ public class UserRepositoryTest {
 		//then
 		assertThat(result).isFalse();
 		verify(testedRepo, never()).countByIdOrEmail(any(), any());
+	}
+	
+	@Test
+	public void searchByName_should_return_empty_list_with_null_search() {
+		//given
+		String nullSearch = null;
+		
+		//when
+		ImmutableList<User> result = testedRepo.searchByName(nullSearch);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEmpty();
+		verify(testedRepo, never()).processSearchByName(any(), anyInt(), any());
+	}
+	
+	@Test
+	public void searchByName_should_return_empty_list_with_empty_search() {
+		//given
+		String emptySearch = "     ";
+		
+		//when
+		ImmutableList<User> result = testedRepo.searchByName(emptySearch);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEmpty();
+		verify(testedRepo, never()).processSearchByName(any(), anyInt(), any());
+	}
+	
+	@Test
+	public void searchByName_should_return_empty_list_with_less_than_3_chars_search() {
+		//given
+		String search = "ab";
+		
+		//when
+		ImmutableList<User> result = testedRepo.searchByName(search);
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEmpty();
+		verify(testedRepo, never()).processSearchByName(any(), anyInt(), any());
+	}
+	
+	@Test
+	public void searchByName_should_process_with_valid_search() {
+		//given
+		String validSearch = "abc";
+		
+		//when
+		testedRepo.searchByName(validSearch);
+		
+		//then
+		verify(testedRepo).processSearchByName(eq(PUBLIC), anyInt(), any());
 	}
 }

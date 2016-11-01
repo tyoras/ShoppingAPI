@@ -93,7 +93,7 @@ public class ShoppingItemMongoConverterTest {
 		assertThat(result.get(FIELD_ID, UUID.class)).isEqualTo(item.getId());
 		assertThat(result.getString(FIELD_NAME)).isEqualTo(item.getName());
 		assertThat(result.getInteger(FIELD_QUANTITY)).isEqualTo(item.getQuantity());
-		assertThat(ItemState.of(result.getString(FIELD_STATE))).isEqualTo(item.getState());
+		assertThat(ItemState.valueOfOrNull(result.getString(FIELD_STATE))).isEqualTo(item.getState());
 		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_CREATED))).isEqualTo(item.getCreationDate());
 		assertThat(DateHelper.toLocalDateTime(result.getDate(FIELD_LAST_UPDATE))).isEqualTo(item.getLastUpdate());
 	}

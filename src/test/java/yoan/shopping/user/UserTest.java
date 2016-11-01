@@ -1,6 +1,7 @@
 package yoan.shopping.user;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +17,7 @@ public class UserTest {
 		
 		//when
 		try {
-			new User(nullId, "name", "mail", LocalDateTime.now(), LocalDateTime.now());
+			new User(nullId, "name", "mail", PUBLIC, LocalDateTime.now(), LocalDateTime.now());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("User Id is mandatory");
@@ -31,11 +32,26 @@ public class UserTest {
 		
 		//when
 		try {
-			new User(UUID.randomUUID(), blankName, "mail", LocalDateTime.now(), LocalDateTime.now());
+			new User(UUID.randomUUID(), blankName, "mail", PUBLIC, LocalDateTime.now(), LocalDateTime.now());
 		} catch(IllegalArgumentException iae) {
 		//then
 			assertThat(iae.getMessage()).isEqualTo("Invalid user name");
 			throw iae;
+		}
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void user_should_fail_with_null_profile_visibility() {
+		//given
+		ProfileVisibility nullProfileVisibility = null;
+		
+		//when
+		try {
+			new User(UUID.randomUUID(), "name", "mail", nullProfileVisibility, LocalDateTime.now(), LocalDateTime.now());
+		} catch(NullPointerException npe) {
+		//then
+			assertThat(npe.getMessage()).isEqualTo("Profile visibility is mandatory");
+			throw npe;
 		}
 	}
 	
@@ -46,7 +62,7 @@ public class UserTest {
 		
 		//when
 		try {
-			new User(UUID.randomUUID(), "name", "mail", nullDate, LocalDateTime.now());
+			new User(UUID.randomUUID(), "name", "mail", PUBLIC, nullDate, LocalDateTime.now());
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("Creation date is mandatory");
@@ -61,7 +77,7 @@ public class UserTest {
 		
 		//when
 		try {
-			new User(UUID.randomUUID(), "name", "mail", LocalDateTime.now(), nullDate);
+			new User(UUID.randomUUID(), "name", "mail", PUBLIC, LocalDateTime.now(), nullDate);
 		} catch(NullPointerException npe) {
 		//then
 			assertThat(npe.getMessage()).isEqualTo("Last update date is mandatory");
