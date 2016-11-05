@@ -5,6 +5,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -59,13 +60,14 @@ public class UserWriteRepresentation {
 	public static User toUser(UserWriteRepresentation representation, UUID userId) {
 		requireNonNull(representation, "Unable to create User from null UserWriteRepresentation");
 		
+		ProfileVisibility profileVisibility = representation.profileVisibility == null ? PUBLIC : ProfileVisibility.valueOfOrNull(representation.profileVisibility);
 		User user;
 		try {
 			user = User.Builder.createDefault()
 					   .withId(userId)
 					   .withName(representation.name)
 					   .withEmail(representation.email)
-					   .withProfileVisibility(ProfileVisibility.valueOfOrNull(representation.profileVisibility))
+					   .withProfileVisibility(profileVisibility)
 					   .build();
 		} catch (NullPointerException | IllegalArgumentException e) {
 			String message = INVALID.getDevReadableMessage("user") + " : " + e.getMessage();
