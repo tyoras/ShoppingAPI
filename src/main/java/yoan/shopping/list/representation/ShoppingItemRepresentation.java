@@ -80,7 +80,7 @@ public class ShoppingItemRepresentation {
 		ShoppingItem.Builder itemBuilder = ShoppingItem.Builder.createDefault()
 						   .withName(representation.name)
 						   .withQuantity(representation.quantity)
-						   .withState(ItemState.of(representation.state));
+						   .withState(ItemState.valueOfOrNull(representation.state));
 		//if no ID provided, we let the default one
 		if (representation.id != null) {
 			itemBuilder.withId(representation.id);

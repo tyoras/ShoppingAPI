@@ -1,6 +1,7 @@
 package yoan.shopping.user.repository;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,22 +16,17 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Spy;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
-import yoan.shopping.user.repository.fake.SecuredUserFakeRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecuredUserRepositoryTest {
 	
-	@Spy
-	SecuredUserRepository testedRepo = getTestedRepository();
-	
-	protected SecuredUserRepository getTestedRepository() {
-		return new SecuredUserFakeRepository();
-	}
+	@Mock(answer= CALLS_REAL_METHODS)
+	SecuredUserRepository testedRepo;
 	
 	@Test
 	public void create_should_do_nothing_with_null_user() {

@@ -1,14 +1,19 @@
 package yoan.shopping.user.resource;
 
 import static java.util.Objects.requireNonNull;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import static yoan.shopping.user.repository.UserRepositoryErrorCode.TOO_MUCH_RESULT;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.INVALID_SEARCH;
+import static yoan.shopping.user.resource.UserResourceErrorMessage.USERS_NOT_FOUND;
 import static yoan.shopping.user.resource.UserResourceErrorMessage.USER_NOT_FOUND;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +27,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -37,6 +45,7 @@ import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.error.ErrorRepresentation;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
+import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.user.User;
 import yoan.shopping.user.UserCreationHelper;
 import yoan.shopping.user.repository.SecuredUserRepository;
@@ -76,6 +85,8 @@ public class UserResource extends RestAPI {
 		links.add(new Link("getById", getByIdURI));
 		URI getByEmailURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "getByEmail").build("{userEmail}");
 		links.add(new Link("getByEmail", getByEmailURI));
+		URI searchByNameURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "searchByName").build("{search}");
+		links.add(new Link("searchByName", searchByNameURI));
 		URI updateURI =  getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "update").build("{userId}");
 		links.add(new Link("update", updateURI));
 		URI changePasswordURI = getUriInfo().getAbsolutePathBuilder().path(UserResource.class, "changePassword").build("{userId}", "{newPassword}");
@@ -131,6 +142,20 @@ public class UserResource extends RestAPI {
 		return Response.ok().entity(foundUserRepresentation).build();
 	}
 	
+	@GET
+	@Path("/name/{search}")
+	@ApiOperation(value = "Search users by name", notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "Found users"),
+		@ApiResponse(code = 400, message = "Invalid search or too much users found"),
+		@ApiResponse(code = 404, message = "Users not found") })
+	public Response searchByName(@PathParam("search") @ApiParam(value = "User name search", required = true) String search) {
+		ImmutableList<User> foundusers = searchUsersByName(search);
+		List<UserRepresentation> usersRepresentation = new ArrayList<>();
+		foundusers.forEach(user -> usersRepresentation.add(new UserRepresentation(user, getUriInfo())));
+		return Response.ok().entity(usersRepresentation).build();
+	}
+	
 	@PUT
 	@Path("/{userId}")
 	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
@@ -150,14 +175,14 @@ public class UserResource extends RestAPI {
 	}
 	
 	@PUT
-	@Path("/{userId}/password/{newPassword}")
+	@Path("/{userId}/password")
 	@ApiOperation(value = "Change password", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Password changed"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
 	public Response changePassword(@PathParam("userId") @ApiParam(value = "Id of the user to update", required = true) String userIdStr, 
-								   @PathParam("newPassword") @ApiParam(value = "new password", required = true) String newPassword) {
+								   @ApiParam(value = "new password", required = true) String newPassword) {
 		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
 		
 		securedUserRepo.changePassword(userId, newPassword);
@@ -199,6 +224,40 @@ public class UserResource extends RestAPI {
 	private void ensureFoundUser(User foundUser) {
 		if (foundUser == null) {
 			throw new WebApiException(NOT_FOUND, INFO, API_RESPONSE, USER_NOT_FOUND);
+		}
+	}
+	
+	private ImmutableList<User> searchUsersByName(String search) {
+		ensureSearchByName(search);
+		
+		ImmutableList<User> foundUsers = null;
+		try {
+			foundUsers = userRepo.searchByName(search);
+		} catch (ApplicationException ae) {
+			handleTooMuchResult(ae);
+		}
+		
+		ensureFoundusers(search, foundUsers);
+		
+		return foundUsers;
+	}
+
+	private void ensureFoundusers(String search, ImmutableList<User> foundUsers) {
+		if (foundUsers.isEmpty()) {
+			throw new WebApiException(NOT_FOUND, INFO, API_RESPONSE, USERS_NOT_FOUND.getDevReadableMessage(search));
+		}
+	}
+
+	private void handleTooMuchResult(ApplicationException ae) {
+		if (ae.getErrorCode() == TOO_MUCH_RESULT) {
+			throw new WebApiException(BAD_REQUEST, INFO, ae.getErrorCode(), ae.getMessage());
+		}
+		throw ae;
+	}
+
+	private void ensureSearchByName(String search) {
+		if (StringUtils.isBlank(search) || search.length() < UserRepository.NAME_SEARCH_MIN_LENGTH) {
+			throw new WebApiException(BAD_REQUEST, INFO, API_RESPONSE, INVALID_SEARCH.getDevReadableMessage(search));
 		}
 	}
 }

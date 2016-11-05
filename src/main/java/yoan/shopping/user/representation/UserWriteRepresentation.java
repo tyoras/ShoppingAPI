@@ -5,6 +5,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import com.google.common.base.MoreObjects;
 
 import io.swagger.annotations.ApiModel;
 import yoan.shopping.infra.rest.error.WebApiException;
+import yoan.shopping.user.ProfileVisibility;
 import yoan.shopping.user.User;
 
 /**
@@ -32,6 +34,8 @@ public class UserWriteRepresentation {
 	private String name;
 	/** User email */
 	private String email;
+	/** Profile visibility level */
+	private String profileVisibility;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserWriteRepresentation.class);
 	
@@ -39,9 +43,10 @@ public class UserWriteRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public UserWriteRepresentation(String name, String email) {
+	public UserWriteRepresentation(String name, String email, String profileVisibility) {
 		this.name = name;
 		this.email = email;
+		this.profileVisibility = profileVisibility;
 	}
 	
 	public UserWriteRepresentation(User user) {
@@ -49,17 +54,20 @@ public class UserWriteRepresentation {
 		requireNonNull(user);
 		this.name = user.getName();
 		this.email = user.getEmail();
+		this.profileVisibility = user.getProfileVisibility().name();
 	}
 	
 	public static User toUser(UserWriteRepresentation representation, UUID userId) {
 		requireNonNull(representation, "Unable to create User from null UserWriteRepresentation");
 		
+		ProfileVisibility profileVisibility = representation.profileVisibility == null ? PUBLIC : ProfileVisibility.valueOfOrNull(representation.profileVisibility);
 		User user;
 		try {
 			user = User.Builder.createDefault()
 					   .withId(userId)
 					   .withName(representation.name)
 					   .withEmail(representation.email)
+					   .withProfileVisibility(profileVisibility)
 					   .build();
 		} catch (NullPointerException | IllegalArgumentException e) {
 			String message = INVALID.getDevReadableMessage("user") + " : " + e.getMessage();
@@ -79,6 +87,11 @@ public class UserWriteRepresentation {
 		return email;
 	}
 	
+	@XmlElement(name = "profileVisibility")
+	public String getProfileVisibility() {
+		return profileVisibility;
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -87,9 +100,13 @@ public class UserWriteRepresentation {
 		this.email = email;
 	}
 	
+	public void setProfileVisibility(String profileVisibility) {
+		this.profileVisibility = profileVisibility;
+	}
+	
 	@Override
 	public int hashCode() {
-		return Objects.hash( name, email);
+		return Objects.hash( name, email, profileVisibility);
 	}
 
 	@Override
@@ -102,13 +119,15 @@ public class UserWriteRepresentation {
         }
         UserWriteRepresentation that = (UserWriteRepresentation) obj;
         return Objects.equals(this.name, that.name)
-                && Objects.equals(this.email, that.email);
+                && Objects.equals(this.email, that.email)
+                && this.profileVisibility == that.profileVisibility;
     }
 	
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("name", name)
 											   .add("email", email)
+											   .add("profileVisibility", profileVisibility)
 											   .toString();
 	}
 }

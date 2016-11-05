@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static yoan.shopping.infra.util.error.CommonErrorMessage.INVALID;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import java.util.UUID;
 
@@ -77,7 +78,7 @@ public class UserRepresentationTest {
 	public void toUser_should_fail_with_invalid_Representation() {
 		//given
 		@SuppressWarnings("deprecation")
-		UserRepresentation invalidUserRepresentation = new UserRepresentation(UUID.randomUUID(), " ", " ", Lists.newArrayList());
+		UserRepresentation invalidUserRepresentation = new UserRepresentation(UUID.randomUUID(), " ", " ", PUBLIC.name(), Lists.newArrayList());
 		String expectedMessage = INVALID.getDevReadableMessage("user") + " : Invalid user name";
 		
 		//when
@@ -95,7 +96,7 @@ public class UserRepresentationTest {
 		//given
 		User expectedUser = TestHelper.generateRandomUser();
 		@SuppressWarnings("deprecation")
-		UserRepresentation validUserRepresentation = new UserRepresentation(expectedUser.getId(), expectedUser.getName(), expectedUser.getEmail(), Lists.newArrayList());
+		UserRepresentation validUserRepresentation = new UserRepresentation(expectedUser.getId(), expectedUser.getName(), expectedUser.getEmail(), expectedUser.getProfileVisibility().name(), Lists.newArrayList());
 		
 		//when
 		User result = UserRepresentation.toUser(validUserRepresentation);

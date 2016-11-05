@@ -13,7 +13,11 @@ public enum UserResourceErrorMessage  implements ErrorMessage {
 	/** User not found */
 	USER_NOT_FOUND("User not found"),
 	/** User with email : %s aready exists */
-	ALREADY_EXISTING_USER_WITH_EMAIL("User with email : %s already exists");
+	ALREADY_EXISTING_USER_WITH_EMAIL("User with email : %s already exists"),
+	/** Users not found for search : \"%s\" */
+	USERS_NOT_FOUND("Users not found for search : \"%s\""),
+	/** Invalid search : \"%s\" */
+	INVALID_SEARCH("Invalid search : \"%s\"");
 
 	private String message;
 	

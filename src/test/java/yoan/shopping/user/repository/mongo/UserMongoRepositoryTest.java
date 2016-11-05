@@ -2,6 +2,9 @@ package yoan.shopping.user.repository.mongo;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static yoan.shopping.infra.db.Dbs.SHOPPING;
+import static yoan.shopping.infra.rest.error.Level.INFO;
+import static yoan.shopping.test.TestHelper.assertApplicationException;
+import static yoan.shopping.user.repository.UserRepositoryErrorCode.TOO_MUCH_RESULT;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
 import static yoan.shopping.user.repository.mongo.UserMongoRepository.USER_COLLECTION;
 
@@ -13,13 +16,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
+import com.google.common.collect.ImmutableList;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+
 import yoan.shopping.infra.util.error.ApplicationException;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.test.fongo.FongoBackedTest;
 import yoan.shopping.user.User;
-
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
+import yoan.shopping.user.repository.UserRepository;
 
 public class UserMongoRepositoryTest extends FongoBackedTest {
 	
@@ -170,7 +175,7 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 	}
 	
 	@Test
-	@Ignore //does not work because there is a bug with fongo parsing uuid when uusing count
+	@Ignore //does not work because there is a bug with fongo parsing uuid when using count
 	public void countByIdOrEmail_should_work_with_existing_user_id_and_blank_email() {
 		//given
 		String blankEmail = "re  ";
@@ -182,5 +187,69 @@ public class UserMongoRepositoryTest extends FongoBackedTest {
 		
 		//then
 		assertThat(result).isEqualTo(1);
+	}
+	
+	@Test
+	public void searchByName_should_work_with_existing_users() {
+		//given
+		User user1 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("abcd").build();
+		testedRepo.create(user1);
+		User user2 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("abdc").build();
+		testedRepo.create(user2);
+		User user3 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("dabc").build();
+		testedRepo.create(user3);
+		User user4 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("ab cd").build();
+		testedRepo.create(user4);
+		User user5 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName(" abc").build();
+		testedRepo.create(user5);
+		
+		//when
+		ImmutableList<User> result = testedRepo.searchByName("abc");
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).containsOnly(user1, user3, user5);
+	}
+	
+	@Test
+	public void searchByName_should_return_empty_list_if_no_match() {
+		//given
+		User user1 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("abcd").build();
+		testedRepo.create(user1);
+		User user2 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("abdc").build();
+		testedRepo.create(user2);
+		User user3 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("dabc").build();
+		testedRepo.create(user3);
+		User user4 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName("ab cd").build();
+		testedRepo.create(user4);
+		User user5 = User.Builder.createFrom(TestHelper.generateRandomUser()).withName(" abc").build();
+		testedRepo.create(user5);
+		
+		//when
+		ImmutableList<User> result = testedRepo.searchByName("cde");
+		
+		//then
+		assertThat(result).isNotNull();
+		assertThat(result).isEmpty();
+	}
+	
+	@Test(expected = ApplicationException.class)
+	public void searchByName_should_fail_if_too_much_result() {
+		//given
+		String search = "abc";
+		int nbUserThatMatchSearch = UserRepository.NAME_SEARCH_MAX_RESULT + 1;
+		for (int i = 0; i < nbUserThatMatchSearch; i++) {
+			User user = User.Builder.createFrom(TestHelper.generateRandomUser()).withName(search + i).build();
+			testedRepo.create(user);
+		}
+		
+		//when
+		try {
+			testedRepo.searchByName(search);
+		} catch (ApplicationException ae) {
+		//then
+			assertApplicationException(ae, INFO, TOO_MUCH_RESULT, String.format("Too much users (%s) for search : %s", nbUserThatMatchSearch, search));
+			throw ae;
+		}
 	}
 }

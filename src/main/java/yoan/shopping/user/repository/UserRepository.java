@@ -11,7 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import yoan.shopping.infra.util.error.ApplicationException;
+import yoan.shopping.user.ProfileVisibility;
 import yoan.shopping.user.User;
 
 /**
@@ -21,6 +24,10 @@ import yoan.shopping.user.User;
 public abstract class UserRepository {
 	
 	public static final Logger LOGGER = LoggerFactory.getLogger(UserRepository.class);
+	
+	public static final int NAME_SEARCH_MIN_LENGTH = 3;
+	
+	public static final int NAME_SEARCH_MAX_RESULT = 10;
 	
 	/**
 	 * Create a new User
@@ -88,6 +95,7 @@ public abstract class UserRepository {
 				.withLastUpdate(LocalDateTime.now())
 				.withName(askedUserToUpdate.getName())
 				.withEmail(askedUserToUpdate.getEmail())
+				.withProfileVisibility(askedUserToUpdate.getProfileVisibility())
 				.build();
 	}
 	
@@ -135,6 +143,19 @@ public abstract class UserRepository {
 	}
 	
 	/**
+	 * Search all user with name containing the search
+	 * @param search : at least 3 characters
+	 * @return ImmutableList, empty if no result
+	 */
+	public final ImmutableList<User> searchByName(String search) {
+		if (StringUtils.isBlank(search) || search.length() < NAME_SEARCH_MIN_LENGTH) {
+			LOGGER.warn(String.format("Unable to search by name with this search \"%s\"", search));
+			return ImmutableList.of();
+		}
+		return processSearchByName(ProfileVisibility.PUBLIC, NAME_SEARCH_MAX_RESULT, search);
+	}
+	
+	/**
 	 * Create a new user
 	 * @param userToCreate
 	 */
@@ -165,10 +186,20 @@ public abstract class UserRepository {
 	protected abstract void processDeleteById(UUID userId);
 	
 	/**
-	 * Count users whit id or email
+	 * Count users with id or email
 	 * @param userId
 	 * @param email
 	 * @return number of user with id or email
 	 */
 	protected abstract long countByIdOrEmail(UUID userId, String email);
+	
+	/**
+	 * Search users by name 
+	 * @param visibility
+	 * @param nbMaxResult : number of result threshold
+	 * @param search
+	 * @return found users if less than nbMaxResult
+	 * @throws ApplicationException if more than nbMaxResult users found
+	 */
+	protected abstract ImmutableList<User> processSearchByName(ProfileVisibility visibility, int nbMaxResult, String search);
 }

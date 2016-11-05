@@ -11,6 +11,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
+import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 import static yoan.shopping.user.repository.UserRepositoryErrorCode.UNSECURE_PASSWORD;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_PASSWORD_VALIDITY;
 
@@ -89,8 +90,9 @@ public class RegisterUserResourceTest {
 		//given
 		String expectedName = "name";
 		String expectedMail = "mail";
+		String expectedProfileVisibility = PUBLIC.name();
 		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedName, expectedMail, "password");
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedName, expectedMail, expectedProfileVisibility, "password");
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
 		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
 		
@@ -105,6 +107,7 @@ public class RegisterUserResourceTest {
 		assertThat(userRepresentation.getId()).isNotEqualTo(User.DEFAULT_ID);
 		assertThat(userRepresentation.getName()).isEqualTo(expectedName);
 		assertThat(userRepresentation.getEmail()).isEqualTo(expectedMail);
+		assertThat(userRepresentation.getProfileVisibility()).isEqualTo(expectedProfileVisibility);
 	}
 	
 	@Test(expected = WebApiException.class)
@@ -112,7 +115,7 @@ public class RegisterUserResourceTest {
 		//given
 		String alreadyExistingEmail = "already@exist.com";
 		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", alreadyExistingEmail, "password");
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", alreadyExistingEmail, PUBLIC.name(), "password");
 		when(mockedUserRepo.checkUserExistsByIdOrEmail(any(), eq(alreadyExistingEmail))).thenReturn(true);
 		String expectedMessage = "User with email : " + alreadyExistingEmail + " already exists";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
@@ -133,7 +136,7 @@ public class RegisterUserResourceTest {
 		//given
 		String invalidPassword = "invalidPass";
 		@SuppressWarnings("deprecation")
-		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", "test@mail.com", invalidPassword);
+		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", "test@mail.com", PUBLIC.name(), invalidPassword);
 		String expectedMessage = PROBLEM_PASSWORD_VALIDITY.getDevReadableMessage();
 		doThrow(new ApplicationException(ERROR, UNSECURE_PASSWORD, expectedMessage)).when(mockedSecuredUserRepo).create(any(), eq(invalidPassword));
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");

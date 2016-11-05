@@ -2,6 +2,8 @@ package yoan.shopping.infra.db.mongo;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.bson.Document;
@@ -71,5 +73,13 @@ public class MongoIndexEnsurer {
 	public void ensureIndex(String fieldName, SortOrder sortOrder) {
 		Document indexKey = new Document(fieldName, sortOrder.getOrder());
 		collection.createIndex(indexKey);
+	}
+	
+	public void ensureMultiKeyIndex(Map<String, SortOrder> index) {
+		Document indexKeys = new Document();
+		for (Entry<String, SortOrder> e : index.entrySet()) {
+			indexKeys.append(e.getKey(), e.getValue().getOrder());
+		}
+		collection.createIndex(indexKeys);
 	}
 }

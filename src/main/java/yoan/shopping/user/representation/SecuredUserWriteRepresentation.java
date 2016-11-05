@@ -19,8 +19,8 @@ public class SecuredUserWriteRepresentation extends UserWriteRepresentation {
 	
 	/** Test Purpose only */
 	@Deprecated 
-	public SecuredUserWriteRepresentation(String name, String email, String password) {
-		super(name, email);
+	public SecuredUserWriteRepresentation(String name, String email, String profileVisibility, String password) {
+		super(name, email, profileVisibility);
 		this.password = password;
 	}
 	

@@ -45,8 +45,8 @@ public class SecuredUser extends User {
 		salt = null;
 	}
 	
-	protected SecuredUser(UUID id, String name, String email, LocalDateTime creationDate, LocalDateTime lastUpdate, String password, Object salt) {
-		super(id, name, email, creationDate, lastUpdate);
+	protected SecuredUser(UUID id, String name, String email, ProfileVisibility profileVisibility, LocalDateTime creationDate, LocalDateTime lastUpdate, String password, Object salt) {
+		super(id, name, email, profileVisibility, creationDate, lastUpdate);
 		checkArgument(StringUtils.isNotBlank(password), "Invalid user password");
 		this.password = password;
 		this.salt = requireNonNull(salt, "The password hash salt is mandatory");
@@ -98,7 +98,7 @@ public class SecuredUser extends User {
         
         @Override
         public SecuredUser build() {
-            return new SecuredUser(user.getId(), user.getName(), user.getEmail(), user.getCreationDate(), user.getLastUpdate(), password, salt);
+            return new SecuredUser(user.getId(), user.getName(), user.getEmail(), user.getProfileVisibility(), user.getCreationDate(), user.getLastUpdate(), password, salt);
         }
         
         public Builder withSalt(Object salt) {

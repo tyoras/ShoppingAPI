@@ -1,6 +1,7 @@
 package yoan.shopping.authentication.repository;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -9,20 +10,14 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Spy;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import yoan.shopping.authentication.repository.fake.OAuth2AuthorizationCodeFakeRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OAuth2AuthorizationCodeRepositoryTest {
 	
-	@Spy
-	OAuth2AuthorizationCodeRepository testedRepo = getTestedRepository();
-	
-	protected OAuth2AuthorizationCodeRepository getTestedRepository() {
-		return new OAuth2AuthorizationCodeFakeRepository();
-	}
+	@Mock(answer= CALLS_REAL_METHODS)
+	OAuth2AuthorizationCodeRepository testedRepo;
 	
 	@Test
 	public void getUserIdByAuthorizationCode_should_return_null_with_null_code() {
