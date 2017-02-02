@@ -265,17 +265,22 @@
 				<version>2.5.3</version>
 			</plugin>
 			<plugin>
-			    <groupId>org.jacoco</groupId>
-			    <artifactId>jacoco-maven-plugin</artifactId>
-			    <version>${jacoco.version}</version>
-			    <executions>
-				<execution>
-				    <id>prepare-agent</id>
-				    <goals>
-					<goal>prepare-agent</goal>
-				    </goals>
-				</execution>
-			    </executions>
+			    	<groupId>org.eluder.coveralls</groupId>
+			    	<artifactId>coveralls-maven-plugin</artifactId>
+			   	<version>${coveralls.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<resources>
@@ -298,6 +303,7 @@
 		<swagger-ui-version>2.1.2</swagger-ui-version>
 		<oltu-version>1.0.1</oltu-version>
 		<jacoco.version>0.7.8</jacoco.version>
+		<coveralls.version>4.3.0</coveralls.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 	</properties>
 </project>
