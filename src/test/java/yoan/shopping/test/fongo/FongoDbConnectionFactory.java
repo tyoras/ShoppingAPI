@@ -7,13 +7,13 @@ import static java.util.Objects.requireNonNull;
 
 import org.bson.Document;
 
-import yoan.shopping.infra.config.api.Config;
-import yoan.shopping.infra.db.Dbs;
-import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
-
 import com.github.fakemongo.Fongo;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+
+import yoan.shopping.infra.config.ShoppingApiConfiguration;
+import yoan.shopping.infra.db.Dbs;
+import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
 
 /**
  * Fongo implementation of the MongoDb connection factory
@@ -23,7 +23,7 @@ public class FongoDbConnectionFactory extends MongoDbConnectionFactory {
 	private final Fongo fongo;
 	
 	public FongoDbConnectionFactory(Fongo fongo) {
-		super(Config.DEFAULT);
+		super(new ShoppingApiConfiguration());
 		this.fongo = requireNonNull(fongo);
 	}
 	

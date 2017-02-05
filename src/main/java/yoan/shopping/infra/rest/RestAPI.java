@@ -5,23 +5,26 @@ package yoan.shopping.infra.rest;
 
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.OPTIONS;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.dropwizard.auth.Auth;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
+import yoan.shopping.user.User;
 
 /**
  * Restful API
  * @author yoan
  */
 public abstract class RestAPI {
-	@Context
-	private UriInfo uriInfo;
+	@Inject
+	private Provider<UriInfo> uriInfo;
 	
 	/**
 	 * API operation to provide navigation links in the resource
@@ -31,7 +34,7 @@ public abstract class RestAPI {
 	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RestRepresentation.class), 
 							@ApiResponse(code = 401, message = "Not authenticated" , responseHeaders = { @ResponseHeader(name = "WWW-Authenticate", response = String.class) }) })
-	public Response root() {
+	public Response root(@Auth User connectedUser) {
 		RestRepresentation rootRepresentation = new RestRepresentation(getRootLinks());
 		return Response.ok().entity(rootRepresentation).build();
 	}
@@ -48,7 +51,7 @@ public abstract class RestAPI {
 	 */
 	//TODO : find a better way to mock UriInfo in tests
 	public UriInfo getUriInfo() {
-		return uriInfo;
+		return uriInfo.get();
 	}
 	
 }

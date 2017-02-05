@@ -6,7 +6,7 @@ package yoan.shopping.test.fongo;
 import org.junit.After;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
 

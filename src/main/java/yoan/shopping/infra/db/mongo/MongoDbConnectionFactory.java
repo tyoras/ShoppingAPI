@@ -26,7 +26,7 @@ import com.mongodb.client.MongoDatabase;
 import yoan.shopping.authentication.repository.mongo.OAuth2AccessTokenMongoConverter;
 import yoan.shopping.authentication.repository.mongo.OAuth2AuthorizationCodeMongoConverter;
 import yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter;
-import yoan.shopping.infra.config.api.Config;
+import yoan.shopping.infra.config.ShoppingApiConfiguration;
 import yoan.shopping.infra.db.Dbs;
 import yoan.shopping.list.repository.mongo.ShoppingItemMongoConverter;
 import yoan.shopping.list.repository.mongo.ShoppingListMongoConverter;
@@ -36,13 +36,13 @@ import yoan.shopping.user.repository.mongo.UserMongoConverter;
 @Singleton
 public class MongoDbConnectionFactory {
 	
-	private final Config config;
+	private final ShoppingApiConfiguration config;
 	private final MongoClient mongoClient;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongoDbConnectionFactory.class);
 	
 	@Inject
-	public MongoDbConnectionFactory(Config config) {
+	public MongoDbConnectionFactory(ShoppingApiConfiguration config) {
 		this.config = requireNonNull(config);
 		mongoClient = new MongoClient(getServerAdress(), getCredentials(), getOptions());
 	}
@@ -60,14 +60,14 @@ public class MongoDbConnectionFactory {
 	}
 	
 	private ServerAddress getServerAdress() {
-		String host = config.getMongoHost();
-		int port = config.getMongoPort();
+		String host = config.mongo.host;
+		int port = config.mongo.port;
 		return new ServerAddress(host, port);
 	}
 	
 	protected List<MongoCredential> getCredentials() {
-		String user = config.getMongoUser();
-		String password = config.getMongoPass();
+		String user = config.mongo.user;
+		String password = config.mongo.password;
 		if (StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
 			LOGGER.warn(CONFIG.getMarker(), "Using MongoDb without credentials");
 			return ImmutableList.<MongoCredential>of();

@@ -4,9 +4,8 @@
 package yoan.shopping.test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -87,12 +86,12 @@ public class TestHelper {
 	 */
 	public static UriInfo mockUriInfo(String expectedURL) {
 		UriBuilder uriBuilder = mock(UriBuilder.class);
-		when(uriBuilder.path((String) anyVararg())).thenReturn(uriBuilder);
+		when(uriBuilder.path((String) any())).thenReturn(uriBuilder);
 		when(uriBuilder.path(any(Class.class))).thenReturn(uriBuilder);
 		when(uriBuilder.path(any(Class.class), anyString())).thenReturn(uriBuilder);
 		when(uriBuilder.build()).thenReturn(URI.create(expectedURL));
-		when(uriBuilder.build(anyVararg())).thenReturn(URI.create(expectedURL));
-		when(uriBuilder.build(anyVararg(), Mockito.eq(false))).thenReturn(URI.create(expectedURL));
+		when(uriBuilder.build(any())).thenReturn(URI.create(expectedURL));
+		when(uriBuilder.build(any(), Mockito.eq(false))).thenReturn(URI.create(expectedURL));
 		UriInfo mockedUriInfo = mock(UriInfo.class);
 		when(mockedUriInfo.getAbsolutePath()).thenReturn(URI.create(expectedURL));
 		when(mockedUriInfo.getBaseUriBuilder()).thenReturn(uriBuilder);

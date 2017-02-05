@@ -1,7 +1,4 @@
-/**
- * 
- */
-package yoan.shopping.infra.config.api.repository.properties;
+package yoan.shopping.infra.config;
 
 import static yoan.shopping.infra.logging.Markers.CONFIG;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
@@ -13,45 +10,66 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.infra.config.api.Config;
-import yoan.shopping.infra.config.api.repository.ConfigRepository;
+import io.dropwizard.configuration.FileConfigurationSourceProvider;
 import yoan.shopping.infra.util.error.ApplicationException;
 
-import com.google.inject.Singleton;
 
-/**
- * Properties file based implementation of the API config repository
- * @author yoan
- */
-@Singleton
-public class ConfigPropertiesRepository extends ConfigRepository {
-	/** Properties file name located in src/main/resources */
-	private static final String DEFAULT_CONFIG_PROPERTIES_FILE_NAME = "config/defaultConfigAPI.properties";
+public class ShoppingApiConfigurationSourceProvider extends  FileConfigurationSourceProvider {
+	/** Name of the environment variable to find the config file */
+	private static final String CONFIG_LOCATION_ENV_VARIABLE = "API_SHOPPING_CONFIG_FILE_PATH";
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigPropertiesRepository.class);
+	/** Yml file name located in src/main/resources */
+	private static final String DEFAULT_CONFIG_LOCATION = "config/defaultConfigAPI.yml";
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingApiConfigurationSourceProvider.class);
+
 	@Override
-	protected Config readConfig(String configLocation) {
-		Properties properties = new Properties();
+	public InputStream open(String path) throws IOException {
+		if (StringUtils.isBlank(path)) {
+			return readConfig();
+		}
+		
+		return super.open(path);
+	}
+	
+	/**
+	 * Read the API configuration
+	 * @return Config if found, else null
+	 */
+	public InputStream readConfig() {
+		String configLocation = System.getenv(CONFIG_LOCATION_ENV_VARIABLE);
+		if (StringUtils.isBlank(configLocation)) {
+			configLocation = DEFAULT_CONFIG_LOCATION;
+		} 
+		LOGGER.info(CONFIG.getMarker(), "Loaded config file is " + getConfigLocationName(configLocation));
+		return readConfig(configLocation);
+	}
+	
+	protected String getConfigLocationName(String configLocation) {
+		if (DEFAULT_CONFIG_LOCATION.equals(configLocation)) {
+			return "Default (src/main/resources/" + DEFAULT_CONFIG_LOCATION + ")";
+		}
+		return "Env defined (" + CONFIG_LOCATION_ENV_VARIABLE + " : " + configLocation +")";
+	}
+	
+	protected InputStream readConfig(String configLocation) {
 		
 		try (InputStream configFileStream = getInputStreamOnConfFile(configLocation)){
-			properties.load(configFileStream);
+			return configFileStream;
 		} catch(IOException ioe) {
 			String message = "Problem While loading " + getConfigLocationName(configLocation) + " config properties file.";
 			LOGGER.error(CONFIG.getMarker(), message, ioe);
 			throw new ApplicationException(ERROR, APPLICATION_ERROR, message, ioe);
 		}
-		
-		return ConfigPropertiesConverter.fromProperties(properties);
 	}
 
 	private InputStream getInputStreamOnConfFile(String configLocation) {
-		if (DEFAULT_CONFIG_PROPERTIES_FILE_NAME.equals(configLocation)) {
+		if (DEFAULT_CONFIG_LOCATION.equals(configLocation)) {
 			return getInputStreamFromDefaultConfig();
 		}
 		return getInputStreamFromFileSystem(configLocation);
@@ -59,7 +77,7 @@ public class ConfigPropertiesRepository extends ConfigRepository {
 	
 	private InputStream getInputStreamFromDefaultConfig() {
 		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-		return currentClassLoader.getResourceAsStream(DEFAULT_CONFIG_PROPERTIES_FILE_NAME);
+		return currentClassLoader.getResourceAsStream(DEFAULT_CONFIG_LOCATION);
 	}
 	
 	private InputStream getInputStreamFromFileSystem(String configLocation) {
@@ -95,9 +113,5 @@ public class ConfigPropertiesRepository extends ConfigRepository {
 			throw new ApplicationException(ERROR, APPLICATION_ERROR, message);
 		}
 	}
-	
-	@Override
-	protected String getDefaultConfigPath() {
-		return DEFAULT_CONFIG_PROPERTIES_FILE_NAME;
-	}
+
 }

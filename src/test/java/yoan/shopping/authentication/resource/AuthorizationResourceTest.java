@@ -3,9 +3,9 @@ package yoan.shopping.authentication.resource;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.FOUND;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.MISSING_REDIRECT_URI;
@@ -22,11 +22,15 @@ import javax.ws.rs.core.Response;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import yoan.shopping.authentication.realm.BasicUserPrincipal;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
 import yoan.shopping.client.app.ClientApp;
@@ -34,7 +38,6 @@ import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.test.OauthMockRequestBuilder;
 import yoan.shopping.test.TestHelper;
-import yoan.shopping.user.User;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationResourceTest {
@@ -45,26 +48,30 @@ public class AuthorizationResourceTest {
 	@Mock
 	ClientAppRepository mockedClientAppRepo;
 	
+	@Spy
+	@InjectMocks
+	private AuthorizationResource testedResource;
+	
 	private static final String VALID_REDIRECT_URI = ClientApp.DEFAULT_REDIRECT_URI.toString();
 	
-	private AuthorizationResource getAuthorizationResource(User connectedUser) {
+	private static final BasicUserPrincipal BASIC_USER_PRINCIPAL = new BasicUserPrincipal(TestHelper.generateRandomUser()); 
+	
+	@Before
+	public void before() {
 		when(mockedClientAppRepo.getById(ClientApp.DEFAULT_ID)).thenReturn(ClientApp.DEFAULT);
-		AuthorizationResource testedResource = new AuthorizationResource(connectedUser, mockedAuthorizationCodeRepo, mockedAccessTokenRepo, mockedClientAppRepo);
-		return spy(testedResource);
 	}
 	
 	@Test(expected = WebApiException.class)
 	public void authorize_should_handle_empty_authz_request() throws OAuthSystemException {
 		//given
-		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		HttpServletRequest invalidRequest = new OauthMockRequestBuilder().build();
 		
 		//when
 		try {
-			testedResource.authorize(invalidRequest);
+			testedResource.authorize(BASIC_USER_PRINCIPAL, invalidRequest);
 		} catch(WebApiException wae) {
 		//then
-			verify(testedResource, never()).handleOauthRequest(any(), any());
+			verify(testedResource, never()).handleOauthRequest(any(), any(), any());
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, WARNING, API_RESPONSE, MISSING_REDIRECT_URI);
 			throw wae;
 		}
@@ -73,16 +80,15 @@ public class AuthorizationResourceTest {
 	@Test(expected = WebApiException.class)
 	public void authorize_should_handle_authz_request_with_invalid_redirect_URI() throws OAuthSystemException {
 		//given
-		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		String invalidRedirectURI = "http:/bad  ";
 		HttpServletRequest invalidRequest = new OauthMockRequestBuilder().withRedirectUri(invalidRedirectURI).build();
 		
 		//when
 		try {
-			testedResource.authorize(invalidRequest);
+			testedResource.authorize(BASIC_USER_PRINCIPAL, invalidRequest);
 		} catch(WebApiException wae) {
 		//then
-			verify(testedResource, never()).handleOauthRequest(any(), any());
+			verify(testedResource, never()).handleOauthRequest(any(), any(), any());
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, WARNING, API_RESPONSE, OAuthResourceErrorMessage.INVALID_REDIRECT_URI.getDevReadableMessage(invalidRedirectURI));
 			throw wae;
 		}
@@ -91,24 +97,22 @@ public class AuthorizationResourceTest {
 	@Test
 	public void authorize_should_handle_invalid_authz_request() throws OAuthSystemException {
 		//given
-		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		HttpServletRequest invalidRequest = new OauthMockRequestBuilder().withRedirectUri(VALID_REDIRECT_URI).build();
 		
 		//when
-		Response response = testedResource.authorize(invalidRequest);
+		Response response = testedResource.authorize(BASIC_USER_PRINCIPAL, invalidRequest);
 		
 		//then
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(FOUND.getStatusCode());
 		assertThat(response.getLocation().toString()).startsWith(VALID_REDIRECT_URI);
 		
-		verify(testedResource, never()).handleOauthRequest(any(), any());
+		verify(testedResource, never()).handleOauthRequest(any(), any(), any());
 	}
 	
 	@Test
 	public void authorize_should_work_with_auth_code_request() throws OAuthSystemException {
 		//given
-		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		HttpServletRequest authCodeRequest = new OauthMockRequestBuilder()
 			.withRedirectUri(VALID_REDIRECT_URI)
 			.withHttpMethod(OAuth.HttpMethod.GET)
@@ -117,20 +121,19 @@ public class AuthorizationResourceTest {
 			.build();
 		
 		//when
-		Response response = testedResource.authorize(authCodeRequest);
+		Response response = testedResource.authorize(BASIC_USER_PRINCIPAL, authCodeRequest);
 		
 		//then
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(FOUND.getStatusCode());
 		assertThat(response.getLocation().toString()).startsWith(VALID_REDIRECT_URI);
 		
-		verify(testedResource).generateAuthorizationCode();
+		verify(testedResource).generateAuthorizationCode(eq(BASIC_USER_PRINCIPAL));
 	}
 	
 	@Test
 	public void authorize_should_work_with_token_request() throws OAuthSystemException {
 		//given
-		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		HttpServletRequest tokenRequest = new OauthMockRequestBuilder()
 			.withRedirectUri(VALID_REDIRECT_URI)
 			.withHttpMethod(OAuth.HttpMethod.GET)
@@ -139,20 +142,19 @@ public class AuthorizationResourceTest {
 			.build();
 		
 		//when
-		Response response = testedResource.authorize(tokenRequest);
+		Response response = testedResource.authorize(BASIC_USER_PRINCIPAL, tokenRequest);
 		
 		//then
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(FOUND.getStatusCode());
 		assertThat(response.getLocation().toString()).startsWith(VALID_REDIRECT_URI);
 		
-		verify(testedResource).generateAccessToken();
+		verify(testedResource).generateAccessToken(eq(BASIC_USER_PRINCIPAL));
 	}
 	
 	@Test(expected = WebApiException.class)
 	public void authorize_should_return_bad_request_when_client_id_is_not_a_valid_UUID() throws OAuthSystemException {
 		//given
-		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		String invalidClientId = "not uuid";
 		String expectedMessage = "Invalid Param named client_id : " + invalidClientId;
 		HttpServletRequest invalidRequest = new OauthMockRequestBuilder()
@@ -164,10 +166,10 @@ public class AuthorizationResourceTest {
 		
 		//when
 		try {
-			testedResource.authorize(invalidRequest);
+			testedResource.authorize(BASIC_USER_PRINCIPAL, invalidRequest);
 		} catch(WebApiException wae) {
 		//then
-			verify(testedResource, never()).generateAccessToken();
+			verify(testedResource, never()).generateAccessToken(eq(BASIC_USER_PRINCIPAL));
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
 			throw wae;
 		}
@@ -176,7 +178,6 @@ public class AuthorizationResourceTest {
 	@Test(expected = WebApiException.class)
 	public void authorize_should_return_bad_request_when_client_id_is_unknown() throws OAuthSystemException {
 		//given
-		AuthorizationResource testedResource = getAuthorizationResource(TestHelper.generateRandomUser());
 		String unknownClientId = UUID.randomUUID().toString();
 		String expectedMessage = UNKNOWN_CLIENT.getDevReadableMessage(unknownClientId);
 		HttpServletRequest invalidRequest = new OauthMockRequestBuilder()
@@ -188,10 +189,10 @@ public class AuthorizationResourceTest {
 		
 		//when
 		try {
-			testedResource.authorize(invalidRequest);
+			testedResource.authorize(BASIC_USER_PRINCIPAL, invalidRequest);
 		} catch(WebApiException wae) {
 		//then
-			verify(testedResource, never()).generateAccessToken();
+			verify(testedResource, never()).generateAccessToken(eq(BASIC_USER_PRINCIPAL));
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, WARNING, API_RESPONSE, expectedMessage);
 			throw wae;
 		}

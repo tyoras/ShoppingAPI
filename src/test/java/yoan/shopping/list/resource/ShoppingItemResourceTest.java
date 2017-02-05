@@ -6,7 +6,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
@@ -21,8 +21,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
@@ -37,24 +39,22 @@ import yoan.shopping.list.representation.ShoppingItemWriteRepresentation;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.User;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ShoppingItemResourceTest {
 
 	@Mock
 	ShoppingItemRepository mockeItemRepo;
 	
-	private ShoppingItemResource getShoppingItemResource(User connectedUser) {
-		ShoppingItemResource testedResource = new ShoppingItemResource(connectedUser, mockeItemRepo);
-		return spy(testedResource);
-	}
+	@Spy
+	@InjectMocks
+	private ShoppingItemResource testedResource;
 	
 	@Test
 	public void getRootLinks_should_contains_self_link() {
 		//given
 		String expectedURL = "http://test";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo(expectedURL);
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		List<Link> links = testedResource.getRootLinks();
@@ -71,11 +71,10 @@ public class ShoppingItemResourceTest {
 		String expectedURL = "http://test";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo(expectedURL);
 		User connectedUser = TestHelper.generateRandomUser();
-		ShoppingItemResource testedResource = getShoppingItemResource(connectedUser);
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.root();
+		Response response = testedResource.root(connectedUser);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -96,12 +95,11 @@ public class ShoppingItemResourceTest {
 		
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(expectedID, expectedName, expectedQuantity, expectedState);
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.create(listIdStr, representation);
+		Response response = testedResource.create(TestHelper.generateRandomUser(), listIdStr, representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -124,12 +122,11 @@ public class ShoppingItemResourceTest {
 		
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representationwithoutId = new ShoppingItemWriteRepresentation(null, expectedName, expectedQuantity, expectedState);
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.create(listIdStr, representationwithoutId);
+		Response response = testedResource.create(TestHelper.generateRandomUser(), listIdStr, representationwithoutId);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -148,12 +145,11 @@ public class ShoppingItemResourceTest {
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString());
 		String invalidListId = "invalid ID";
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named listId : invalid ID";
 		
 		//when
 		try {
-			testedResource.create(invalidListId, representation);
+			testedResource.create(TestHelper.generateRandomUser(), invalidListId, representation);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -166,12 +162,11 @@ public class ShoppingItemResourceTest {
 		//given
 		String listIdStr = UUID.randomUUID().toString();
 		String invalidId = "invalid ID";
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named itemId : invalid ID";
 		
 		//when
 		try {
-			testedResource.getById(listIdStr, invalidId);
+			testedResource.getById(TestHelper.generateRandomUser(), listIdStr, invalidId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -184,12 +179,11 @@ public class ShoppingItemResourceTest {
 		//given
 		String itemIdStr = UUID.randomUUID().toString();
 		String invalidListId = "invalid ID";
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named listId : invalid ID";
 		
 		//when
 		try {
-			testedResource.getById(invalidListId, itemIdStr);
+			testedResource.getById(TestHelper.generateRandomUser(), invalidListId, itemIdStr);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -202,12 +196,11 @@ public class ShoppingItemResourceTest {
 		//given
 		String listIdStr = UUID.randomUUID().toString();
 		String unknownId = UUID.randomUUID().toString();
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		ErrorMessage expectedMessage = ShoppingItemResourceErrorMessage.ITEM_NOT_FOUND;
 		
 		//when
 		try {
-			testedResource.getById(listIdStr, unknownId);
+			testedResource.getById(TestHelper.generateRandomUser(), listIdStr, unknownId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
@@ -220,14 +213,13 @@ public class ShoppingItemResourceTest {
 		//given
 		UUID listId = UUID.randomUUID();
 		UUID existingId = UUID.randomUUID();
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		ShoppingItem existingShoppingItem = ShoppingItem.Builder.createDefault().withId(existingId).build();
 		when(mockeItemRepo.getById(listId, existingId)).thenReturn(existingShoppingItem);
 		
 		//when
-		Response response = testedResource.getById(listId.toString(), existingId.toString());
+		Response response = testedResource.getById(TestHelper.generateRandomUser(), listId.toString(), existingId.toString());
 		
 		//then
 		assertThat(response).isNotNull();
@@ -251,14 +243,13 @@ public class ShoppingItemResourceTest {
 		
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(expectedID, expectedName, expectedQuantity, expectedState);
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		ShoppingItem existingShoppingItem = ShoppingItem.Builder.createDefault().withId(expectedID).build();
 		when(mockeItemRepo.getById(listId, expectedID)).thenReturn(existingShoppingItem);
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.update(listId.toString(), expectedID.toString(), representation);
+		Response response = testedResource.update(TestHelper.generateRandomUser(), listId.toString(), expectedID.toString(), representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -272,12 +263,11 @@ public class ShoppingItemResourceTest {
 		String invalidItemId = "invalid";
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representationWithoutId = new ShoppingItemWriteRepresentation(null, "name", 10, TO_BUY.toString());
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named itemId : invalid";
 		
 		//when
 		try {
-			testedResource.update(listIdStr, invalidItemId, representationWithoutId);
+			testedResource.update(TestHelper.generateRandomUser(), listIdStr, invalidItemId, representationWithoutId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -291,12 +281,11 @@ public class ShoppingItemResourceTest {
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString());
 		String invalidListId = "invalid ID";
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named listId : invalid ID";
 		
 		//when
 		try {
-			testedResource.update(invalidListId, representation.getId().toString(), representation);
+			testedResource.update(TestHelper.generateRandomUser(), invalidListId, representation.getId().toString(), representation);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -310,12 +299,11 @@ public class ShoppingItemResourceTest {
 		String listIdStr = UUID.randomUUID().toString();
 		@SuppressWarnings("deprecation")
 		ShoppingItemWriteRepresentation representation = new ShoppingItemWriteRepresentation(UUID.randomUUID(), "name", 10, TO_BUY.toString());
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Item not found";
 		
 		//when
 		try {
-			testedResource.update(listIdStr, representation.getId().toString(), representation);
+			testedResource.update(TestHelper.generateRandomUser(), listIdStr, representation.getId().toString(), representation);
 		} catch(ApplicationException ae) {
 		//then
 			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);
@@ -328,12 +316,11 @@ public class ShoppingItemResourceTest {
 		//given
 		String listIdStr = UUID.randomUUID().toString();
 		String invalidId = "invalid ID";
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named itemId : invalid ID";
 		
 		//when
 		try {
-			testedResource.deleteById(listIdStr, invalidId);
+			testedResource.deleteById(TestHelper.generateRandomUser(), listIdStr, invalidId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -346,12 +333,11 @@ public class ShoppingItemResourceTest {
 		//given
 		String itemIdStr = UUID.randomUUID().toString();
 		String invalidListId = "invalid ID";
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		String expectedMessage = "Invalid Param named listId : invalid ID";
 		
 		//when
 		try {
-			testedResource.deleteById(invalidListId, itemIdStr);
+			testedResource.deleteById(TestHelper.generateRandomUser(), invalidListId, itemIdStr);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -364,12 +350,11 @@ public class ShoppingItemResourceTest {
 		//given
 		String listIdStr = UUID.randomUUID().toString();
 		String unknownId = UUID.randomUUID().toString();
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		ErrorMessage expectedMessage = ITEM_NOT_FOUND;
 		
 		//when
 		try {
-			testedResource.deleteById(listIdStr, unknownId);
+			testedResource.deleteById(TestHelper.generateRandomUser(), listIdStr, unknownId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
@@ -382,12 +367,11 @@ public class ShoppingItemResourceTest {
 		//given
 		UUID listId = UUID.randomUUID();
 		UUID existingId = UUID.randomUUID();
-		ShoppingItemResource testedResource = getShoppingItemResource(TestHelper.generateRandomUser());
 		ShoppingItem existingShoppingItem = ShoppingItem.Builder.createDefault().withId(existingId).build();
 		when(mockeItemRepo.getById(listId, existingId)).thenReturn(existingShoppingItem);
 		
 		//when
-		Response response = testedResource.deleteById(listId.toString(), existingId.toString());
+		Response response = testedResource.deleteById(TestHelper.generateRandomUser(), listId.toString(), existingId.toString());
 		
 		//then
 		assertThat(response).isNotNull();

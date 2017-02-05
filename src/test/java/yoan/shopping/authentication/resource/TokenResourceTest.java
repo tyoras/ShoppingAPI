@@ -3,10 +3,9 @@ package yoan.shopping.authentication.resource;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.INVALID_AUTHZ_CODE;
@@ -19,23 +18,25 @@ import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
-import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import yoan.shopping.authentication.OAuthTokenRequest;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
 import yoan.shopping.client.app.ClientApp;
 import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
-import yoan.shopping.test.OauthMockRequestBuilder;
 import yoan.shopping.test.TestHelper;
 import yoan.shopping.user.SecuredUser;
 import yoan.shopping.user.User;
@@ -52,21 +53,22 @@ public class TokenResourceTest {
 	@Mock
 	SecuredUserRepository mockedUserRepo;
 	
-	private static final String FORM_URLENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
+	@Spy
+	@InjectMocks
+	private TokenResource testedResource;
+	
 	private static final String VALID_REDIRECT_URI = "http://www.google.fr";
 	
-	private TokenResource getTokenResource(SecuredUser connectedUser) {
+	@Before
+	public void before() {
 		when(mockedClientAppRepo.getById(ClientApp.DEFAULT_ID)).thenReturn(ClientApp.DEFAULT);
 		when(mockedClientAppRepo.hashSecret(eq(ClientApp.DEFAULT.getSecret()), any())).thenReturn(ClientApp.DEFAULT.getSecret());
-		TokenResource testedResource = new TokenResource(mockedAuthorizationCodeRepo, mockedAccessTokenRepo, mockedClientAppRepo, mockedUserRepo);
-		return spy(testedResource);
 	}
 	
 	@Test
-	public void authorize_should_return_bad_request_with_empty_token_request() throws OAuthSystemException {
+	public void authorize_should_return_bad_request_with_empty_token_request() throws OAuthSystemException, OAuthProblemException {
 		//given
-		TokenResource testedResource = getTokenResource(TestHelper.generateRandomSecuredUser());
-		HttpServletRequest invalidRequest = new OauthMockRequestBuilder().build();
+		OAuthTokenRequest invalidRequest = new OAuthTokenRequest();
 		
 		//when
 		Response response = testedResource.authorize(invalidRequest);
@@ -81,18 +83,14 @@ public class TokenResourceTest {
 	@Test(expected = WebApiException.class)
 	public void authorize_should_return_bad_request_when_client_id_is_not_a_valid_UUID() throws OAuthSystemException {
 		//given
-		TokenResource testedResource = getTokenResource(TestHelper.generateRandomSecuredUser());
 		String invalidClientId = "not uuid";
 		String expectedMessage = "Invalid Param named client_id : " + invalidClientId;
-		HttpServletRequest invalidRequest = new OauthMockRequestBuilder()
-				.withHttpMethod(OAuth.HttpMethod.POST)
-				.withClientId(invalidClientId)
-				.withClientSecret("secret")
-				.withGrantType(GrantType.AUTHORIZATION_CODE.toString())
-				.withRedirectUri(VALID_REDIRECT_URI)
-				.withAccessGrant("code")
-				.withContentType(FORM_URLENCODED_CONTENT_TYPE)
-				.build();
+		OAuthTokenRequest invalidRequest = new OAuthTokenRequest();
+		invalidRequest.setClientId(invalidClientId);
+		invalidRequest.setClientSecret("secret");
+		invalidRequest.setGrantType(GrantType.AUTHORIZATION_CODE.toString());
+		invalidRequest.setRedirectUri(VALID_REDIRECT_URI);
+		invalidRequest.setCode("code");
 		
 		//when
 		try {
@@ -108,18 +106,14 @@ public class TokenResourceTest {
 	@Test(expected = WebApiException.class)
 	public void authorize_should_return_bad_request_with_unknown_client_id() throws OAuthSystemException {
 		//given
-		TokenResource testedResource = getTokenResource(TestHelper.generateRandomSecuredUser());
 		String unknownClientId = UUID.randomUUID().toString();
 		String expectedMessage = UNKNOWN_CLIENT.getDevReadableMessage(unknownClientId);
-		HttpServletRequest requestWithUnknownClientId = new OauthMockRequestBuilder()
-			.withHttpMethod(OAuth.HttpMethod.POST)
-			.withClientId(unknownClientId)
-			.withClientSecret("secret")
-			.withGrantType(GrantType.AUTHORIZATION_CODE.toString())
-			.withRedirectUri(VALID_REDIRECT_URI)
-			.withAccessGrant("code")
-			.withContentType(FORM_URLENCODED_CONTENT_TYPE)
-			.build();
+		OAuthTokenRequest requestWithUnknownClientId = new OAuthTokenRequest();
+		requestWithUnknownClientId.setClientId(unknownClientId);
+		requestWithUnknownClientId.setClientSecret("secret");
+		requestWithUnknownClientId.setGrantType(GrantType.AUTHORIZATION_CODE.toString());
+		requestWithUnknownClientId.setRedirectUri(VALID_REDIRECT_URI);
+		requestWithUnknownClientId.setCode("code");
 		
 		//when
 		try {
@@ -135,21 +129,17 @@ public class TokenResourceTest {
 	@Test(expected = WebApiException.class)
 	public void authorize_should_return_bad_request_with_missing_client_secret() throws OAuthSystemException {
 		//given
-		TokenResource testedResource = getTokenResource(TestHelper.generateRandomSecuredUser());
 		UUID clientId = ClientApp.DEFAULT_ID;
-		HttpServletRequest requestWithUnknownClientId = new OauthMockRequestBuilder()
-			.withHttpMethod(OAuth.HttpMethod.POST)
-			.withClientId(clientId.toString())
-			.withClientSecret(" ")
-			.withGrantType(GrantType.AUTHORIZATION_CODE.toString())
-			.withRedirectUri(VALID_REDIRECT_URI)
-			.withAccessGrant("code")
-			.withContentType(FORM_URLENCODED_CONTENT_TYPE)
-			.build();
+		OAuthTokenRequest requestWithBlankSecret = new OAuthTokenRequest();
+		requestWithBlankSecret.setClientId(clientId.toString());
+		requestWithBlankSecret.setClientSecret(" ");
+		requestWithBlankSecret.setGrantType(GrantType.AUTHORIZATION_CODE.toString());
+		requestWithBlankSecret.setRedirectUri(VALID_REDIRECT_URI);
+		requestWithBlankSecret.setCode("code");
 		
 		//when
 		try {
-			testedResource.authorize(requestWithUnknownClientId);
+			testedResource.authorize(requestWithBlankSecret);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, MISSING_CLIENT_SECRET);
@@ -161,22 +151,18 @@ public class TokenResourceTest {
 	@Test(expected = WebApiException.class)
 	public void authorize_should_return_bad_request_with_invalid_client_secret() throws OAuthSystemException {
 		//given
-		TokenResource testedResource = getTokenResource(TestHelper.generateRandomSecuredUser());
 		UUID clientId = ClientApp.DEFAULT_ID;
 		String expectedMessage = INVALID_CLIENT_SECRET.getDevReadableMessage(clientId);
-		HttpServletRequest requestWithUnknownClientId = new OauthMockRequestBuilder()
-			.withHttpMethod(OAuth.HttpMethod.POST)
-			.withClientId(clientId.toString())
-			.withClientSecret("invalid secret")
-			.withGrantType(GrantType.AUTHORIZATION_CODE.toString())
-			.withRedirectUri(VALID_REDIRECT_URI)
-			.withAccessGrant("code")
-			.withContentType(FORM_URLENCODED_CONTENT_TYPE)
-			.build();
+		OAuthTokenRequest requestWithInvalidSecret = new OAuthTokenRequest();
+		requestWithInvalidSecret.setClientId(clientId.toString());
+		requestWithInvalidSecret.setClientSecret("invalid secret");
+		requestWithInvalidSecret.setGrantType(GrantType.AUTHORIZATION_CODE.toString());
+		requestWithInvalidSecret.setRedirectUri(VALID_REDIRECT_URI);
+		requestWithInvalidSecret.setCode("code");
 		
 		//when
 		try {
-			testedResource.authorize(requestWithUnknownClientId);
+			testedResource.authorize(requestWithInvalidSecret);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, WARNING, API_RESPONSE, expectedMessage);
@@ -188,21 +174,17 @@ public class TokenResourceTest {
 	@Test
 	public void authorize_should_fail_with_unknown_authz_code_request() throws OAuthSystemException {
 		//given
-		TokenResource testedResource = getTokenResource(TestHelper.generateRandomSecuredUser());
 		String unknownAuthzCode = "unknown code";
 		String expectedMessage = INVALID_AUTHZ_CODE.getDevReadableMessage(unknownAuthzCode);
-		HttpServletRequest requestWithUnknownClientId = new OauthMockRequestBuilder()
-			.withHttpMethod(OAuth.HttpMethod.POST)
-			.withClientId(ClientApp.DEFAULT_ID.toString())
-			.withClientSecret(ClientApp.DEFAULT.getSecret())
-			.withGrantType(GrantType.AUTHORIZATION_CODE.toString())
-			.withRedirectUri(VALID_REDIRECT_URI)
-			.withAccessGrant(unknownAuthzCode)
-			.withContentType(FORM_URLENCODED_CONTENT_TYPE)
-			.build();
+		OAuthTokenRequest requestWithInvalidAuthzCode = new OAuthTokenRequest();
+		requestWithInvalidAuthzCode.setClientId(ClientApp.DEFAULT_ID.toString());
+		requestWithInvalidAuthzCode.setClientSecret(ClientApp.DEFAULT.getSecret());
+		requestWithInvalidAuthzCode.setGrantType(GrantType.AUTHORIZATION_CODE.toString());
+		requestWithInvalidAuthzCode.setRedirectUri(VALID_REDIRECT_URI);
+		requestWithInvalidAuthzCode.setCode(unknownAuthzCode);
 		
 		//when
-		Response response = testedResource.authorize(requestWithUnknownClientId);
+		Response response = testedResource.authorize(requestWithInvalidAuthzCode);
 
 		//then
 		assertThat(response).isNotNull();
@@ -215,21 +197,17 @@ public class TokenResourceTest {
 	@Test
 	public void authorize_should_handle_valid_authz_code_request() throws OAuthSystemException {
 		//given
-		TokenResource testedResource = getTokenResource(TestHelper.generateRandomSecuredUser());
 		String validAuthzCode = "valid";
 		when(mockedAuthorizationCodeRepo.getUserIdByAuthorizationCode(validAuthzCode)).thenReturn(User.DEFAULT_ID);
-		HttpServletRequest requestWithUnknownClientId = new OauthMockRequestBuilder()
-			.withHttpMethod(OAuth.HttpMethod.POST)
-			.withClientId(ClientApp.DEFAULT_ID.toString())
-			.withClientSecret(ClientApp.DEFAULT.getSecret())
-			.withGrantType(GrantType.AUTHORIZATION_CODE.toString())
-			.withRedirectUri(VALID_REDIRECT_URI)
-			.withAccessGrant(validAuthzCode)
-			.withContentType(FORM_URLENCODED_CONTENT_TYPE)
-			.build();
+		OAuthTokenRequest requestWithValidAuthzCode = new OAuthTokenRequest();
+		requestWithValidAuthzCode.setClientId(ClientApp.DEFAULT_ID.toString());
+		requestWithValidAuthzCode.setClientSecret(ClientApp.DEFAULT.getSecret());
+		requestWithValidAuthzCode.setGrantType(GrantType.AUTHORIZATION_CODE.toString());
+		requestWithValidAuthzCode.setRedirectUri(VALID_REDIRECT_URI);
+		requestWithValidAuthzCode.setCode(validAuthzCode);
 		
 		//when
-		Response response = testedResource.authorize(requestWithUnknownClientId);
+		Response response = testedResource.authorize(requestWithValidAuthzCode);
 
 		//then
 		assertThat(response).isNotNull();
@@ -247,22 +225,18 @@ public class TokenResourceTest {
 				.withRawPassword(password)
 				.build();
 			
-		TokenResource testedResource = getTokenResource(securedUser);
 		when(mockedUserRepo.getByEmail(securedUser.getEmail())).thenReturn(securedUser);
 		when(mockedUserRepo.hashPassword(password, "salt")).thenReturn(securedUser.getPassword());
-		HttpServletRequest requestWithUnknownClientId = new OauthMockRequestBuilder()
-			.withHttpMethod(OAuth.HttpMethod.POST)
-			.withClientId(ClientApp.DEFAULT_ID.toString())
-			//FIXME apche otlu bug => client secret should not be required for passw ord flow
-			.withClientSecret(ClientApp.DEFAULT.getSecret())
-			.withGrantType(GrantType.PASSWORD.toString())
-			.withOauthUsername(securedUser.getEmail())
-			.withOauthPassword(password)
-			.withContentType(FORM_URLENCODED_CONTENT_TYPE)
-			.build();
+		OAuthTokenRequest requestWithValidPassword = new OAuthTokenRequest();
+		requestWithValidPassword.setClientId(ClientApp.DEFAULT_ID.toString());
+		//FIXME apche otlu bug => client secret should not be required for passw ord flow
+		requestWithValidPassword.setClientSecret(ClientApp.DEFAULT.getSecret());
+		requestWithValidPassword.setGrantType(GrantType.PASSWORD.toString());
+		requestWithValidPassword.setUserName(securedUser.getEmail());
+		requestWithValidPassword.setPassword(password);
 		
 		//when
-		Response response = testedResource.authorize(requestWithUnknownClientId);
+		Response response = testedResource.authorize(requestWithValidPassword);
 
 		//then
 		assertThat(response).isNotNull();

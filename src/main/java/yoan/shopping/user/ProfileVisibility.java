@@ -7,8 +7,6 @@ import static yoan.shopping.infra.util.error.CommonErrorMessage.UNABLE_TO_FIND;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
-import yoan.shopping.list.ItemState;
-
 public enum ProfileVisibility {
 	PUBLIC("Profile can be searched or viewed by all users"),
 	PRIVATE("Profile can be searched or viewed only by friends");
@@ -37,7 +35,7 @@ public enum ProfileVisibility {
 	}
 	
 	private static ProfileVisibility handleInvalidCode(String code) {
-		LoggerFactory.getLogger(ItemState.class).info(UNABLE_TO_FIND.getDevReadableMessage("ProfileVisibility", code));
+		LoggerFactory.getLogger(ProfileVisibility.class).info(UNABLE_TO_FIND.getDevReadableMessage("ProfileVisibility", code));
 		return null;
 	}
 }

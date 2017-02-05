@@ -4,29 +4,23 @@
 package yoan.shopping.root.resource;
 
 import static java.util.Objects.requireNonNull;
-import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
-import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
-import static yoan.shopping.root.RootKey.CLIENT_APP;
-import static yoan.shopping.root.RootKey.ITEM;
-import static yoan.shopping.root.RootKey.LIST;
-import static yoan.shopping.root.RootKey.USER;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static yoan.shopping.root.RootKey.*;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
-import io.swagger.annotations.Api;
+import io.dropwizard.auth.Auth;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.root.BuildInfo;
@@ -40,26 +34,24 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api")
-@Api(value = "Root", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
-@Produces({ "application/json", "application/xml" })
+@Produces(APPLICATION_JSON)
 public class RootResource extends RestAPI {
-	/** Currently connected user */
-	private final User connectedUser;
+	
 	/** Repository to get the build informations */
 	private final BuildInfoRepository buildInfoRepository;
 	
 	@Inject
-	public RootResource(@Named(CONNECTED_USER) User connectedUser, BuildInfoRepository buildInfoRepo) {
+	public RootResource(BuildInfoRepository buildInfoRepo) {
 		super();
 		this.buildInfoRepository = requireNonNull(buildInfoRepo);
-		this.connectedUser = requireNonNull(connectedUser);
 	}
+	
 	
 	@OPTIONS
 	@Override
 	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RootRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RootRepresentation.class) })
-	public Response root() {
+	public Response root(@Auth User connectedUser) {
 		List<Link> links = getRootLinks();
 		BuildInfo buildInfo = buildInfoRepository.getCurrentBuildInfos();
 		

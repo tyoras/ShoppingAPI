@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mongodb.DB;
 import com.mongodb.Mongo;
@@ -17,7 +17,7 @@ import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
-import yoan.shopping.infra.config.api.Config;
+import yoan.shopping.infra.config.ShoppingApiConfiguration;
 import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
 
 /**
@@ -45,7 +45,8 @@ public abstract class LocalMongoBackedTest {
 	}
 
 	protected MongoDbConnectionFactory getMongoDbConnectionFactory() {
-		Config config = Config.Builder.createDefault().withMongoPort(12345).build();
+		ShoppingApiConfiguration config = new ShoppingApiConfiguration();
+		config.mongo.port = 12345;
 		return new MongoDbConnectionFactory(config);
 	}
 

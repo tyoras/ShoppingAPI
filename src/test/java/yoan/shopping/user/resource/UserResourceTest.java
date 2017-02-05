@@ -7,8 +7,9 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -30,7 +31,7 @@ import javax.ws.rs.core.UriInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
 
@@ -47,7 +48,7 @@ import yoan.shopping.user.representation.SecuredUserWriteRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
 import yoan.shopping.user.representation.UserWriteRepresentation;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class UserResourceTest {
 
 	@Mock
@@ -56,8 +57,8 @@ public class UserResourceTest {
 	@Mock
 	SecuredUserRepository mockedSecuredUserRepo;
 	
-	private UserResource getUserResource(User connectedUser) {
-		UserResource testedResource = new UserResource(connectedUser, mockedUserRepo, mockedSecuredUserRepo);
+	private UserResource getUserResource() {
+		UserResource testedResource = new UserResource(mockedUserRepo, mockedSecuredUserRepo);
 		return spy(testedResource);
 	}
 	
@@ -66,8 +67,8 @@ public class UserResourceTest {
 		//given
 		String expectedURL = "http://test";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo(expectedURL);
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		UserResource testedResource = getUserResource();
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		List<Link> links = testedResource.getRootLinks();
@@ -84,11 +85,11 @@ public class UserResourceTest {
 		String expectedURL = "http://test";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo(expectedURL);
 		User connectedUser = TestHelper.generateRandomUser();
-		UserResource testedResource = getUserResource(connectedUser);
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		UserResource testedResource = getUserResource();
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.root();
+		Response response = testedResource.root(connectedUser);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -106,12 +107,12 @@ public class UserResourceTest {
 		String expectedProfileVisibility = PUBLIC.name();
 		@SuppressWarnings("deprecation")
 		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedName, expectedMail, expectedProfileVisibility, "password");
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.create(representation);
+		Response response = testedResource.create(TestHelper.generateRandomUser(), representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -132,13 +133,13 @@ public class UserResourceTest {
 		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", alreadyExistingEmail, PUBLIC.name(), "password");
 		when(mockedUserRepo.checkUserExistsByIdOrEmail(any(), eq(alreadyExistingEmail))).thenReturn(true);
 		String expectedMessage = "User with email : " + alreadyExistingEmail + " already exists";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		try {
-			testedResource.create(representation);
+			testedResource.create(TestHelper.generateRandomUser(), representation);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, CONFLICT, ERROR, API_RESPONSE, expectedMessage);
@@ -154,13 +155,13 @@ public class UserResourceTest {
 		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation("name", "test@mail.com", PUBLIC.name(), invalidPassword);
 		String expectedMessage = PROBLEM_PASSWORD_VALIDITY.getDevReadableMessage();
 		doThrow(new ApplicationException(ERROR, UNSECURE_PASSWORD, expectedMessage)).when(mockedSecuredUserRepo).create(any(), eq(invalidPassword));
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		try {
-			testedResource.create(representation);
+			testedResource.create(TestHelper.generateRandomUser(), representation);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, ERROR, API_RESPONSE, expectedMessage);
@@ -172,12 +173,12 @@ public class UserResourceTest {
 	public void getById_should_return_400_with_invalid_Id() {
 		//given
 		String invalidId = "invalid ID";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Invalid Param named userId : invalid ID";
 		
 		//when
 		try {
-			testedResource.getById(invalidId);
+			testedResource.getById(TestHelper.generateRandomUser(), invalidId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -189,12 +190,12 @@ public class UserResourceTest {
 	public void getById_should_return_404_with_unknown_user_Id() {
 		//given
 		String unknownId = UUID.randomUUID().toString();
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "User not found";
 		
 		//when
 		try {
-			testedResource.getById(unknownId);
+			testedResource.getById(TestHelper.generateRandomUser(), unknownId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
@@ -206,14 +207,14 @@ public class UserResourceTest {
 	public void getById_should_work_with_existing_user_Id() {
 		//given
 		UUID existingId = UUID.randomUUID();
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		User existingUser = User.Builder.createDefault().withId(existingId).build();
 		when(mockedUserRepo.getById(existingId)).thenReturn(existingUser);
 		
 		//when
-		Response response = testedResource.getById(existingId.toString());
+		Response response = testedResource.getById(TestHelper.generateRandomUser(), existingId.toString());
 		
 		//then
 		assertThat(response).isNotNull();
@@ -234,14 +235,14 @@ public class UserResourceTest {
 		String expectedProfileVisibility = PUBLIC.name();
 		@SuppressWarnings("deprecation")
 		UserWriteRepresentation representation = new UserWriteRepresentation(expectedName, expectedMail, expectedProfileVisibility);
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		User existingUser = User.Builder.createDefault().withId(expectedID).build();
 		when(mockedUserRepo.getById(expectedID)).thenReturn(existingUser);
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.update(expectedID.toString(), representation);
+		Response response = testedResource.update(TestHelper.generateRandomUser(), expectedID.toString(), representation);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -253,12 +254,12 @@ public class UserResourceTest {
 		//given
 		@SuppressWarnings("deprecation")
 		UserWriteRepresentation representationWithoutId = new UserWriteRepresentation("name", "mail", PUBLIC.name());
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Invalid Param named userId : null";
 		
 		//when
 		try {
-			testedResource.update(null, representationWithoutId);
+			testedResource.update(TestHelper.generateRandomUser(), null, representationWithoutId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -272,12 +273,12 @@ public class UserResourceTest {
 		String invalidId = "invalid";
 		@SuppressWarnings("deprecation")
 		UserWriteRepresentation representationWithoutId = new UserWriteRepresentation("name", "mail", PUBLIC.name());
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Invalid Param named userId : invalid";
 		
 		//when
 		try {
-			testedResource.update(invalidId, representationWithoutId);
+			testedResource.update(TestHelper.generateRandomUser(), invalidId, representationWithoutId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -291,12 +292,12 @@ public class UserResourceTest {
 		String unknownUserId = UUID.randomUUID().toString();
 		@SuppressWarnings("deprecation")
 		UserWriteRepresentation representation = new UserWriteRepresentation("name", "mail", PUBLIC.name());
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "User not found";
 		
 		//when
 		try {
-			testedResource.update(unknownUserId, representation);
+			testedResource.update(TestHelper.generateRandomUser(), unknownUserId, representation);
 		} catch(ApplicationException ae) {
 		//then
 			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);
@@ -308,12 +309,12 @@ public class UserResourceTest {
 	public void changePassword_should_return_400_with_invalid_Id() {
 		//given
 		String invalidId = "invalid ID";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Invalid Param named userId : invalid ID";
 		
 		//when
 		try {
-			testedResource.changePassword(invalidId, "new password");
+			testedResource.changePassword(TestHelper.generateRandomUser(), invalidId, "new password");
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -325,12 +326,12 @@ public class UserResourceTest {
 	public void changePassword_should_return_404_with_unknown_user() {
 		//given
 		User user = TestHelper.generateRandomUser();
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "User not found";
 		
 		//when
 		try {
-			testedResource.changePassword(user.getId().toString(), "new password");
+			testedResource.changePassword(TestHelper.generateRandomUser(), user.getId().toString(), "new password");
 		} catch(ApplicationException ae) {
 		//then
 			TestHelper.assertApplicationException(ae, INFO, RepositoryErrorCode.NOT_FOUND, expectedMessage);
@@ -342,12 +343,12 @@ public class UserResourceTest {
 	public void deleteById_should_return_400_with_invalid_Id() {
 		//given
 		String invalidId = "invalid ID";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Invalid Param named userId : invalid ID";
 		
 		//when
 		try {
-			testedResource.deleteById(invalidId);
+			testedResource.deleteById(TestHelper.generateRandomUser(), invalidId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -359,12 +360,12 @@ public class UserResourceTest {
 	public void deleteById_should_return_404_with_unknown_user_Id() {
 		//given
 		String unknownId = UUID.randomUUID().toString();
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "User not found";
 		
 		//when
 		try {
-			testedResource.deleteById(unknownId);
+			testedResource.deleteById(TestHelper.generateRandomUser(), unknownId);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
@@ -376,12 +377,12 @@ public class UserResourceTest {
 	public void deleteById_should_work_with_existing_user_Id() {
 		//given
 		UUID existingId = UUID.randomUUID();
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		User existingUser = User.Builder.createDefault().withId(existingId).build();
 		when(mockedUserRepo.getById(existingId)).thenReturn(existingUser);
 		
 		//when
-		Response response = testedResource.deleteById(existingId.toString());
+		Response response = testedResource.deleteById(TestHelper.generateRandomUser(), existingId.toString());
 		
 		//then
 		assertThat(response).isNotNull();
@@ -392,12 +393,12 @@ public class UserResourceTest {
 	public void getByEmail_should_return_400_with_invalid_email() {
 		//given
 		String invalidEmail = "invalid email";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Invalid Param named userEmail is not a valid email adress : invalid email";
 		
 		//when
 		try {
-			testedResource.getByEmail(invalidEmail);
+			testedResource.getByEmail(TestHelper.generateRandomUser(), invalidEmail);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -409,12 +410,12 @@ public class UserResourceTest {
 	public void getByEmail_should_return_404_with_unknown_user_email() {
 		//given
 		String unknownEmail = "unknown@unknown.com";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "User not found";
 		
 		//when
 		try {
-			testedResource.getByEmail(unknownEmail);
+			testedResource.getByEmail(TestHelper.generateRandomUser(), unknownEmail);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
@@ -426,14 +427,14 @@ public class UserResourceTest {
 	public void getByEmail_should_work_with_existing_user_email() {
 		//given
 		String existingEmail = "existing@existing.com";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		User existingUser = User.Builder.createDefault().withRandomId().withEmail(existingEmail).build();
 		when(mockedUserRepo.getByEmail(existingEmail)).thenReturn(existingUser);
 		
 		//when
-		Response response = testedResource.getByEmail(existingEmail);
+		Response response = testedResource.getByEmail(TestHelper.generateRandomUser(), existingEmail);
 		
 		//then
 		assertThat(response).isNotNull();
@@ -448,15 +449,15 @@ public class UserResourceTest {
 	@Test
 	public void searchByName_should_work_with_existing_users() {
 		//given
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		User existingUser1 = TestHelper.generateRandomUser();
 		User existingUser2 = TestHelper.generateRandomUser();
 		when(mockedUserRepo.searchByName("search")).thenReturn(ImmutableList.of(existingUser1,existingUser2));
 		
 		//when
-		Response response = testedResource.searchByName("search");
+		Response response = testedResource.searchByName(TestHelper.generateRandomUser(), "search");
 		
 		//then
 		assertThat(response).isNotNull();
@@ -482,12 +483,12 @@ public class UserResourceTest {
 	public void searchByName_should_return_400_with_invalid_search() {
 		//given
 		String invalidSearch = "ab";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Invalid search : \"ab\"";
 		
 		//when
 		try {
-			testedResource.searchByName(invalidSearch);
+			testedResource.searchByName(TestHelper.generateRandomUser(), invalidSearch);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, API_RESPONSE, expectedMessage);
@@ -499,13 +500,13 @@ public class UserResourceTest {
 	public void searchByName_should_return_400_with_too_much_result_search() {
 		//given
 		String tooMuchSearch = "too_much!";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = TOO_MUCH_RESULT_FOR_SEARCH.getDevReadableMessage(15, tooMuchSearch);
 		when(mockedUserRepo.searchByName(tooMuchSearch)).thenThrow(new ApplicationException(INFO, TOO_MUCH_RESULT, expectedMessage));
 		
 		//when
 		try {
-			testedResource.searchByName(tooMuchSearch);
+			testedResource.searchByName(TestHelper.generateRandomUser(), tooMuchSearch);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, BAD_REQUEST, INFO, TOO_MUCH_RESULT, expectedMessage);
@@ -517,13 +518,13 @@ public class UserResourceTest {
 	public void searchByName_should_return_404_with_no_result_found_search() {
 		//given
 		String searchWithNoResult = "no_result";
-		UserResource testedResource = getUserResource(TestHelper.generateRandomUser());
+		UserResource testedResource = getUserResource();
 		String expectedMessage = "Users not found for search : \"no_result\"";
 		when(mockedUserRepo.searchByName(searchWithNoResult)).thenReturn(ImmutableList.of());
 		
 		//when
 		try {
-			testedResource.searchByName(searchWithNoResult);
+			testedResource.searchByName(TestHelper.generateRandomUser(), searchWithNoResult);
 		} catch(WebApiException wae) {
 		//then
 			TestHelper.assertWebApiException(wae, NOT_FOUND, INFO, API_RESPONSE, expectedMessage);
