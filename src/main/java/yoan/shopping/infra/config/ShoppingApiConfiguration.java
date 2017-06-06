@@ -4,8 +4,6 @@ package yoan.shopping.infra.config;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 import io.dropwizard.Configuration;
 
 public class ShoppingApiConfiguration extends Configuration {
@@ -14,7 +12,8 @@ public class ShoppingApiConfiguration extends Configuration {
 	@NotNull
 	public MongoConfiguration mongo = new MongoConfiguration();
 	
-	@NotEmpty
-	public String swaggerBasePath = "/shopping/rest";
+	@Valid
+	@NotNull
+	public SwaggerConfiguration swagger = new SwaggerConfiguration();
 	
 }

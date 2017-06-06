@@ -13,6 +13,7 @@ import javax.ws.rs.core.UriInfo;
 
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
@@ -34,7 +35,7 @@ public abstract class RestAPI {
 	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RestRepresentation.class), 
 							@ApiResponse(code = 401, message = "Not authenticated" , responseHeaders = { @ResponseHeader(name = "WWW-Authenticate", response = String.class) }) })
-	public Response root(@Auth User connectedUser) {
+	public Response root(@ApiParam(hidden = true) @Auth User connectedUser) {
 		RestRepresentation rootRepresentation = new RestRepresentation(getRootLinks());
 		return Response.ok().entity(rootRepresentation).build();
 	}

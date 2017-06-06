@@ -3,6 +3,7 @@ package yoan.shopping.infra;
 import static org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_HEADERS_PARAM;
 import static org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_METHODS_PARAM;
 import static org.eclipse.jetty.servlets.CrossOriginFilter.CHAIN_PREFLIGHT_PARAM;
+import static yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository.BUILD_INFO_DEFAULT_PROPERTIES_FILE_NAME;
 
 import java.util.EnumSet;
 
@@ -19,10 +20,15 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.listing.ApiListingResource;
 import ru.vyarus.dropwizard.guice.GuiceBundle;
 import yoan.shopping.infra.config.ShoppingApiConfiguration;
+import yoan.shopping.infra.config.SwaggerConfiguration;
 import yoan.shopping.infra.config.guice.ShoppingModule;
 import yoan.shopping.infra.rest.error.GlobalExceptionMapper;
+import yoan.shopping.root.BuildInfo;
+import yoan.shopping.root.repository.properties.BuildInfoPropertiesRepository;
 
 public class ShoppingApiApplication extends Application<ShoppingApiConfiguration> {
 	
@@ -40,6 +46,7 @@ public class ShoppingApiApplication extends Application<ShoppingApiConfiguration
     	bootstrap.addBundle(GuiceBundle.builder()
     			.modules(new ShoppingModule())
                 .enableAutoConfig("yoan.shopping")
+                .extensions(ApiListingResource.class)
                 .noGuiceFilter()
                 .printDiagnosticInfo()
                 .build());
@@ -50,6 +57,7 @@ public class ShoppingApiApplication extends Application<ShoppingApiConfiguration
     	configureJackson(environment);
     	configureExceptionMapping(environment);
     	configureCORS(environment);
+    	configureSwagger(configuration, environment);
     }
 
 	private void configureJackson(Environment environment) {
@@ -61,7 +69,7 @@ public class ShoppingApiApplication extends Application<ShoppingApiConfiguration
 	
 	private void configureCORS(Environment environment) {
 		final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
-        cors.setInitParameter(ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Authorization");
+        cors.setInitParameter(ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Authorization,Content-Length");
         cors.setInitParameter(ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD");
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
         cors.setInitParameter(CHAIN_PREFLIGHT_PARAM, Boolean.FALSE.toString());
@@ -69,5 +77,22 @@ public class ShoppingApiApplication extends Application<ShoppingApiConfiguration
 	
 	private void configureExceptionMapping(Environment environment) {
 		environment.jersey().register(new GlobalExceptionMapper());
+	}
+	
+	private void configureSwagger(ShoppingApiConfiguration configuration, Environment environment) {
+		BuildInfo buildInfo = new BuildInfoPropertiesRepository(BUILD_INFO_DEFAULT_PROPERTIES_FILE_NAME).getCurrentBuildInfos();
+	    SwaggerConfiguration swagger = configuration.swagger;
+		BeanConfig config = new BeanConfig();
+	    config.setTitle("Shopping API");
+	    config.setVersion(buildInfo.getVersion());
+	    config.setContact("tyoras@gmail.com");
+        config.setDescription("Rest API to manage and share a shopping list");
+        config.setTermsOfServiceUrl("https://github.com/tyoras/ShoppingAPI");
+	    config.setResourcePackage("yoan.shopping");
+	    config.setScan(true);
+	    config.setPrettyPrint(true);
+	    config.setSchemes(new String[]{swagger.scheme});
+	    config.setHost(swagger.host + ":" + swagger.port);
+	    config.setBasePath(swagger.basePath);
 	}
 }

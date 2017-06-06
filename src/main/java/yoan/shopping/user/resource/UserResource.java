@@ -55,7 +55,7 @@ import yoan.shopping.user.representation.UserWriteRepresentation;
 
 /**
  * User API
- * @author yoan
+ * @ApiParam(hidden = true) @Author yoan
  */
 @Path("/api/user")
 @Api(value = "User", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
@@ -100,7 +100,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),
 		@ApiResponse(code = 400, message = "Invalid User", response = ErrorRepresentation.class),
 		@ApiResponse(code = 409, message = "User with email adress already exists", response = ErrorRepresentation.class)})
-	public Response create(@Auth User connectedUser, @ApiParam(value = "User to create", required = true) SecuredUserWriteRepresentation userToCreate) {
+	public Response create(@ApiParam(hidden = true) @Auth User connectedUser, @ApiParam(value = "User to create", required = true) SecuredUserWriteRepresentation userToCreate) {
 		String password = userToCreate.getPassword();
 		UUID newUserId = UUID.randomUUID();
 		User userCreated = UserWriteRepresentation.toUser(userToCreate, newUserId);
@@ -120,7 +120,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Found user", response = UserRepresentation.class),
 		@ApiResponse(code = 400, message = "Invalid user Id", response = ErrorRepresentation.class),
 		@ApiResponse(code = 404, message = "User not found", response = ErrorRepresentation.class) })
-	public Response getById(@Auth User connectedUser, @PathParam("userId") @ApiParam(value = "User identifier", required = true, example = "a7b58ac5-ecc0-43b0-b07e-8396b2065439") String userIdStr) {
+	public Response getById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("userId") @ApiParam(value = "User identifier", required = true, example = "a7b58ac5-ecc0-43b0-b07e-8396b2065439") String userIdStr) {
 		User foundUser = findUserById(userIdStr);
 		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, getUriInfo());
 		return Response.ok().entity(foundUserRepresentation).build();
@@ -133,7 +133,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Found user"),
 		@ApiResponse(code = 400, message = "Invalid user email"),
 		@ApiResponse(code = 404, message = "User not found") })
-	public Response getByEmail(@Auth User connectedUser, @PathParam("userEmail") @ApiParam(value = "User email adress", required = true) String userEmail) {
+	public Response getByEmail(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("userEmail") @ApiParam(value = "User email adress", required = true) String userEmail) {
 		User foundUser = findUserByEmail(userEmail);
 		UserRepresentation foundUserRepresentation = new UserRepresentation(foundUser, getUriInfo());
 		return Response.ok().entity(foundUserRepresentation).build();
@@ -146,7 +146,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Found users"),
 		@ApiResponse(code = 400, message = "Invalid search or too much users found"),
 		@ApiResponse(code = 404, message = "Users not found") })
-	public Response searchByName(@Auth User connectedUser, @PathParam("search") @ApiParam(value = "User name search", required = true) String search) {
+	public Response searchByName(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("search") @ApiParam(value = "User name search", required = true) String search) {
 		ImmutableList<User> foundusers = searchUsersByName(search);
 		List<UserRepresentation> usersRepresentation = new ArrayList<>();
 		foundusers.forEach(user -> usersRepresentation.add(new UserRepresentation(user, getUriInfo())));
@@ -160,7 +160,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 204, message = "User updated"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
-	public Response update(@Auth User connectedUser, 
+	public Response update(@ApiParam(hidden = true) @Auth User connectedUser, 
 		@PathParam("userId") @ApiParam(value = "User identifier", required = true, example = "a7b58ac5-ecc0-43b0-b07e-8396b2065439") String userIdStr, 
 		@ApiParam(value = "User to update", required = true) UserWriteRepresentation userToUpdate) {
 		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
@@ -179,7 +179,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 204, message = "Password changed"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
-	public Response changePassword(@Auth User connectedUser, 
+	public Response changePassword(@ApiParam(hidden = true) @Auth User connectedUser, 
 								   @PathParam("userId") @ApiParam(value = "Id of the user to update", required = true) String userIdStr, 
 								   @ApiParam(value = "new password", required = true) String newPassword) {
 		UUID userId = ResourceUtil.getIdfromParam("userId", userIdStr);
@@ -198,7 +198,7 @@ public class UserResource extends RestAPI {
 		@ApiResponse(code = 200, message = "User deleted"),
 		@ApiResponse(code = 400, message = "Invalid user Id"),
 		@ApiResponse(code = 404, message = "User not found") })
-	public Response deleteById(@Auth User connectedUser, @PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
+	public Response deleteById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
 		User foundUser = findUserById(userIdStr);
 		userRepo.deleteById(foundUser.getId());
 		return Response.ok().build();

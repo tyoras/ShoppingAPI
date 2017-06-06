@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import yoan.shopping.infra.rest.Link;
@@ -51,7 +52,7 @@ public class RootResource extends RestAPI {
 	@Override
 	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RootRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RootRepresentation.class) })
-	public Response root(@Auth User connectedUser) {
+	public Response root(@ApiParam(hidden = true) @Auth User connectedUser) {
 		List<Link> links = getRootLinks();
 		BuildInfo buildInfo = buildInfoRepository.getCurrentBuildInfos();
 		

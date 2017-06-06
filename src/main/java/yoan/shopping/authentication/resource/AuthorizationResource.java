@@ -39,6 +39,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import yoan.shopping.authentication.realm.BasicUserPrincipal;
@@ -77,7 +78,7 @@ public class AuthorizationResource {
 	    @ApiImplicitParam(name = "redirect_uri", value = "Redirect URI", required = true, dataType = "string", paramType = "query")
 	})
 	@ApiResponses(value = { @ApiResponse(code = 302, message = "Redirection to provided redirect_uri"), @ApiResponse(code = 401, message = "Not authenticated") })
-    public Response authorize(@Auth BasicUserPrincipal authenticatedUser, @Context HttpServletRequest request) throws OAuthSystemException {
+    public Response authorize(@ApiParam(hidden = true) @Auth BasicUserPrincipal authenticatedUser, @Context HttpServletRequest request) throws OAuthSystemException {
         try {
             OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(request);
             final OAuthResponse response = handleOauthRequest(authenticatedUser, request, oauthRequest);

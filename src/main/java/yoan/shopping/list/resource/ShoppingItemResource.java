@@ -43,7 +43,7 @@ import yoan.shopping.user.User;
 
 /**
  * Shopping item API
- * @author yoan
+ * @ApiParam(hidden = true) @Author yoan
  */
 @Path("/api/list/{listId}/item")
 @Api(value = "Shopping Item", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
@@ -79,7 +79,7 @@ public class ShoppingItemResource extends RestAPI {
 		@ApiResponse(code = 201, message = "Item created"),
 		@ApiResponse(code = 400, message = "Invalid item"),
 		@ApiResponse(code = 404, message = "List not found")})
-	public Response create(@Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
+	public Response create(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
 						   @ApiParam(value = "Item to create", required = true) ShoppingItemWriteRepresentation itemToCreate) {
 		UUID listId = extractListId(listIdStr);
 		UUID newItemId = UUID.randomUUID();
@@ -99,7 +99,7 @@ public class ShoppingItemResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Found item"),
 		@ApiResponse(code = 400, message = "Invalid item Id"),
 		@ApiResponse(code = 404, message = "Item not found") })
-	public Response getById(@Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
+	public Response getById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
 							@PathParam("itemId") @ApiParam(value = "Shopping item identifier", required = true) String itemIdStr) {
 		UUID listId = extractListId(listIdStr);
 		ShoppingItem foundItem = findShoppingItemById(listId, itemIdStr);
@@ -114,7 +114,7 @@ public class ShoppingItemResource extends RestAPI {
 		@ApiResponse(code = 204, message = "Shopping item updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "Item not found") })
-	public Response update(@Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
+	public Response update(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
 						   @PathParam("itemId") @ApiParam(value = "Shopping item identifier", required = true) String itemIdStr,
 						   @ApiParam(value = "Item to update", required = true) ShoppingItemWriteRepresentation itemToUpdate) {
 		UUID listId = extractListId(listIdStr);
@@ -134,7 +134,7 @@ public class ShoppingItemResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Item deleted"),
 		@ApiResponse(code = 400, message = "Invalid item Id"),
 		@ApiResponse(code = 404, message = "Item not found") })
-	public Response deleteById(@Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
+	public Response deleteById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr,
 							   @PathParam("itemId") @ApiParam(value = "Shopping item identifier", required = true) String itemIdStr) {
 		UUID listId = extractListId(listIdStr);
 		ShoppingItem foundItem = findShoppingItemById(listId, itemIdStr);

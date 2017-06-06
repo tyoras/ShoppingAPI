@@ -1,14 +1,14 @@
-FROM ubuntu:15.10
+FROM ubuntu:17.04
 MAINTAINER tyoras@gmail.com
 LABEL Description="ShoppingAPI container" Version="0.1.0"
 
 RUN apt-get update 
 RUN apt-get install -y \
-wget \
-curl \
-openjdk-8-jre-headless \
-gettext-base \
-unzip
+  wget \
+  curl \
+  openjdk-8-jre-headless \
+  gettext-base \
+  unzip
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 

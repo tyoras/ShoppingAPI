@@ -38,6 +38,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import yoan.shopping.authentication.OAuthTokenRequest;
@@ -84,7 +85,7 @@ public class TokenResource {
 	    @ApiImplicitParam(name = "password", value = "User password", required = false, dataType = "string", paramType = "form"),
 	  })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Response with access token in payload"), @ApiResponse(code = 401, message = "Not authenticated") })
-	public Response authorize(@BeanParam OAuthTokenRequest oauthRequest) throws OAuthSystemException {
+	public Response authorize(@ApiParam(hidden = true)  @BeanParam OAuthTokenRequest oauthRequest) throws OAuthSystemException {
 		try {
 			oauthRequest.ensureGrantType();
 			OAuthResponse response = handleTokenRequest(oauthRequest);
