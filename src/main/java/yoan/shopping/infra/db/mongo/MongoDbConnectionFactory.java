@@ -78,6 +78,7 @@ public class MongoDbConnectionFactory {
 	
 	private MongoClientOptions getOptions() {
 		MongoClientOptions.Builder optionsBuilder = MongoClientOptions.builder();
+		optionsBuilder.serverSelectionTimeout(2000);
 		addCodecsToOptions(optionsBuilder);
 		return optionsBuilder.build();
 	}

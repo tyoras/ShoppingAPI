@@ -1,6 +1,6 @@
 package yoan.shopping.authentication.repository.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.authentication.repository.mongo.OAuth2AuthorizationCodeMongoConverter.*;
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
 

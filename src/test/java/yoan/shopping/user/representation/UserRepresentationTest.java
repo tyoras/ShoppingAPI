@@ -1,7 +1,7 @@
 package yoan.shopping.user.representation;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;

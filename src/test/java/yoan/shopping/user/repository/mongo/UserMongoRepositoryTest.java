@@ -1,6 +1,6 @@
 package yoan.shopping.user.repository.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.infra.db.Dbs.SHOPPING;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.test.TestHelper.assertApplicationException;

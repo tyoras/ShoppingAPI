@@ -1,6 +1,6 @@
 package yoan.shopping.client.app;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.time.LocalDateTime;

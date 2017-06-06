@@ -10,17 +10,17 @@ import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.user.User;
-import yoan.shopping.user.repository.SecuredUserRepository;
+import yoan.shopping.user.repository.UserRepository;
 
 @Singleton
 public class OAuthAuthenticator implements Authenticator<String, User> {
 	
 	private final OAuth2AccessTokenRepository accessTokenRepository;
-	private final SecuredUserRepository userRepository;
+	private final UserRepository userRepository;
 	
 	
 	@Inject
-	public OAuthAuthenticator(OAuth2AccessTokenRepository accessTokenRepository, SecuredUserRepository userRepository) {
+	public OAuthAuthenticator(OAuth2AccessTokenRepository accessTokenRepository, UserRepository userRepository) {
 		this.accessTokenRepository = accessTokenRepository;
 		this.userRepository = userRepository;
 	}

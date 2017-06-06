@@ -42,12 +42,16 @@ public class ShoppingApiConfigurationSourceProvider extends  FileConfigurationSo
 	 * @return Config if found, else null
 	 */
 	public InputStream readConfig() {
-		String configLocation = System.getenv(CONFIG_LOCATION_ENV_VARIABLE);
+		String configLocation = readConfigLocationFromEnv();
 		if (StringUtils.isBlank(configLocation)) {
 			configLocation = DEFAULT_CONFIG_LOCATION;
 		} 
 		LOGGER.info(CONFIG.getMarker(), "Loaded config file is " + getConfigLocationName(configLocation));
 		return readConfig(configLocation);
+	}
+	
+	protected String readConfigLocationFromEnv() {
+		return System.getenv(CONFIG_LOCATION_ENV_VARIABLE);
 	}
 	
 	protected String getConfigLocationName(String configLocation) {

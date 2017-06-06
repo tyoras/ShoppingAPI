@@ -1,6 +1,6 @@
 package yoan.shopping.infra.util.helper;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.util.error.CommonErrorCode.APPLICATION_ERROR;
 import static yoan.shopping.test.TestHelper.assertApplicationException;

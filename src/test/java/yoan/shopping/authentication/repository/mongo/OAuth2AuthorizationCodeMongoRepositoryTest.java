@@ -1,6 +1,6 @@
 package yoan.shopping.authentication.repository.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepositoryErrorMessage.PROBLEM_CREATION_AUTH_CODE;
 import static yoan.shopping.authentication.repository.mongo.OAuth2AuthorizationCodeMongoRepository.AUTHZ_CODE_COLLECTION;
 import static yoan.shopping.infra.db.Dbs.SHOPPING;

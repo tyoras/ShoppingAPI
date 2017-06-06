@@ -1,6 +1,6 @@
 package yoan.shopping.user;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
 import org.junit.Test;

@@ -24,7 +24,7 @@ package yoan.shopping.infra.config.guice;
  */
 public class SwaggerModule /*extends AbstractModule*/ {
 	
-	//TODO migrate swagger module
+	//TODO migrate swagger oauth2 authorization scheme
 
 	public static final String SECURITY_DEFINITION_OAUTH2 = "oauth2";
 //	private final ServletContext servletContext;
