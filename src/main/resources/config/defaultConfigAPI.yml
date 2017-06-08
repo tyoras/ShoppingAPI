@@ -1,0 +1,21 @@
+server:
+  rootPath: '/shopping/rest/*'
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+  requestLog:
+    appenders:
+      - type: console
+mongo:
+  host: localhost
+  port: 27017
+
+swagger:
+  base_path: shopping/rest
+  host: localhost
+  port: 8080
+  scheme: http
+

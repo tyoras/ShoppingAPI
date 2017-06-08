@@ -1,0 +1,12 @@
+{
+    "links" : [
+        {
+            "href":"http://shopping-app.io",
+            "rel":"self"
+        },
+        {
+            "href":"http://www.google.com",
+            "rel":"google"
+        }
+    ]
+}

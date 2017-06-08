@@ -7,7 +7,7 @@ import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_C
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 import com.mongodb.MongoException;

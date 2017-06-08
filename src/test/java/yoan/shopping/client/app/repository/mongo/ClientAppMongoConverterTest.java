@@ -1,6 +1,6 @@
 package yoan.shopping.client.app.repository.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.FIELD_CREATED;
 import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.FIELD_LAST_UPDATE;
 import static yoan.shopping.client.app.repository.mongo.ClientAppMongoConverter.FIELD_NAME;

@@ -1,6 +1,6 @@
 package yoan.shopping.infra.db.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.infra.util.error.RepositoryErrorMessage.MONGO_DOCUMENT_WITHOUT_ID;
 
 import java.util.UUID;

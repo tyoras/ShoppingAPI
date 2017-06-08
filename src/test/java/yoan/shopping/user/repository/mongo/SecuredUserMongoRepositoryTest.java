@@ -1,6 +1,6 @@
 package yoan.shopping.user.repository.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.infra.db.Dbs.SHOPPING;
 import static yoan.shopping.user.repository.UserRepositoryErrorMessage.PROBLEM_CREATION_USER;
 import static yoan.shopping.user.repository.mongo.UserMongoRepository.USER_COLLECTION;

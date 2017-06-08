@@ -1,6 +1,6 @@
 package yoan.shopping.list.repository.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.infra.db.mongo.MongoDocumentConverter.FIELD_ID;
 import static yoan.shopping.list.repository.mongo.ShoppingListMongoConverter.FIELD_CREATED;
 import static yoan.shopping.list.repository.mongo.ShoppingListMongoConverter.FIELD_ITEM_LIST;

@@ -1,7 +1,6 @@
 package yoan.shopping.list.resource;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
@@ -27,8 +26,8 @@ import javax.ws.rs.core.UriBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
+import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -47,20 +46,17 @@ import yoan.shopping.user.User;
 
 /**
  * Shopping list API
- * @author yoan
+ * @ApiParam(hidden = true) @Author yoan
  */
 @Path("/api/list")
 @Api(value = "Shopping List", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class ShoppingListResource extends RestAPI {
-	/** Currently connected user */
-	//private final User connectedUser;
 	private final ShoppingListRepository listRepo;
 	
 	@Inject
-	public ShoppingListResource(@Named(CONNECTED_USER) User connectedUser, ShoppingListRepository listRepo) {
+	public ShoppingListResource(ShoppingListRepository listRepo) {
 		super();
-		//this.connectedUser = requireNonNull(connectedUser);
 		this.listRepo = Objects.requireNonNull(listRepo);
 	}
 	
@@ -87,7 +83,7 @@ public class ShoppingListResource extends RestAPI {
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "List created"),
 		@ApiResponse(code = 400, message = "Invalid list")})
-	public Response create(@ApiParam(value = "List to create", required = true) ShoppingListWriteRepresentation listToCreate) {
+	public Response create(@ApiParam(hidden = true) @Auth User connectedUser, @ApiParam(value = "List to create", required = true) ShoppingListWriteRepresentation listToCreate) {
 		UUID newListId = UUID.randomUUID();
 		ShoppingList createdList = ShoppingListWriteRepresentation.toShoppingList(listToCreate, newListId);
 		
@@ -105,7 +101,7 @@ public class ShoppingListResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Found list"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "List not found") })
-	public Response getById(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr) {
+	public Response getById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr) {
 		ShoppingList foundList = findShoppingListById(listIdStr);
 		ShoppingListRepresentation foundShoppingListRepresentation = new ShoppingListRepresentation(foundList, getUriInfo());
 		return Response.ok().entity(foundShoppingListRepresentation).build();
@@ -118,7 +114,7 @@ public class ShoppingListResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Found lists"),
 		@ApiResponse(code = 400, message = "Invalid owner Id"),
 		@ApiResponse(code = 404, message = "Owner not found") })
-	public Response getByOwnerId(@PathParam("ownerId") @ApiParam(value = "Owner identifier", required = true) String ownerIdStr) {
+	public Response getByOwnerId(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("ownerId") @ApiParam(value = "Owner identifier", required = true) String ownerIdStr) {
 		ImmutableList<ShoppingList> foundLists = findShoppingListByOwnerId(ownerIdStr);
 		List<ShoppingListRepresentation> listsRepresentation = new ArrayList<>();
 		foundLists.forEach(list -> listsRepresentation.add(new ShoppingListRepresentation(list, getUriInfo())));
@@ -132,7 +128,7 @@ public class ShoppingListResource extends RestAPI {
 		@ApiResponse(code = 204, message = "Shopping list updated"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "List not found") })
-	public Response update(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr, 
+	public Response update(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr, 
 						   @ApiParam(value = "List to update", required = true) ShoppingListWriteRepresentation listToUpdate) {
 		UUID listId = ResourceUtil.getIdfromParam("listId", listIdStr);
 		ShoppingList updatedList = ShoppingListWriteRepresentation.toShoppingList(listToUpdate, listId);
@@ -150,7 +146,7 @@ public class ShoppingListResource extends RestAPI {
 		@ApiResponse(code = 200, message = "List deleted"),
 		@ApiResponse(code = 400, message = "Invalid list Id"),
 		@ApiResponse(code = 404, message = "List not found") })
-	public Response deleteById(@PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr) {
+	public Response deleteById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr) {
 		ShoppingList foundList = findShoppingListById(listIdStr);
 		listRepo.deleteById(foundList.getId());
 		return Response.ok().build();

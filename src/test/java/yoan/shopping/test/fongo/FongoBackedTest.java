@@ -6,7 +6,7 @@ package yoan.shopping.test.fongo;
 import org.junit.After;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import yoan.shopping.infra.db.mongo.MongoDbConnectionFactory;
 
@@ -19,7 +19,7 @@ import com.mongodb.DB;
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class FongoBackedTest {
-	private static final Fongo FONGO = new Fongo("unit test server");
+	protected static final Fongo FONGO = new Fongo("unit test server");
 	private final FongoDbConnectionFactory fongoConnectionFactory = new FongoDbConnectionFactory(FONGO);
 	
 	@Spy

@@ -1,6 +1,8 @@
 package yoan.shopping.authentication.resource;
 
 import static java.util.Objects.requireNonNull;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static yoan.shopping.authentication.repository.OAuth2AccessTokenRepository.ACCESS_TOKEN_TTL_IN_MINUTES;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.GRANT_TYPE_NOT_IMPLEMENTED;
@@ -11,27 +13,19 @@ import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.UN
 import static yoan.shopping.infra.rest.error.Level.INFO;
 import static yoan.shopping.infra.rest.error.Level.WARNING;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.oltu.oauth2.as.request.OAuthTokenRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
@@ -40,6 +34,14 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import yoan.shopping.authentication.OAuthTokenRequest;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
 import yoan.shopping.client.app.ClientApp;
@@ -53,7 +55,7 @@ import yoan.shopping.user.repository.SecuredUserRepository;
 @Path("/auth/token")
 @Api(value = "Oauth2 Token")
 public class TokenResource {
-
+	
 	private final OAuth2AuthorizationCodeRepository authzCodeRepository;
 	private final OAuth2AccessTokenRepository accessTokenRepository;
 	private final ClientAppRepository clientAppRepository;
@@ -70,8 +72,8 @@ public class TokenResource {
 	}
 
 	@POST
-	@Consumes("application/x-www-form-urlencoded")
-	@Produces("application/json")
+	@Consumes(APPLICATION_FORM_URLENCODED)
+	@Produces(APPLICATION_JSON)
 	@ApiOperation(value = "Get Oauth2 access token", notes = "This can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "grant_type", value = "Grant type", required = true, dataType = "string", paramType = "form", allowableValues = "authorization_code, password, refresh_token, client_credentials"),
@@ -83,9 +85,9 @@ public class TokenResource {
 	    @ApiImplicitParam(name = "password", value = "User password", required = false, dataType = "string", paramType = "form"),
 	  })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Response with access token in payload"), @ApiResponse(code = 401, message = "Not authenticated") })
-	public Response authorize(@Context HttpServletRequest request) throws OAuthSystemException {
+	public Response authorize(@ApiParam(hidden = true)  @BeanParam OAuthTokenRequest oauthRequest) throws OAuthSystemException {
 		try {
-			OAuthTokenRequest oauthRequest = new OAuthTokenRequest(request);
+			oauthRequest.ensureGrantType();
 			OAuthResponse response = handleTokenRequest(oauthRequest);
 			return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
 		} catch(OAuthProblemException problem) {
@@ -95,16 +97,19 @@ public class TokenResource {
 		}
 	}
 
-	protected OAuthResponse handleTokenRequest(OAuthTokenRequest oauthRequest) throws OAuthSystemException {
+	protected OAuthResponse handleTokenRequest(OAuthTokenRequest oauthRequest) throws OAuthSystemException, OAuthProblemException {
+		oauthRequest.validateClientAuthenticationCredentials();
 		ClientApp clientApp = ensureClientExists(oauthRequest);
 		
 		UUID userId;
 		GrantType grantType = extractGrantType(oauthRequest);
 		switch (grantType) {
 			case AUTHORIZATION_CODE :
+				oauthRequest.validateCodeRequiredParameters();
 				userId = authorizeWithCode(oauthRequest, clientApp);
 				break;
 			case PASSWORD :
+				oauthRequest.validatePasswordRequiredParameters();
 				userId = authorizeWithPassword(oauthRequest);
 				break;
 			case REFRESH_TOKEN :
@@ -128,7 +133,7 @@ public class TokenResource {
 	}
 	
 	private ClientApp ensureClientExists(OAuthTokenRequest oauthRequest) {
-		UUID clientId = ResourceUtil.getIdfromParam(OAuth.OAUTH_CLIENT_ID, oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID));
+		UUID clientId = ResourceUtil.getIdfromParam(OAuth.OAUTH_CLIENT_ID, oauthRequest.getClientId());
 		ClientApp clientApp = clientAppRepository.getById(clientId);
 		if (clientApp == null) {
 			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, UNKNOWN_CLIENT.getDevReadableMessage(clientId.toString()));
@@ -156,7 +161,7 @@ public class TokenResource {
 	}
 	
 	private void ensureTrustedClient(OAuthTokenRequest oauthRequest, ClientApp clientApp) throws OAuthSystemException {
-		String clientSecret = oauthRequest.getParam(OAuth.OAUTH_CLIENT_SECRET);
+		String clientSecret = oauthRequest.getClientSecret();
 		if (!checkClientSecret(clientApp, clientSecret)) {
 			throw new WebApiException(BAD_REQUEST, WARNING, API_RESPONSE, INVALID_CLIENT_SECRET.getDevReadableMessage(clientApp.getId().toString()));
 		}
@@ -167,7 +172,7 @@ public class TokenResource {
 	}
 
 	private UUID authorizeWithPassword(OAuthTokenRequest oauthRequest) throws OAuthSystemException {
-		String userEmail = oauthRequest.getUsername();
+		String userEmail = oauthRequest.getUserName();
 		String password =  oauthRequest.getPassword();
 		SecuredUser foundUser = userRepository.getByEmail(userEmail);
 		if (foundUser == null || !checkUserPassword(foundUser, password)) {

@@ -7,7 +7,6 @@ import static yoan.shopping.authentication.repository.OAuth2AccessTokenRepositor
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.INVALID_REDIRECT_URI;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.MISSING_REDIRECT_URI;
 import static yoan.shopping.authentication.resource.OAuthResourceErrorMessage.UNKNOWN_CLIENT;
-import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.rest.error.Level.WARNING;
 import static yoan.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 
@@ -35,14 +34,15 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 
-import com.google.inject.name.Named;
-
+import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import yoan.shopping.authentication.realm.BasicUserPrincipal;
 import yoan.shopping.authentication.repository.OAuth2AccessTokenRepository;
 import yoan.shopping.authentication.repository.OAuth2AuthorizationCodeRepository;
 import yoan.shopping.client.app.ClientApp;
@@ -50,7 +50,6 @@ import yoan.shopping.client.app.repository.ClientAppRepository;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.infra.util.helper.SecurityHelper;
-import yoan.shopping.user.User;
 
 /**
  * API to generate OAuth2 authorization code
@@ -60,15 +59,12 @@ import yoan.shopping.user.User;
 @Api(value = "Oauth2 Authorization")
 public class AuthorizationResource {
 	
-	/** Currently connected user */
-	private final User authenticatedUser;
 	private final OAuth2AuthorizationCodeRepository authzCodeRepository;
 	private final OAuth2AccessTokenRepository accessTokenRepository;
 	private final ClientAppRepository clientAppRepository;
 	
 	@Inject
-	public AuthorizationResource(@Named(CONNECTED_USER) User authenticatedUser, OAuth2AuthorizationCodeRepository authzCodeRepository, OAuth2AccessTokenRepository accessTokenRepository, ClientAppRepository clientAppRepository) {
-		this.authenticatedUser = requireNonNull(authenticatedUser);
+	public AuthorizationResource(OAuth2AuthorizationCodeRepository authzCodeRepository, OAuth2AccessTokenRepository accessTokenRepository, ClientAppRepository clientAppRepository) {
 		this.authzCodeRepository = requireNonNull(authzCodeRepository);
 		this.accessTokenRepository = requireNonNull(accessTokenRepository);
 		this.clientAppRepository = requireNonNull(clientAppRepository);
@@ -82,10 +78,10 @@ public class AuthorizationResource {
 	    @ApiImplicitParam(name = "redirect_uri", value = "Redirect URI", required = true, dataType = "string", paramType = "query")
 	})
 	@ApiResponses(value = { @ApiResponse(code = 302, message = "Redirection to provided redirect_uri"), @ApiResponse(code = 401, message = "Not authenticated") })
-    public Response authorize(@Context HttpServletRequest request) throws OAuthSystemException {
+    public Response authorize(@ApiParam(hidden = true) @Auth BasicUserPrincipal authenticatedUser, @Context HttpServletRequest request) throws OAuthSystemException {
         try {
             OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(request);
-            final OAuthResponse response = handleOauthRequest(request, oauthRequest);
+            final OAuthResponse response = handleOauthRequest(authenticatedUser, request, oauthRequest);
             URI uri = URI.create(response.getLocationUri());
             return Response.status(response.getResponseStatus()).location(uri).build();
         } catch (OAuthProblemException problem) {
@@ -93,7 +89,7 @@ public class AuthorizationResource {
         }
     }
 
-	protected OAuthResponse handleOauthRequest(HttpServletRequest request, OAuthAuthzRequest oauthRequest) throws OAuthSystemException {
+	protected OAuthResponse handleOauthRequest(BasicUserPrincipal authenticatedUser, HttpServletRequest request, OAuthAuthzRequest oauthRequest) throws OAuthSystemException {
 		ClientApp clientApp = getAndEnsureClientExists(oauthRequest);
 		String redirectURI = oauthRequest.getRedirectURI();
 		ensureRedirectURI(clientApp, redirectURI);
@@ -103,11 +99,11 @@ public class AuthorizationResource {
 		ResponseType responseType = extractResponseType(oauthRequest);
 		switch(responseType) {
 		    case CODE : 
-		    	String authorizationCode = generateAuthorizationCode();
+		    	String authorizationCode = generateAuthorizationCode(authenticatedUser);
 		        oAuthResponseBuilder.setCode(authorizationCode);
 		        break;
 		    case TOKEN :
-		    	String accessToken = generateAccessToken();
+		    	String accessToken = generateAccessToken(authenticatedUser);
 		        oAuthResponseBuilder.setAccessToken(accessToken);
 		        oAuthResponseBuilder.setExpiresIn(ACCESS_TOKEN_TTL_IN_MINUTES * 60);
 		        break;
@@ -132,16 +128,16 @@ public class AuthorizationResource {
         return ResponseType.valueOf(responseTypeParam.toUpperCase());
 	}
 	
-	protected String generateAuthorizationCode() throws OAuthSystemException {
+	protected String generateAuthorizationCode(BasicUserPrincipal authenticatedUser) throws OAuthSystemException {
 		OAuthIssuer oauthIssuer = new OAuthIssuerImpl(new MD5Generator());
 		String authorizationCode = oauthIssuer.authorizationCode();
-		authzCodeRepository.create(authorizationCode, authenticatedUser.getId());
+		authzCodeRepository.create(authorizationCode, authenticatedUser.getUserId());
 		return authorizationCode;
 	}
 	
-	protected String generateAccessToken() {
-		String accessToken = SecurityHelper.generateJWT(authenticatedUser.getId());
-		accessTokenRepository.create(accessToken, authenticatedUser.getId());
+	protected String generateAccessToken(BasicUserPrincipal authenticatedUser) {
+		String accessToken = SecurityHelper.generateJWT(authenticatedUser.getUserId());
+		accessTokenRepository.create(accessToken, authenticatedUser.getUserId());
 		return accessToken;
 	}
 	

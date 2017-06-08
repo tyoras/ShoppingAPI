@@ -1,7 +1,7 @@
 package yoan.shopping.infra.util.helper;
 
 import static java.time.Month.NOVEMBER;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.text.DateFormat;
 import java.text.ParseException;

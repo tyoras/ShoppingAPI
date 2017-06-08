@@ -2,11 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<prerequisites>
+		<maven>3.0.0</maven>
+	</prerequisites>
+
 	<groupId>Shopping</groupId>
 	<artifactId>api</artifactId>
-	<version>0.2.2</version>
+	<version>0.3.0</version>
 	<name>Shopping API</name>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<description>Shopping app core module</description>
 	<organization>
 		<name>Yoan Alvarez-Vanhard</name>
@@ -22,168 +26,127 @@
 		<system>github</system>
 		<url>https://github.com/tyoras/ShoppingAPI/issues</url>
 	</issueManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<dropwizard.version>1.1.0</dropwizard.version>
+		<dropwizard-guicier.version>1.0.6.0</dropwizard-guicier.version>
+		<mainClass>yoan.shopping.infra.ShoppingApiApplication</mainClass>
+		<oltu-version>1.0.2</oltu-version>
+		<jacoco.version>0.7.8</jacoco.version>
+		<jjwt-version>0.7.0</jjwt-version>
+        <coveralls.version>4.3.0</coveralls.version>
+        <shiro-version>1.2.4</shiro-version>
+		<!-- TODO check if istill useful -->
+		<timestamp>${maven.build.timestamp}</timestamp>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.dropwizard</groupId>
+				<artifactId>dropwizard-bom</artifactId>
+				<version>${dropwizard.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
+		<dependency>
+			<groupId>io.dropwizard</groupId>
+			<artifactId>dropwizard-core</artifactId>
+		</dependency>
+		<dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-auth</artifactId>
+        </dependency>
+		
 		<!-- Utils -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>19.0</version>
 		</dependency>
-
-		<!-- Servlet -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-		    <groupId>com.thetransactioncompany</groupId>
-		    <artifactId>cors-filter</artifactId>
-		    <version>2.5</version>
-		</dependency>
-		
 
 		<!-- Documentation -->
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
 			<scope>compile</scope>
-			<version>1.5.9</version>
+			<version>1.5.13</version>
 		</dependency>
 
 		<!-- JAX-RS -->
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-guice</artifactId>
-			<version>${resteasy-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxb-provider</artifactId>
-			<version>${resteasy-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jackson2-provider</artifactId>
-			<version>${resteasy-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>2.6.3</version>
-		</dependency>
 
 		<!-- Dependency Injection -->
 		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-servlet</artifactId>
-			<version>4.0</version>
-			<scope>compile</scope>
+			<groupId>ru.vyarus</groupId>
+			<artifactId>dropwizard-guicey</artifactId>
+			<version>4.1.0</version>
 		</dependency>
 
 		<!-- Database -->
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongodb-driver</artifactId>
-			<version>3.2.2</version>
+			<version>3.3.0</version>
 		</dependency>
 
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.20</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback-version}</version>
-		</dependency>
-		
 		<!-- Security -->
 		<dependency>
-			<groupId>org.apache.shiro</groupId>
-			<artifactId>shiro-core</artifactId>
-			<version>${shiro-version}</version>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>${shiro-version}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.oltu.oauth2</groupId>
+			<artifactId>org.apache.oltu.oauth2.common</artifactId>
+			<version>${oltu-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.shiro</groupId>
-			<artifactId>shiro-web</artifactId>
-			<version>${shiro-version}</version>
+			<groupId>org.apache.oltu.oauth2</groupId>
+			<artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
+			<version>${oltu-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.shiro</groupId>
-			<artifactId>shiro-guice</artifactId>
-			<version>${shiro-version}</version>
+			<groupId>org.apache.oltu.oauth2</groupId>
+			<artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
+			<version>${oltu-version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.apache.oltu.oauth2</groupId>
-            <artifactId>org.apache.oltu.oauth2.common</artifactId>
-            <version>${oltu-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.oltu.oauth2</groupId>
-            <artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
-            <version>${oltu-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.oltu.oauth2</groupId>
-            <artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
-            <version>${oltu-version}</version>
-        </dependency>
-        <dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt</artifactId>
-		    <version>0.6.0</version>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>${jjwt-version}</version>
 		</dependency>
 
 		<!-- Unit Test -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-			<version>4.12</version>
-		</dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.10.19</version>
+			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.easytesting</groupId>
-			<artifactId>fest-assert-core</artifactId>
-			<version>2.0M10</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-module-junit4</artifactId>
-			<version>1.6.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-api-mockito</artifactId>
-			<version>1.6.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-		  	<groupId>com.github.fakemongo</groupId>
+			<groupId>com.github.fakemongo</groupId>
 			<artifactId>fongo</artifactId>
 			<version>2.0.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>de.flapdoodle.embed</groupId>
-		    <artifactId>de.flapdoodle.embed.mongo</artifactId>
-		    <version>1.50.5</version>
+			<groupId>de.flapdoodle.embed</groupId>
+			<artifactId>de.flapdoodle.embed.mongo</artifactId>
+			<version>1.50.5</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -192,118 +155,131 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.6.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<version>1.2.1</version>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<createDependencyReducedPom>true</createDependencyReducedPom>
+					<transformers>
+						<transformer
+							implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+						<transformer
+							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+							<mainClass>${mainClass}</mainClass>
+						</transformer>
+					</transformers>
+					<!-- exclude signed Manifests -->
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>META-INF/*.SF</exclude>
+								<exclude>META-INF/*.DSA</exclude>
+								<exclude>META-INF/*.RSA</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
 				<executions>
 					<execution>
-						<id>swagger-ui</id>
+						<phase>package</phase>
 						<goals>
-							<goal>wget</goal>
+							<goal>shade</goal>
 						</goals>
-						<configuration>
-							<url>https://github.com/swagger-api/swagger-ui/archive/v${swagger-ui-version}.tar.gz</url>
-							<unpack>true</unpack>
-							<outputDirectory>${project.build.directory}</outputDirectory>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>target/${project.artifactId}-${project.version}</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.build.directory}/swagger-ui-${swagger-ui-version}/dist</directory>
-									<filtering>true</filtering>
-									<excludes>
-										<exclude>index.html</exclude>
-									</excludes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
+				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.6</version>
 				<configuration>
-					<webResources>
-						<resource>
-							<directory>target/swagger-ui-${swagger-ui-version}/dist</directory>
-							<filtering>true</filtering>
-							<excludes>
-								<exclude>index.html</exclude>
-								<!-- FIXME : temporary fix oauth2 without scope issue => do not upgrade swagger ui until it is fixed -->
-								<exclude>lib/swagger-oauth.js</exclude>
-							</excludes>
-						</resource>
-					</webResources>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>${mainClass}</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-			</plugin>
-			<plugin>
-			    	<groupId>org.eluder.coveralls</groupId>
-			    	<artifactId>coveralls-maven-plugin</artifactId>
-			   	<version>${coveralls.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco.version}</version>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
 				<executions>
 					<execution>
-						<id>prepare-agent</id>
+						<id>attach-sources</id>
 						<goals>
-							<goal>prepare-agent</goal>
+							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </plugin>
+            <plugin>
+                    <groupId>org.eluder.coveralls</groupId>
+                    <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>version.properties</include>
-				</includes>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>version.properties</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 	</build>
-	<properties>
-		<logback-version>1.1.7</logback-version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<shiro-version>1.2.4</shiro-version>
-		<!-- Unable to update resteasy and guice until shiro supports guice 4 -->
-		<!-- TODO: upgrade resteasy and apply workaround on shiro  -->
-		<resteasy-version>3.0.14.Final</resteasy-version>
-		<swagger-ui-version>2.1.2</swagger-ui-version>
-		<oltu-version>1.0.1</oltu-version>
-		<jacoco.version>0.7.8</jacoco.version>
-		<coveralls.version>4.3.0</coveralls.version>
-		<timestamp>${maven.build.timestamp}</timestamp>
-	</properties>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.8.1</version>
+				<configuration>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+					<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>

@@ -1,6 +1,6 @@
 package yoan.shopping.root.repository.properties;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.root.repository.properties.BuildInfoPropertiesConverter.BUILD_DATE_FIELD;
 import static yoan.shopping.root.repository.properties.BuildInfoPropertiesConverter.BUILD_VERSION_FIELD;
 

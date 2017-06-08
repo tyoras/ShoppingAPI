@@ -12,6 +12,7 @@
 hs_err_pid*
 /target/
 
+dependency-reduced-pom.xml
 .project
 .metadata
 bin/**
@@ -37,8 +38,7 @@ local.properties
 src/main/java/yoan/shopping/TestMain.java
 
 #docker build folder
-docker/tomcat/configAPI.properties
-docker/tomcat/wars/*.war
-docker/tomcat/certs/shopping.jks
-docker/tomcat/server.xml
+docker/api/configAPI.yml
+docker/api/jars/*.jar
+docker/api/certs/shopping.jks
 

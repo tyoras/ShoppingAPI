@@ -3,7 +3,7 @@
  */
 package yoan.shopping.user.repository.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_CREATED;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_EMAIL;
 import static yoan.shopping.user.repository.mongo.UserMongoConverter.FIELD_ID;
