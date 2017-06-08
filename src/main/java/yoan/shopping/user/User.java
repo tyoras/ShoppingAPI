@@ -7,6 +7,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static yoan.shopping.user.ProfileVisibility.PUBLIC;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -27,7 +28,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  * User of the application
  * @author yoan
  */
-public class User implements Bson, WithId {
+public class User implements Principal, Bson, WithId {
 	/** Default user ID */
 	public static final UUID DEFAULT_ID = UUID.fromString("718f729c-c7ef-4f95-9f74-4a332cb82794");
 	/** Default user instance */

@@ -5,7 +5,6 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static yoan.shopping.client.app.repository.ClientAppRepositoryErrorCode.UNSECURE_SECRET;
 import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.CLIENT_APPS_NOT_FOUND;
 import static yoan.shopping.client.app.resource.ClientAppResourceErrorMessage.CLIENT_APP_NOT_FOUND;
-import static yoan.shopping.infra.config.guice.ShoppingWebModule.CONNECTED_USER;
 import static yoan.shopping.infra.config.guice.SwaggerModule.SECURITY_DEFINITION_OAUTH2;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
 import static yoan.shopping.infra.rest.error.Level.INFO;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,8 +30,8 @@ import javax.ws.rs.core.UriBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
+import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -47,7 +47,6 @@ import yoan.shopping.infra.rest.RestAPI;
 import yoan.shopping.infra.rest.error.WebApiException;
 import yoan.shopping.infra.util.ResourceUtil;
 import yoan.shopping.infra.util.error.ApplicationException;
-import yoan.shopping.list.representation.ShoppingListRepresentation;
 import yoan.shopping.user.User;
 
 /**
@@ -55,17 +54,15 @@ import yoan.shopping.user.User;
  * @author yoan
  */
 @Path("/api/client/app")
+@PermitAll
 @Api(value = "Client App", authorizations = { @Authorization(value = SECURITY_DEFINITION_OAUTH2, scopes = {})})
 @Produces({ "application/json", "application/xml" })
 public class ClientAppResource extends RestAPI {
-	/** Currently connected user */
-	//private final User connectedUser;
 	private final ClientAppRepository clientAppRepo;
 	
 	@Inject
-	public ClientAppResource(@Named(CONNECTED_USER) User connectedUser, ClientAppRepository clientAppRepo) {
+	public ClientAppResource(ClientAppRepository clientAppRepo) {
 		super();
-		//this.connectedUser = requireNonNull(connectedUser);
 		this.clientAppRepo = Objects.requireNonNull(clientAppRepo);
 	}
 	
@@ -94,7 +91,7 @@ public class ClientAppResource extends RestAPI {
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created"),
 		@ApiResponse(code = 400, message = "Invalid User")})
-	public Response create(@ApiParam(value = "Client application to create", required = true) ClientAppWriteRepresentation clientAppToCreate) {
+	public Response create(@ApiParam(hidden = true) @Auth User connectedUser, @ApiParam(value = "Client application to create", required = true) ClientAppWriteRepresentation clientAppToCreate) {
 		UUID newAppId = UUID.randomUUID();
 		ClientApp clientAppCreated = ClientAppWriteRepresentation.toClientApp(clientAppToCreate, newAppId);
 		
@@ -114,7 +111,7 @@ public class ClientAppResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Found client application"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
 		@ApiResponse(code = 404, message = "Client application not found") })
-	public Response getById(@PathParam("appId") @ApiParam(value = "Client application identifier", required = true) String appIdStr) {
+	public Response getById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("appId") @ApiParam(value = "Client application identifier", required = true) String appIdStr) {
 		ClientApp foundApp = findClientAppById(appIdStr);
 		ClientAppRepresentation foundAppRepresentation = new ClientAppRepresentation(foundApp, getUriInfo());
 		return Response.ok().entity(foundAppRepresentation).build();
@@ -122,12 +119,12 @@ public class ClientAppResource extends RestAPI {
 	
 	@GET
 	@Path("/user/{ownerId}")
-	@ApiOperation(value = "Get client apps by Id", notes = "This can only be done by the logged in user.", response = ShoppingListRepresentation.class)
+	@ApiOperation(value = "Get client apps by Id", notes = "This can only be done by the logged in user.", response = ClientAppRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found client applications"),
 		@ApiResponse(code = 400, message = "Invalid owner Id"),
 		@ApiResponse(code = 404, message = "Owner not found") })
-	public Response getByOwnerId(@PathParam("ownerId") @ApiParam(value = "Owner identifier", required = true) String ownerIdStr) {
+	public Response getByOwnerId(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("ownerId") @ApiParam(value = "Owner identifier", required = true) String ownerIdStr) {
 		ImmutableList<ClientApp> foundApps = findClientAppsByOwnerId(ownerIdStr);
 		List<ClientAppRepresentation> appsRepresentation = new ArrayList<>();
 		foundApps.forEach(app -> appsRepresentation.add(new ClientAppRepresentation(app, getUriInfo())));
@@ -141,7 +138,7 @@ public class ClientAppResource extends RestAPI {
 		@ApiResponse(code = 204, message = "Client application updated"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
 		@ApiResponse(code = 404, message = "Client application not found") })
-	public Response update(@PathParam("appId") @ApiParam(value = "Client application identifier", required = true) String appIdStr, 
+	public Response update(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("appId") @ApiParam(value = "Client application identifier", required = true) String appIdStr, 
 						   @ApiParam(value = "Client application to update", required = true) ClientAppWriteRepresentation appToUpdate) {
 		UUID appId = ResourceUtil.getIdfromParam("appId", appIdStr);
 		ClientApp updatedClientApp = ClientAppWriteRepresentation.toClientApp(appToUpdate, appId);
@@ -168,7 +165,7 @@ public class ClientAppResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Secret key changed"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
 		@ApiResponse(code = 404, message = "Client application not found") })
-	public Response changeSecretKey(@PathParam("appId") @ApiParam(value = "Id of the client app to update", required = true) String appIdStr) {
+	public Response changeSecretKey(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("appId") @ApiParam(value = "Id of the client app to update", required = true) String appIdStr) {
 		UUID appId = ResourceUtil.getIdfromParam("appId", appIdStr);
 		String newSecretKey = generateNewSecretKey();
 		clientAppRepo.changeSecret(appId, newSecretKey);
@@ -187,7 +184,7 @@ public class ClientAppResource extends RestAPI {
 		@ApiResponse(code = 200, message = "Client application deleted"),
 		@ApiResponse(code = 400, message = "Invalid client application Id"),
 		@ApiResponse(code = 404, message = "Client application not found") })
-	public Response deleteById(@PathParam("appId") @ApiParam(value = "Id of the client app to delete", required = true) String appIdStr) {
+	public Response deleteById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("appId") @ApiParam(value = "Id of the client app to delete", required = true) String appIdStr) {
 		ClientApp foundApp = findClientAppById(appIdStr);
 		clientAppRepo.deleteById(foundApp.getId());
 		return Response.ok().build();

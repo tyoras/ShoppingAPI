@@ -9,8 +9,6 @@ import java.net.URI;
 import java.util.Objects;
 
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.google.common.base.MoreObjects;
 
@@ -18,7 +16,6 @@ import com.google.common.base.MoreObjects;
  * Hypermedia link
  * @author yoan
  */
-@XmlRootElement(name = "link")
 public class Link {
 	public static final String SELF_REL = "self";
 	
@@ -41,12 +38,10 @@ public class Link {
         this.rel = requireNonNull(rel);
     }
     
-    @XmlElement(name = "href")
 	public String getHref() {
 		return href;
 	}
 
-    @XmlElement(name = "rel")
 	public String getRel() {
 		return rel;
 	}

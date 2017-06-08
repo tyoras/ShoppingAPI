@@ -1,21 +1,21 @@
 package yoan.shopping.infra.db.mongo;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
 import org.junit.Test;
 
-import yoan.shopping.infra.config.api.Config;
-
 import com.mongodb.MongoCredential;
+
+import yoan.shopping.infra.config.ShoppingApiConfiguration;
 
 public class MongoDbConnectionFactoryTest {
 
 	@Test
 	public void getCredentials_should_return_empty_list_if_no_mongo_credentials_in_config() {
 		//given
-		Config configWithoutMongoCredentials = Config.Builder.createDefault().build();
+		ShoppingApiConfiguration configWithoutMongoCredentials = new ShoppingApiConfiguration();
 		MongoDbConnectionFactory tested = new MongoDbConnectionFactory(configWithoutMongoCredentials);
 		
 		//when
@@ -29,10 +29,9 @@ public class MongoDbConnectionFactoryTest {
 	@Test
 	public void getCredentials_should_return_credential_list_if_mongo_credentials_in_config() {
 		//given
-		Config configWithMongoCredentials = Config.Builder.createDefault()
-				.withMongoUser("user")
-				.withMongoPass("pass")
-				.build();
+		ShoppingApiConfiguration configWithMongoCredentials = new ShoppingApiConfiguration();
+		configWithMongoCredentials.mongo.user = "user";
+		configWithMongoCredentials.mongo.password = "pass";
 		MongoDbConnectionFactory tested = new MongoDbConnectionFactory(configWithMongoCredentials);
 		
 		//when

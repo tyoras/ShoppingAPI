@@ -8,21 +8,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
 import yoan.shopping.root.BuildInfo;
 import yoan.shopping.user.User;
 
-import com.google.common.base.MoreObjects;
-
 /**
  * Rest Root representation
  * @author yoan
  */
-@XmlRootElement(name = "root")
 public class RootRepresentation extends RestRepresentation {
 	/** Current build version */
 	private String version;
@@ -47,17 +44,17 @@ public class RootRepresentation extends RestRepresentation {
 		this.connectedUserId = connectedUserId;
 	}
 
-	@XmlElement(name = "version")
+	@JsonProperty("version")
 	public String getVersion() {
 		return version;
 	}
 
-	@XmlElement(name = "buildDate")
+	@JsonProperty("buildDate")
 	public LocalDateTime getBuildDate() {
 		return buildDate;
 	}
 	
-	@XmlElement(name = "connectedUserId")
+	@JsonProperty("connectedUserId")
 	public UUID getConnectedUserId() {
 		return connectedUserId;
 	}

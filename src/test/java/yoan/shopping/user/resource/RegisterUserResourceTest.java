@@ -4,9 +4,10 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static yoan.shopping.infra.rest.error.Level.ERROR;
@@ -25,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import yoan.shopping.infra.rest.Link;
 import yoan.shopping.infra.rest.RestRepresentation;
@@ -38,7 +39,7 @@ import yoan.shopping.user.repository.UserRepository;
 import yoan.shopping.user.representation.SecuredUserWriteRepresentation;
 import yoan.shopping.user.representation.UserRepresentation;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class RegisterUserResourceTest {
 
 	@Mock
@@ -56,7 +57,7 @@ public class RegisterUserResourceTest {
 		//given
 		String expectedURL = "http://test";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo(expectedURL);
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		List<Link> links = testedResource.getRootLinks();
@@ -72,10 +73,10 @@ public class RegisterUserResourceTest {
 		//given
 		String expectedURL = "http://test";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo(expectedURL);
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
-		Response response = testedResource.root();
+		Response response = testedResource.root(TestHelper.generateRandomUser());
 		
 		//then
 		assertThat(response).isNotNull();
@@ -94,7 +95,7 @@ public class RegisterUserResourceTest {
 		@SuppressWarnings("deprecation")
 		SecuredUserWriteRepresentation representation = new SecuredUserWriteRepresentation(expectedName, expectedMail, expectedProfileVisibility, "password");
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		Response response = testedResource.register(representation);
@@ -119,7 +120,7 @@ public class RegisterUserResourceTest {
 		when(mockedUserRepo.checkUserExistsByIdOrEmail(any(), eq(alreadyExistingEmail))).thenReturn(true);
 		String expectedMessage = "User with email : " + alreadyExistingEmail + " already exists";
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		try {
@@ -140,7 +141,7 @@ public class RegisterUserResourceTest {
 		String expectedMessage = PROBLEM_PASSWORD_VALIDITY.getDevReadableMessage();
 		doThrow(new ApplicationException(ERROR, UNSECURE_PASSWORD, expectedMessage)).when(mockedSecuredUserRepo).create(any(), eq(invalidPassword));
 		UriInfo mockedUriInfo = TestHelper.mockUriInfo("http://test");
-		when(testedResource.getUriInfo()).thenReturn(mockedUriInfo);
+		doReturn(mockedUriInfo).when(testedResource).getUriInfo();
 		
 		//when
 		try {

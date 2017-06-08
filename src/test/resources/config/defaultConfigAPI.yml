@@ -1,0 +1,29 @@
+server:
+  rootPath: '/shopping/rest/*'
+  applicationConnectors:
+    - type: https
+      port: 8443
+      keyStorePath: ~/.keystore
+      keyStorePassword: 'password'
+      validateCerts: false
+  adminConnectors:
+    - type: https
+      port: 8444
+      keyStorePath: ~/.keystore
+      keyStorePassword: 'password'
+      validateCerts: false
+  requestLog:
+    appenders:
+      - type: console
+mongo:
+  host: localhost
+  port: 27017
+  user: user
+  password: password
+
+swagger:
+  base_path: shopping/rest
+  host: localhost
+  port: 8443
+  scheme: https
+

@@ -1,6 +1,6 @@
 package yoan.shopping.list;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static yoan.shopping.list.ItemState.TO_BUY;
 
 import java.time.LocalDateTime;
