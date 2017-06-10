@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -79,6 +80,7 @@ public class ShoppingListResource extends RestAPI {
 	}
 	
 	@POST
+	@Timed
 	@ApiOperation(value = "Create shopping list", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "List created"),
@@ -96,6 +98,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@GET
 	@Path("/{listId}")
+	@Timed
 	@ApiOperation(value = "Get shopping list by Id", notes = "This can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found list"),
@@ -109,6 +112,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@GET
 	@Path("/user/{ownerId}")
+	@Timed
 	@ApiOperation(value = "Get shopping list by owner Id", notes = "This can only be done by the logged in user.", response = ShoppingListRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found lists"),
@@ -123,6 +127,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@PUT
 	@Path("/{listId}")
+	@Timed
 	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "Shopping list updated"),
@@ -141,6 +146,7 @@ public class ShoppingListResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{listId}")
+	@Timed
 	@ApiOperation(value = "Delete list by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "List deleted"),

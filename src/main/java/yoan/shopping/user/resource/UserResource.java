@@ -28,6 +28,8 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.codahale.metrics.annotation.Metered;
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -95,6 +97,7 @@ public class UserResource extends RestAPI {
 	}
 	
 	@POST
+	@Timed
 	@ApiOperation(value = "Create user", notes = "This can only be done by the logged in user.", code = 201, response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),
@@ -115,6 +118,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/{userId}")
+	@Timed
 	@ApiOperation(value = "Get user by Id", notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found user", response = UserRepresentation.class),
@@ -128,6 +132,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/email/{userEmail}")
+	@Timed
 	@ApiOperation(value = "Get user by Email adress", notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found user"),
@@ -141,6 +146,7 @@ public class UserResource extends RestAPI {
 	
 	@GET
 	@Path("/name/{search}")
+	@Timed
 	@ApiOperation(value = "Search users by name", notes = "This can only be done by the logged in user.", response = UserRepresentation.class)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "Found users"),
@@ -155,6 +161,7 @@ public class UserResource extends RestAPI {
 	
 	@PUT
 	@Path("/{userId}")
+	@Timed
 	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 204, message = "User updated"),
@@ -193,6 +200,7 @@ public class UserResource extends RestAPI {
 	
 	@DELETE
 	@Path("/{userId}")
+	@Timed
 	@ApiOperation(value = "Delete user by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = "User deleted"),

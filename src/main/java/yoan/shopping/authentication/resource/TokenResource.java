@@ -34,6 +34,8 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 
+import com.codahale.metrics.annotation.Timed;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -74,6 +76,7 @@ public class TokenResource {
 	@POST
 	@Consumes(APPLICATION_FORM_URLENCODED)
 	@Produces(APPLICATION_JSON)
+	@Timed
 	@ApiOperation(value = "Get Oauth2 access token", notes = "This can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "grant_type", value = "Grant type", required = true, dataType = "string", paramType = "form", allowableValues = "authorization_code, password, refresh_token, client_credentials"),

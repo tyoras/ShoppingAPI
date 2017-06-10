@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
@@ -61,6 +62,7 @@ public class RegisterUserResource extends RestAPI {
 	}
 	
 	@POST
+	@Timed
 	@ApiOperation(value = "Register new user", notes = "This can be done without authenticated user.", code = 201)
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "User created", response = UserRepresentation.class),

@@ -21,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
@@ -74,6 +75,7 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@POST
+	@Timed
 	@ApiOperation(value = "Create shopping item", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 201, message = "Item created"),
@@ -93,6 +95,7 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@GET
+	@Timed
 	@Path("/{itemId}")
 	@ApiOperation(value = "Get shopping item by Id", notes = "This can only be done by the logged in user.", response = ShoppingItemRepresentation.class)
 	@ApiResponses(value = {
@@ -108,6 +111,7 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@PUT
+	@Timed
 	@Path("/{itemId}")
 	@ApiOperation(value = "Update", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {
@@ -128,6 +132,7 @@ public class ShoppingItemResource extends RestAPI {
 	}
 	
 	@DELETE
+	@Timed
 	@Path("/{itemId}")
 	@ApiOperation(value = "Delete item by Id", notes = "This can only be done by the logged in user.")
 	@ApiResponses(value = {

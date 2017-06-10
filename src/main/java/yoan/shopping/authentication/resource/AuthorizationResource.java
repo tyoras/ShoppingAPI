@@ -34,6 +34,8 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 
+import com.codahale.metrics.annotation.Timed;
+
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -71,6 +73,7 @@ public class AuthorizationResource {
 	}
 	
 	@GET
+	@Timed
 	@ApiOperation(value = "Get Oauth2 authorization", notes = "This can only be done by an authenticated client")
 	@ApiImplicitParams({
 	    @ApiImplicitParam(name = "response_type", value = "Response type", required = true, dataType = "string", paramType = "query", allowableValues = "code, token"),

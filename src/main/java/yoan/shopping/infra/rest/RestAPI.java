@@ -11,6 +11,8 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.codahale.metrics.annotation.Timed;
+
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,6 +34,7 @@ public abstract class RestAPI {
 	 * @return HTTP response
 	 */
 	@OPTIONS
+	@Timed //@Metered @ExceptionMetered
 	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RestRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RestRepresentation.class), 
 							@ApiResponse(code = 401, message = "Not authenticated" , responseHeaders = { @ResponseHeader(name = "WWW-Authenticate", response = String.class) }) })

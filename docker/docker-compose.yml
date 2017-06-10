@@ -19,6 +19,7 @@ api_shopping:
    - "8443:8443"
   links:
    - mongo_shopping
+   - graphite
    
 swagger_ui:
   container_name: swagger_ui
@@ -27,3 +28,10 @@ swagger_ui:
    - "8080:8080"
   environment:
    - API_URL=https://shopping-app.io:8443/shopping/rest/swagger.yaml
+   
+graphite:
+  container_name: graphite
+  image: sitespeedio/graphite:latest
+  ports:
+   - "8081:80"
+   - "2003:2003"

@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.Lists;
 
 import io.dropwizard.auth.Auth;
@@ -49,6 +50,7 @@ public class RootResource extends RestAPI {
 	
 	
 	@OPTIONS
+	@Timed
 	@Override
 	@ApiOperation(value = "Get API root", notes = "This can only be done by the logged in user.", response = RootRepresentation.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Root", response = RootRepresentation.class) })
