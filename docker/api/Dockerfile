@@ -1,21 +1,23 @@
 FROM ubuntu:17.04
-MAINTAINER tyoras@gmail.com
-LABEL Description="ShoppingAPI container" Version="0.1.0"
+MAINTAINER Tyoras <tyoras@gmail.com>
+LABEL Description="ShoppingAPI container" Version="0.3.1"
 
-RUN apt-get update 
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
   wget \
-  curl \
   openjdk-8-jre-headless \
   gettext-base \
-  unzip
+  unzip \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+ENV API_SHOPPING_CONFIG_FILE_PATH=/opt/shopping_api/configAPI.yml
 
-ENV API_SHOPPING_CONFIG_FILE_PATH=/configAPI.yml
-ADD /configAPI.yml $API_SHOPPING_CONFIG_FILE_PATH
-ADD /jars/shopping.jar /shopping.jar
-ADD /certs/shopping.jks /certs/shopping.jks
+RUN mkdir -p /opt/shopping_api/certs
+WORKDIR /opt/shopping_api
+COPY /configAPI.yml $API_SHOPPING_CONFIG_FILE_PATH
+COPY /jars/shopping.jar shopping.jar
+COPY /certs/shopping.jks certs/shopping.jks
 
 RUN update-ca-certificates -f
 
@@ -23,18 +25,15 @@ RUN update-ca-certificates -f
 ARG NEWRELIC_KEY=default_key
 ENV NEWRELIC_APP_NAME Shopping_API 
 
-#RUN ln -sf ${CATALINA_HOME}/webapps /webapps && \
-#	wget -q "https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip" -O /tmp/newrelic.zip && \
-#	unzip /tmp/newrelic.zip -d ${CATALINA_HOME}/ && \
-#	rm /tmp/newrelic.zip && \
-#	cd /usr/local/tomcat/newrelic && \
-#	java -jar newrelic.jar install
+RUN wget -q "https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip" -O /tmp/newrelic.zip && \
+  unzip /tmp/newrelic.zip -d /opt/shopping_api/ && \
+  rm /tmp/newrelic.zip
 
-#RUN cp ${CATALINA_HOME}/newrelic/newrelic.yml ${CATALINA_HOME}/newrelic/newrelic.yml.original && \
-#	cat ${CATALINA_HOME}/newrelic/newrelic.yml.original | sed -e "s/'<\%= license_key \%>'/\'${NEWRELIC_KEY}\'/g" | sed -e "s/app_name:\ My\ Application/app_name:\ ${NEWRELIC_APP_NAME}/g" > ${CATALINA_HOME}/newrelic/newrelic.yml
+RUN cp newrelic/newrelic.yml newrelic/newrelic.yml.original && \
+  cat newrelic/newrelic.yml.original | sed -e "s/'<\%= license_key \%>'/\'${NEWRELIC_KEY}\'/g" | sed -e "s/app_name:\ My\ Application/app_name:\ ${NEWRELIC_APP_NAME}/g" > newrelic/newrelic.yml
 
 EXPOSE 8443 8443
-CMD java -jar /shopping.jar server /configAPI.yml
+CMD java -javaagent:/opt/shopping_api/newrelic/newrelic.jar -jar shopping.jar server configAPI.yml
 
 
 
