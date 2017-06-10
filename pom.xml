@@ -98,6 +98,13 @@
             <version>${javax.activation.version}</version>
         </dependency>
 
+        <!-- Logging -->
+        <dependency>
+            <groupId>net.gini.dropwizard</groupId>
+            <artifactId>dropwizard-gelf</artifactId>
+            <version>1.0.0-2</version>
+        </dependency>
+
         <!-- Dependency Injection -->
         <dependency>
             <groupId>ru.vyarus</groupId>
