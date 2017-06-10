@@ -32,7 +32,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<dropwizard.version>1.1.0</dropwizard.version>
 		<dropwizard-guicier.version>1.0.6.0</dropwizard-guicier.version>
-		<mainClass>yoan.shopping.infra.ShoppingApiApplication</mainClass>
+		<mainClass>io.tyoras.shopping.infra.ShoppingApiApplication</mainClass>
 		<oltu-version>1.0.2</oltu-version>
 		<jacoco.version>0.7.8</jacoco.version>
 		<jjwt-version>0.7.0</jjwt-version>
