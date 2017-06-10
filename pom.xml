@@ -8,7 +8,7 @@
 
 	<groupId>Shopping</groupId>
 	<artifactId>api</artifactId>
-	<version>0.3.0</version>
+	<version>0.3.1-SNAPSHOT</version>
 	<name>Shopping API</name>
 	<packaging>jar</packaging>
 	<description>Shopping app core module</description>
@@ -36,8 +36,9 @@
 		<oltu-version>1.0.2</oltu-version>
 		<jacoco.version>0.7.8</jacoco.version>
 		<jjwt-version>0.7.0</jjwt-version>
-        <coveralls.version>4.3.0</coveralls.version>
-        <shiro-version>1.2.4</shiro-version>
+		<coveralls.version>4.3.0</coveralls.version>
+		<dockerfile.version>1.3.0</dockerfile.version>
+		<shiro-version>1.2.4</shiro-version>
 		<!-- TODO check if istill useful -->
 		<timestamp>${maven.build.timestamp}</timestamp>
 	</properties>
@@ -60,10 +61,10 @@
 			<artifactId>dropwizard-core</artifactId>
 		</dependency>
 		<dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-auth</artifactId>
-        </dependency>
-		
+			<groupId>io.dropwizard</groupId>
+			<artifactId>dropwizard-auth</artifactId>
+		</dependency>
+
 		<!-- Utils -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -100,10 +101,10 @@
 
 		<!-- Security -->
 		<dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-            <version>${shiro-version}</version>
-        </dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>${shiro-version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.oltu.oauth2</groupId>
 			<artifactId>org.apache.oltu.oauth2.common</artifactId>
@@ -127,10 +128,10 @@
 
 		<!-- Unit Test -->
 		<dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-testing</artifactId>
-            <scope>test</scope>
-        </dependency>
+			<groupId>io.dropwizard</groupId>
+			<artifactId>dropwizard-testing</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
@@ -151,6 +152,7 @@
 	</dependencies>
 
 	<build>
+	   <finalName>shopping</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -232,38 +234,56 @@
 				</executions>
 			</plugin>
 			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-            </plugin>
-            <plugin>
-                    <groupId>org.eluder.coveralls</groupId>
-                    <artifactId>coveralls-maven-plugin</artifactId>
-                <version>${coveralls.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>${coveralls.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>${dockerfile.version}</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>build</goal>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<repository>tyoras/shopping_api</repository>
+					<tag>${project.version}</tag>
+				</configuration>
+			</plugin>
 		</plugins>
 		<resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>version.properties</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>version.properties</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
 
 	<reporting>

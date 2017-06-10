@@ -15,9 +15,11 @@ ENV API_SHOPPING_CONFIG_FILE_PATH=/opt/shopping_api/configAPI.yml
 
 RUN mkdir -p /opt/shopping_api/certs
 WORKDIR /opt/shopping_api
-COPY /configAPI.yml $API_SHOPPING_CONFIG_FILE_PATH
-COPY /jars/shopping.jar shopping.jar
-COPY /certs/shopping.jks certs/shopping.jks
+COPY docker/api/configAPI.yml $API_SHOPPING_CONFIG_FILE_PATH
+COPY docker/api/entrypoint.sh /opt/shopping_api/entrypoint.sh
+RUN chmod +x entrypoint.sh
+COPY target/shopping.jar shopping.jar
+COPY docker/api/certs/shopping.jks certs/shopping.jks
 
 RUN update-ca-certificates -f
 
@@ -29,11 +31,12 @@ RUN wget -q "https://download.newrelic.com/newrelic/java-agent/newrelic-agent/cu
   unzip /tmp/newrelic.zip -d /opt/shopping_api/ && \
   rm /tmp/newrelic.zip
 
-RUN cp newrelic/newrelic.yml newrelic/newrelic.yml.original && \
-  cat newrelic/newrelic.yml.original | sed -e "s/'<\%= license_key \%>'/\'${NEWRELIC_KEY}\'/g" | sed -e "s/app_name:\ My\ Application/app_name:\ ${NEWRELIC_APP_NAME}/g" > newrelic/newrelic.yml
+#RUN cp newrelic/newrelic.yml newrelic/newrelic.yml.original && \
+#  cat newrelic/newrelic.yml.original | sed -e "s/'<\%= license_key \%>'/\'${NEWRELIC_KEY}\'/g" | sed -e "s/app_name:\ My\ Application/app_name:\ ${NEWRELIC_APP_NAME}/g" > newrelic/newrelic.yml
 
 EXPOSE 8443 8443
-CMD java -javaagent:/opt/shopping_api/newrelic/newrelic.jar -jar shopping.jar server configAPI.yml
+USER root
+ENTRYPOINT ["/opt/shopping_api/entrypoint.sh"]
 
 
 
