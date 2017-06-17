@@ -155,7 +155,7 @@ public class ShoppingListResource extends RestAPI {
 	public Response deleteById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("listId") @ApiParam(value = "Shopping list identifier", required = true) String listIdStr) {
 		ShoppingList foundList = findShoppingListById(listIdStr);
 		listRepo.deleteById(foundList.getId());
-		return Response.ok().build();
+		return Response.noContent().build();
 	}
 	
 	private ShoppingList findShoppingListById(String listIdStr) {

@@ -208,7 +208,7 @@ public class UserResource extends RestAPI {
 	public Response deleteById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("userId") @ApiParam(value = "User identifier", required = true) String userIdStr) {
 		User foundUser = findUserById(userIdStr);
 		userRepo.deleteById(foundUser.getId());
-		return Response.ok().build();
+		return Response.noContent().build();
 	}
 	
 	private User findUserById(String userIdStr) {

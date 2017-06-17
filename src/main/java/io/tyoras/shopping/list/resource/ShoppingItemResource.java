@@ -144,7 +144,7 @@ public class ShoppingItemResource extends RestAPI {
 		UUID listId = extractListId(listIdStr);
 		ShoppingItem foundItem = findShoppingItemById(listId, itemIdStr);
 		itemRepo.deleteById(listId, foundItem.getId());
-		return Response.ok().build();
+		return Response.noContent().build();
 	}
 	
 	private ShoppingItem findShoppingItemById(UUID listId, String itemIdStr) {

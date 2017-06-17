@@ -45,7 +45,7 @@ public class ShoppingApiApplication extends Application<ShoppingApiConfiguration
     public void initialize(Bootstrap<ShoppingApiConfiguration> bootstrap) {
     	bootstrap.addBundle(GuiceBundle.builder()
     			.modules(new ShoppingModule())
-                .enableAutoConfig("yoan.shopping")
+                .enableAutoConfig("io.tyoras.shopping")
                 .extensions(ApiListingResource.class)
                 .noGuiceFilter()
                 .printDiagnosticInfo()

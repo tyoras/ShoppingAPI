@@ -189,7 +189,7 @@ public class ClientAppResource extends RestAPI {
 	public Response deleteById(@ApiParam(hidden = true) @Auth User connectedUser, @PathParam("appId") @ApiParam(value = "Id of the client app to delete", required = true) String appIdStr) {
 		ClientApp foundApp = findClientAppById(appIdStr);
 		clientAppRepo.deleteById(foundApp.getId());
-		return Response.ok().build();
+		return Response.noContent().build();
 	}
 	
 	private ImmutableList<ClientApp> findClientAppsByOwnerId(String ownerIdStr) {

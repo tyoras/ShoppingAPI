@@ -349,6 +349,6 @@ public class ClientAppResourceTest {
 		
 		//then
 		assertThat(response).isNotNull();
-		assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
+		assertThat(response.getStatus()).isEqualTo(NO_CONTENT.getStatusCode());
 	}
 }
