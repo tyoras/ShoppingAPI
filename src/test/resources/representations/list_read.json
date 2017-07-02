@@ -1,0 +1,26 @@
+{
+    "id":"85d34e20-aefd-470e-9414-efb852004fa9",
+    "name":"list",
+    "ownerId":"85d34e20-aefd-470e-9414-efb852004fa7",
+    "creationDate" : "2016-12-29T23:29:42.000",
+    "lastUpdate" : "2016-12-29T23:30:42.000",
+    "itemList":[
+        {
+            "id":"85d34e20-aefd-470e-9414-efb852004fa5",
+            "name":"item1",
+            "quantity":15,
+            "state":"TO_BUY",
+            "creationDate" : "2016-12-29T23:29:42.000",
+            "lastUpdate" : "2016-12-29T23:30:42.000"
+        },
+        {
+            "id":"85d34e20-aefd-470e-9414-efb852004fa8",
+            "name":"item2",
+            "quantity":18,
+            "state":"BOUGHT",
+            "creationDate" : "2016-12-29T23:29:43.000",
+        "lastUpdate" : "2016-12-29T23:30:44.000"
+        }
+    ],
+    "links":[{"href":"http://shopping-app.io","rel":"self"},{"href":"http://www.google.com","rel":"google"}]
+}

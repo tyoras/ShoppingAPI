@@ -11,6 +11,9 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 /target/
+perf_tests/target/
+perf_tests/project/target/
+perf_tests/project/project/
 
 dependency-reduced-pom.xml
 .project

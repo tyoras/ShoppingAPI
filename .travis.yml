@@ -2,9 +2,15 @@ sudo: required
 language: java
 jdk:
   - oraclejdk8
+services:
+  - docker
 before_install:
   - sudo apt-get install jq
   - wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
+
+install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Ptravis
+
 after_success:
-  - mvn test jacoco:report coveralls:report
+  - mvn test jacoco:report coveralls:report -Ptravis
   - java -cp ~/codacy-coverage-reporter-assembly-latest.jar com.codacy.CodacyCoverageReporter -l Java -r /home/travis/build/tyoras/ShoppingAPI/target/site/jacoco/jacoco.xml
