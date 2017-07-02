@@ -1,5 +1,6 @@
 package io.tyoras.shopping.client.app.representation;
 
+import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static io.tyoras.shopping.infra.rest.error.Level.ERROR;
 import static io.tyoras.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static io.tyoras.shopping.infra.util.error.CommonErrorMessage.INVALID;
@@ -10,12 +11,18 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.dropwizard.jackson.Jackson;
 import io.tyoras.shopping.client.app.ClientApp;
-import io.tyoras.shopping.client.app.representation.ClientAppWriteRepresentation;
 import io.tyoras.shopping.infra.rest.error.WebApiException;
 import io.tyoras.shopping.test.TestHelper;
 
 public class ClientAppWriteRepresentationTest {
+	
+	private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+	
+	private static final String REPRESENTATION_AS_JSON = fixture("representations/client_app_write.json");
 	
 	@Test(expected = NullPointerException.class)
 	public void clientAppWriteRepresentation_should_fail_without_clientApp() {
@@ -115,5 +122,36 @@ public class ClientAppWriteRepresentationTest {
 		assertThat(result.getName()).isEqualTo(expectedClientApp.getName());
 		assertThat(result.getOwnerId()).isEqualTo(expectedClientApp.getOwnerId());
 		assertThat(result.getRedirectURI()).isEqualTo(expectedClientApp.getRedirectURI());
+	}
+	
+	@Test
+    public void serializesToJSON() throws Exception {
+		//given
+		ClientAppWriteRepresentation representation = getRepresentation();
+
+        final String expectedSerialization = MAPPER.writeValueAsString(MAPPER.readValue(REPRESENTATION_AS_JSON, ClientAppWriteRepresentation.class));
+
+        //when
+        String serialized = MAPPER.writeValueAsString(representation);
+        
+        //then
+        assertThat(serialized).isEqualTo(expectedSerialization);
+    }
+
+	@Test
+    public void deserializesFromJSON() throws Exception {
+		ClientAppWriteRepresentation expectedDeserialization = getRepresentation();
+        
+        //when
+		ClientAppWriteRepresentation deserialized = MAPPER.readValue(REPRESENTATION_AS_JSON, ClientAppWriteRepresentation.class);
+        
+        //then
+        assertThat(deserialized).isEqualTo(expectedDeserialization);
+    }
+	
+	@SuppressWarnings("deprecation")
+	private ClientAppWriteRepresentation getRepresentation() {
+		UUID ownerId = UUID.fromString("e1d8c0ec-f27f-4368-8fbc-4a7f49cb106d");
+		return new ClientAppWriteRepresentation("riyori", ownerId, "http://localhost:8080");
 	}
 }

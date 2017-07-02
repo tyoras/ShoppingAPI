@@ -34,7 +34,7 @@ import io.tyoras.shopping.user.resource.UserResource;
  * @author yoan
  */
 @XmlRootElement(name = "user")
-@ApiModel(value = "User", subTypes = {SecuredUserRepresentation.class})
+@ApiModel(value = "User")
 public class UserRepresentation extends RestRepresentation {
 	/** User unique ID */
 	private UUID id;
@@ -173,7 +173,7 @@ public class UserRepresentation extends RestRepresentation {
         return Objects.equals(this.id, that.id)
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.email, that.email)
-                && this.profileVisibility == that.profileVisibility
+                && Objects.equals(this.profileVisibility, that.profileVisibility)
                 && Objects.equals(this.creationDate, that.creationDate)
                 && Objects.equals(this.lastUpdate, that.lastUpdate);
     }

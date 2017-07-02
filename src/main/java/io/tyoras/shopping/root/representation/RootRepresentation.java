@@ -73,7 +73,7 @@ public class RootRepresentation extends RestRepresentation {
             return false;
         }
         RootRepresentation that = (RootRepresentation) obj;
-        return super.equals(obj) && Objects.equals(this.version, that.version)
+        return Objects.equals(this.version, that.version)
                 && Objects.equals(this.buildDate, that.buildDate)
                 && Objects.equals(this.connectedUserId, that.connectedUserId);
     }

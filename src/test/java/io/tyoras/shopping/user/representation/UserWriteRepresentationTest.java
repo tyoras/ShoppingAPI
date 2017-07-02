@@ -1,5 +1,6 @@
 package io.tyoras.shopping.user.representation;
 
+import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static io.tyoras.shopping.infra.rest.error.Level.ERROR;
 import static io.tyoras.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static io.tyoras.shopping.infra.util.error.CommonErrorMessage.INVALID;
@@ -11,12 +12,18 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.dropwizard.jackson.Jackson;
 import io.tyoras.shopping.infra.rest.error.WebApiException;
 import io.tyoras.shopping.test.TestHelper;
 import io.tyoras.shopping.user.User;
-import io.tyoras.shopping.user.representation.UserWriteRepresentation;
 
 public class UserWriteRepresentationTest {
+	
+	private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+	
+	private static final String REPRESENTATION_AS_JSON = fixture("representations/user_write.json");
 	
 	@Test(expected = NullPointerException.class)
 	public void userWriteRepresentation_should_fail_without_user() {
@@ -93,5 +100,35 @@ public class UserWriteRepresentationTest {
 		//then
 		assertThat(result).isNotNull();
 		assertThat(result).isEqualTo(expectedUser);
+	}
+	
+	@Test
+    public void serializesToJSON() throws Exception {
+		//given
+		UserWriteRepresentation representation = getRepresentation();
+
+        final String expectedSerialization = MAPPER.writeValueAsString(MAPPER.readValue(REPRESENTATION_AS_JSON, UserWriteRepresentation.class));
+
+        //when
+        String serialized = MAPPER.writeValueAsString(representation);
+        
+        //then
+        assertThat(serialized).isEqualTo(expectedSerialization);
+    }
+	
+	@Test
+    public void deserializesFromJSON() throws Exception {
+		UserWriteRepresentation expectedDeserialization = getRepresentation();
+        
+        //when
+		UserWriteRepresentation deserialized = MAPPER.readValue(REPRESENTATION_AS_JSON, UserWriteRepresentation.class);
+        
+        //then
+        assertThat(deserialized).isEqualTo(expectedDeserialization);
+    }
+	
+	@SuppressWarnings("deprecation")
+	private UserWriteRepresentation getRepresentation() {
+		return new UserWriteRepresentation("riyori", "adli@enenad.com", "PUBLIC");
 	}
 }

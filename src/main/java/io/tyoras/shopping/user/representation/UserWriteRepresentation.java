@@ -120,7 +120,7 @@ public class UserWriteRepresentation {
         UserWriteRepresentation that = (UserWriteRepresentation) obj;
         return Objects.equals(this.name, that.name)
                 && Objects.equals(this.email, that.email)
-                && this.profileVisibility == that.profileVisibility;
+                && Objects.equals(this.profileVisibility, that.profileVisibility);
     }
 	
 	@Override

@@ -1,5 +1,6 @@
 package io.tyoras.shopping.user.representation;
 
+import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static io.tyoras.shopping.infra.rest.error.Level.ERROR;
 import static io.tyoras.shopping.infra.util.error.CommonErrorCode.API_RESPONSE;
 import static io.tyoras.shopping.infra.util.error.CommonErrorMessage.INVALID;
@@ -8,14 +9,17 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.core.UriInfo;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
+import io.dropwizard.jackson.Jackson;
 import io.tyoras.shopping.infra.rest.Link;
 import io.tyoras.shopping.infra.rest.error.WebApiException;
 import io.tyoras.shopping.test.TestHelper;
@@ -23,6 +27,10 @@ import io.tyoras.shopping.user.User;
 import io.tyoras.shopping.user.representation.UserRepresentation;
 
 public class UserRepresentationTest {
+	
+	private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+	
+	private static final String REPRESENTATION_AS_JSON = fixture("representations/user_read.json");
 	
 	@Test(expected = NullPointerException.class)
 	public void userRepresentation_should_fail_without_user() {
@@ -105,5 +113,37 @@ public class UserRepresentationTest {
 		//then
 		assertThat(result).isNotNull();
 		assertThat(result).isEqualTo(expectedUser);
+	}
+	
+	@Test
+    public void serializesToJSON() throws Exception {
+		//given
+		UserRepresentation representation = getRepresentation();
+
+        final String expectedSerialization = MAPPER.writeValueAsString(MAPPER.readValue(REPRESENTATION_AS_JSON, UserRepresentation.class));
+
+        //when
+        String serialized = MAPPER.writeValueAsString(representation);
+        
+        //then
+        assertThat(serialized).isEqualTo(expectedSerialization);
+    }
+	
+	@Test
+    public void deserializesFromJSON() throws Exception {
+		UserRepresentation expectedDeserialization = getRepresentation();
+        
+        //when
+		UserRepresentation deserialized = MAPPER.readValue(REPRESENTATION_AS_JSON, UserRepresentation.class);
+        
+        //then
+        assertThat(deserialized).isEqualTo(expectedDeserialization);
+    }
+	
+	@SuppressWarnings("deprecation")
+	private UserRepresentation getRepresentation() {
+		UUID id = UUID.fromString("85d34e20-aefd-470e-9414-efb852004fa4");
+		List<Link> links = Lists.newArrayList(Link.self("http://shopping-app.io"), new Link("google", "http://www.google.com"));
+		return new UserRepresentation(id, "riyori", "adli@enenad.com", "PUBLIC", links);
 	}
 }

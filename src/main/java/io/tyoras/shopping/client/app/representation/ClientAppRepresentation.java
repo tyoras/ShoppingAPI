@@ -126,7 +126,7 @@ public class ClientAppRepresentation extends RestRepresentation {
 		return redirectURI;
 	}
 	
-	@XmlElement(name = "secretkey")
+	@XmlElement(name = "secretKey")
 	public String getSecretkey() {
 		return secretKey;
 	}
