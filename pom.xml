@@ -30,15 +30,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<dropwizard.version>1.1.0</dropwizard.version>
-		<dropwizard-guicier.version>1.0.6.0</dropwizard-guicier.version>
+		<dropwizard.version>1.2.0</dropwizard.version>
 		<mainClass>io.tyoras.shopping.infra.ShoppingApiApplication</mainClass>
 		<oltu-version>1.0.2</oltu-version>
 		<jacoco.version>0.7.8</jacoco.version>
-		<jjwt-version>0.7.0</jjwt-version>
+		<jjwt-version>0.8.0</jjwt-version>
 		<coveralls.version>4.3.0</coveralls.version>
 		<dockerfile.version>1.3.1</dockerfile.version>
-		<shiro-version>1.2.4</shiro-version>
+		<shiro-version>1.4.0</shiro-version>
 		<!-- TODO check if istill useful -->
 		<timestamp>${maven.build.timestamp}</timestamp>
 	</properties>
@@ -144,13 +143,13 @@
 		<dependency>
 			<groupId>com.github.fakemongo</groupId>
 			<artifactId>fongo</artifactId>
-			<version>2.0.6</version>
+			<version>2.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo</artifactId>
-			<version>1.50.5</version>
+			<version>2.0.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
