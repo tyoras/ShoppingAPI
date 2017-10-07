@@ -37,7 +37,7 @@
 		<jacoco.version>0.7.8</jacoco.version>
 		<jjwt-version>0.7.0</jjwt-version>
 		<coveralls.version>4.3.0</coveralls.version>
-		<dockerfile.version>1.3.0</dockerfile.version>
+		<dockerfile.version>1.3.1</dockerfile.version>
 		<shiro-version>1.2.4</shiro-version>
 		<!-- TODO check if istill useful -->
 		<timestamp>${maven.build.timestamp}</timestamp>
