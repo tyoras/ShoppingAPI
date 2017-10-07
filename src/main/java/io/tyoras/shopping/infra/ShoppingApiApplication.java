@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.vavr.VavrBundle;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.tyoras.shopping.infra.config.ShoppingApiConfiguration;
@@ -45,6 +46,7 @@ public class ShoppingApiApplication extends Application<ShoppingApiConfiguration
                 .noGuiceFilter()
                 .printDiagnosticInfo()
                 .build());
+    	bootstrap.addBundle(new VavrBundle());
     }
 
     @Override
