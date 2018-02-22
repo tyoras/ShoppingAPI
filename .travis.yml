@@ -1,7 +1,7 @@
 sudo: required
 language: java
 jdk:
-  - oraclejdk8
+  - oraclejdk9
 services:
   - docker
 before_install:
@@ -13,4 +13,4 @@ install:
 
 after_success:
   - mvn test jacoco:report coveralls:report -Ptravis
-  - java -cp ~/codacy-coverage-reporter-assembly-latest.jar com.codacy.CodacyCoverageReporter -l Java -r /home/travis/build/tyoras/ShoppingAPI/target/site/jacoco/jacoco.xml
+  - java --add-modules java.activation -cp ~/codacy-coverage-reporter-assembly-latest.jar com.codacy.CodacyCoverageReporter -l Java -r /home/travis/build/tyoras/ShoppingAPI/target/site/jacoco/jacoco.xml

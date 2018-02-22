@@ -46,4 +46,4 @@ docker/api/jars/*.jar
 docker/api/certs/shopping.jks
 
 .idea/
-api.iml
+*.iml
