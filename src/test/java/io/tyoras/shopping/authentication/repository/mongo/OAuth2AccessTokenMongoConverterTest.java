@@ -32,10 +32,10 @@ public class OAuth2AccessTokenMongoConverterTest {
         OAuth2AccessToken expectedAuthCode = TestHelper.generateRandomOAuth2AccessToken();
         OAuth2AccessTokenMongoConverter testedConverter = new OAuth2AccessTokenMongoConverter();
         Document doc = new Document(FIELD_ID, expectedAuthCode.getId())
-            .append(FIELD_TOKEN, expectedAuthCode.getToken())
-            .append(FIELD_USER_ID, expectedAuthCode.getuserId())
-            .append(FIELD_CREATED, DateHelper.toDate(expectedAuthCode.getCreationDate()))
-            .append(FIELD_NB_REFRESH, expectedAuthCode.getNbRefresh());
+                .append(FIELD_TOKEN, expectedAuthCode.getToken())
+                .append(FIELD_USER_ID, expectedAuthCode.getuserId())
+                .append(FIELD_CREATED, DateHelper.toDate(expectedAuthCode.getCreationDate()))
+                .append(FIELD_NB_REFRESH, expectedAuthCode.getNbRefresh());
         //when
         OAuth2AccessToken result = testedConverter.fromDocument(doc);
 

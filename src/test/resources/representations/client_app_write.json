@@ -1,5 +1,5 @@
 {
-    "name":"riyori",
-    "redirectURI":"http://localhost:8080",
-    "ownerId":"e1d8c0ec-f27f-4368-8fbc-4a7f49cb106d"
+  "name": "riyori",
+  "redirectURI": "http://localhost:8080",
+  "ownerId": "e1d8c0ec-f27f-4368-8fbc-4a7f49cb106d"
 }

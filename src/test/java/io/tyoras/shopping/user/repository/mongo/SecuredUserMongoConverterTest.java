@@ -48,13 +48,13 @@ public class SecuredUserMongoConverterTest {
         String expectedPassword = "password";
         Object expectedSalt = UUID.randomUUID().toString();
         Document doc = new Document(FIELD_ID, expectId)
-            .append(FIELD_NAME, expectedName)
-            .append(FIELD_EMAIL, expectedMail)
-            .append(FIELD_PROFILE_VISIBILITY, expectedProfileVisibility.name())
-            .append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
-            .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedLastUpdate))
-            .append(FIELD_SECURITY, new Document(FIELD_PASSWORD, expectedPassword)
-            .append(FIELD_SALT, expectedSalt));
+                .append(FIELD_NAME, expectedName)
+                .append(FIELD_EMAIL, expectedMail)
+                .append(FIELD_PROFILE_VISIBILITY, expectedProfileVisibility.name())
+                .append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
+                .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedLastUpdate))
+                .append(FIELD_SECURITY, new Document(FIELD_PASSWORD, expectedPassword)
+                        .append(FIELD_SALT, expectedSalt));
 
         SecuredUserMongoConverter testedConverter = new SecuredUserMongoConverter();
 
@@ -92,11 +92,11 @@ public class SecuredUserMongoConverterTest {
         //given
         UUID expectedId = UUID.randomUUID();
         Document unsecureUserDoc = new Document(FIELD_ID, expectedId)
-            .append(FIELD_NAME, "name")
-            .append(FIELD_EMAIL, "mail")
-            .append(FIELD_PROFILE_VISIBILITY, PUBLIC.name())
-            .append(FIELD_LAST_UPDATE, new Date())
-            .append(FIELD_CREATED, new Date());
+                .append(FIELD_NAME, "name")
+                .append(FIELD_EMAIL, "mail")
+                .append(FIELD_PROFILE_VISIBILITY, PUBLIC.name())
+                .append(FIELD_LAST_UPDATE, new Date())
+                .append(FIELD_CREATED, new Date());
 
         SecuredUserMongoConverter testedConverter = new SecuredUserMongoConverter();
 

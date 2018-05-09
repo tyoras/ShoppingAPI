@@ -33,13 +33,13 @@ public class ClientAppMongoConverterTest {
         ClientApp expectedClientApp = TestHelper.generateRandomClientApp();
         ClientAppMongoConverter testedConverter = new ClientAppMongoConverter();
         Document doc = new Document(FIELD_ID, expectedClientApp.getId())
-            .append(FIELD_NAME, expectedClientApp.getName())
-            .append(FIELD_OWNER_ID, expectedClientApp.getOwnerId())
-            .append(FIELD_REDIRECT_URI, expectedClientApp.getRedirectURI().toString())
-            .append(FIELD_CREATED, DateHelper.toDate(expectedClientApp.getCreationDate()))
-            .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedClientApp.getLastUpdate()))
-            .append(FIELD_SECRET, expectedClientApp.getSecret())
-            .append(FIELD_SALT, expectedClientApp.getSalt());
+                .append(FIELD_NAME, expectedClientApp.getName())
+                .append(FIELD_OWNER_ID, expectedClientApp.getOwnerId())
+                .append(FIELD_REDIRECT_URI, expectedClientApp.getRedirectURI().toString())
+                .append(FIELD_CREATED, DateHelper.toDate(expectedClientApp.getCreationDate()))
+                .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedClientApp.getLastUpdate()))
+                .append(FIELD_SECRET, expectedClientApp.getSecret())
+                .append(FIELD_SALT, expectedClientApp.getSalt());
 
         //when
         ClientApp result = testedConverter.fromDocument(doc);

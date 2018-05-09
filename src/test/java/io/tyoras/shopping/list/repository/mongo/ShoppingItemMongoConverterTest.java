@@ -42,11 +42,11 @@ public class ShoppingItemMongoConverterTest {
         LocalDateTime expectedUpdateDate = LocalDateTime.now();
 
         Document doc = new Document(FIELD_ID, expectId)
-            .append(FIELD_NAME, expectedName)
-            .append(FIELD_QUANTITY, expectedQuantity)
-            .append(FIELD_STATE, expectedState.name())
-            .append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
-            .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedUpdateDate));
+                .append(FIELD_NAME, expectedName)
+                .append(FIELD_QUANTITY, expectedQuantity)
+                .append(FIELD_STATE, expectedState.name())
+                .append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
+                .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedUpdateDate));
         ShoppingItemMongoConverter testedConverter = new ShoppingItemMongoConverter();
 
         //when

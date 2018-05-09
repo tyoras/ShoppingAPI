@@ -35,11 +35,11 @@ public class ShoppingListMongoConverterTest {
         ShoppingListMongoConverter testedConverter = new ShoppingListMongoConverter();
         List<Document> itemArray = testedConverter.getItemArray(expectedList.getItemList());
         Document doc = new Document(FIELD_ID, expectedList.getId())
-            .append(FIELD_NAME, expectedList.getName())
-            .append(FIELD_OWNER_ID, expectedList.getOwnerId())
-            .append(FIELD_CREATED, DateHelper.toDate(expectedList.getCreationDate()))
-            .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedList.getLastUpdate()))
-            .append(FIELD_ITEM_LIST, itemArray);
+                .append(FIELD_NAME, expectedList.getName())
+                .append(FIELD_OWNER_ID, expectedList.getOwnerId())
+                .append(FIELD_CREATED, DateHelper.toDate(expectedList.getCreationDate()))
+                .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedList.getLastUpdate()))
+                .append(FIELD_ITEM_LIST, itemArray);
 
         //when
         ShoppingList result = testedConverter.fromDocument(doc);

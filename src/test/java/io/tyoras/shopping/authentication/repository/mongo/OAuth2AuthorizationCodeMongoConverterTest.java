@@ -33,9 +33,9 @@ public class OAuth2AuthorizationCodeMongoConverterTest {
         OAuth2AuthorizationCode expectedAuthCode = TestHelper.generateRandomOAuth2AuthorizationCode();
         OAuth2AuthorizationCodeMongoConverter testedConverter = new OAuth2AuthorizationCodeMongoConverter();
         Document doc = new Document(FIELD_ID, expectedAuthCode.getId())
-            .append(FIELD_CODE, expectedAuthCode.getCode())
-            .append(FIELD_USER_ID, expectedAuthCode.getuserId())
-            .append(FIELD_CREATED, DateHelper.toDate(expectedAuthCode.getCreationDate()));
+                .append(FIELD_CODE, expectedAuthCode.getCode())
+                .append(FIELD_USER_ID, expectedAuthCode.getuserId())
+                .append(FIELD_CREATED, DateHelper.toDate(expectedAuthCode.getCreationDate()));
         //when
         OAuth2AuthorizationCode result = testedConverter.fromDocument(doc);
 

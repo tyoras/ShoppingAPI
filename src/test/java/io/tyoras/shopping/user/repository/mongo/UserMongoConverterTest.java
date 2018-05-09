@@ -43,11 +43,11 @@ public class UserMongoConverterTest {
         LocalDateTime expectedLastUpdate = LocalDateTime.now();
 
         Document doc = new Document(FIELD_ID, expectId)
-            .append(FIELD_NAME, expectedName)
-            .append(FIELD_EMAIL, expectedMail)
-            .append(FIELD_PROFILE_VISIBILITY, expectedProfileVisibility.name())
-            .append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
-            .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedLastUpdate));
+                .append(FIELD_NAME, expectedName)
+                .append(FIELD_EMAIL, expectedMail)
+                .append(FIELD_PROFILE_VISIBILITY, expectedProfileVisibility.name())
+                .append(FIELD_CREATED, DateHelper.toDate(expectedCreationDate))
+                .append(FIELD_LAST_UPDATE, DateHelper.toDate(expectedLastUpdate));
         UserMongoConverter testedConverter = new UserMongoConverter();
 
         //when

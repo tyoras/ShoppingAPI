@@ -1,53 +1,61 @@
 /**
- * 
+ *
  */
 package io.tyoras.shopping.root;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.base.MoreObjects;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.base.MoreObjects;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Informations about build
+ *
  * @author yoan
  */
 public class BuildInfo {
-	/** Default version */
-	public static final String DEFAULT_VERSION = "UNKNOWN";
-	/** Default build info */
-	public static final BuildInfo DEFAULT = new BuildInfo(DEFAULT_VERSION, null);
-	
-	/** Current build version */
-	private final String version;
-	/** Maven build date */
-	private final LocalDateTime buildDate;
-	
-	public BuildInfo(String version, LocalDateTime buildDate) {
-		checkArgument(StringUtils.isNotBlank(version), "The version field is mandatory");
-		this.version = version;
-		this.buildDate = buildDate;
-	}
+    /**
+     * Default version
+     */
+    public static final String DEFAULT_VERSION = "UNKNOWN";
+    /**
+     * Default build info
+     */
+    public static final BuildInfo DEFAULT = new BuildInfo(DEFAULT_VERSION, null);
 
-	public String getVersion() {
-		return version;
-	}
+    /**
+     * Current build version
+     */
+    private final String version;
+    /**
+     * Maven build date
+     */
+    private final LocalDateTime buildDate;
 
-	public LocalDateTime getBuildDate() {
-		return buildDate;
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(version, buildDate);
-	}
+    public BuildInfo(String version, LocalDateTime buildDate) {
+        checkArgument(StringUtils.isNotBlank(version), "The version field is mandatory");
+        this.version = version;
+        this.buildDate = buildDate;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
+    public String getVersion() {
+        return version;
+    }
+
+    public LocalDateTime getBuildDate() {
+        return buildDate;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(version, buildDate);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
         if (obj == null) {
             return false;
         }
@@ -58,11 +66,11 @@ public class BuildInfo {
         return Objects.equals(this.version, that.version)
                 && Objects.equals(this.buildDate, that.buildDate);
     }
-	
-	@Override
-	public String toString() {
-		return MoreObjects.toStringHelper(this).add("version", version)
-											   .add("buildDate", buildDate)
-											   .toString();
-	}
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("version", version)
+                .add("buildDate", buildDate)
+                .toString();
+    }
 }
