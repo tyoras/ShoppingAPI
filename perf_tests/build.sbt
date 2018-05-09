@@ -1,6 +1,6 @@
 enablePlugins(GatlingPlugin)
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.6"
 name := "docgen-load-tests"
 version := "0.3.1-SNAPSHOT"
 

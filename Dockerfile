@@ -1,10 +1,10 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 MAINTAINER Tyoras <tyoras@gmail.com>
 LABEL Description="ShoppingAPI container" Version="0.3.1"
 
 RUN apt-get update && apt-get install -y \
   wget \
-  openjdk-8-jre-headless \
+  openjdk-11-jre-headless \
   gettext-base \
   unzip \
   && apt-get clean \
