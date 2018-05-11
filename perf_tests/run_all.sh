@@ -1,3 +1,3 @@
 #!/bin/sh
-activator clean gatling:test gatling:lastReport
+sbt clean gatling:test gatling:lastReport
 

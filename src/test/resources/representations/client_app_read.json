@@ -1,10 +1,19 @@
 {
-    "id":"85d34e20-aefd-470e-9414-efb852004fa3",
-    "name":"riyori",
-    "redirectURI":"http://localhost:8080",
-    "ownerId":"e1d8c0ec-f27f-4368-8fbc-4a7f49cb106d",
-    "creationDate":null,
-    "lastUpdate":null,
-    "secretKey":"secret",
-    "links":[{"href":"http://shopping-app.io","rel":"self"},{"href":"http://www.google.com","rel":"google"}]
+  "id": "85d34e20-aefd-470e-9414-efb852004fa3",
+  "name": "riyori",
+  "redirectURI": "http://localhost:8080",
+  "ownerId": "e1d8c0ec-f27f-4368-8fbc-4a7f49cb106d",
+  "creationDate": null,
+  "lastUpdate": null,
+  "secretKey": "secret",
+  "links": [
+    {
+      "href": "http://shopping-app.io",
+      "rel": "self"
+    },
+    {
+      "href": "http://www.google.com",
+      "rel": "google"
+    }
+  ]
 }

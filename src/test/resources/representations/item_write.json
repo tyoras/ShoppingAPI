@@ -1,6 +1,6 @@
 {
-    "id":"85d34e20-aefd-470e-9414-efb852004fa5",
-    "name":"item",
-    "quantity":15,
-    "state":"TO_BUY"
+  "id": "85d34e20-aefd-470e-9414-efb852004fa5",
+  "name": "item",
+  "quantity": 15,
+  "state": "TO_BUY"
 }

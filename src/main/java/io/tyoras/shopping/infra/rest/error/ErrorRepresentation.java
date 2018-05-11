@@ -1,52 +1,57 @@
 /**
- * 
+ *
  */
 package io.tyoras.shopping.infra.rest.error;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang3.StringUtils;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 /**
- *
  * @author yoan
  */
 @XmlRootElement
 public class ErrorRepresentation {
-	/** Level of error */
-	private Level level;
-	/** Error code */
-	private String code;
-	/** human readable error message */
-	private String message;
-	
-	public ErrorRepresentation() {
-	}
-	
-	public ErrorRepresentation(Level level, String code, String message) {
-		this.level = requireNonNull(level, "ErrorRepresentation must have a criticity level");
-		checkArgument(StringUtils.isNotBlank(code), "ErrorRepresentation must have an error code");
-		this.code = code;
-		checkArgument(StringUtils.isNotBlank(message), "ErrorRepresentation must have a human readable error message");
-		this.message = message;
-	}
+    /**
+     * Level of error
+     */
+    private Level level;
+    /**
+     * Error code
+     */
+    private String code;
+    /**
+     * human readable error message
+     */
+    private String message;
 
-	@XmlElement(name = "level")
-	public Level getLevel() {
-		return level;
-	}
+    public ErrorRepresentation() {
+    }
 
-	@XmlElement(name = "code")
-	public String getCode() {
-		return code;
-	}
+    public ErrorRepresentation(Level level, String code, String message) {
+        this.level = requireNonNull(level, "ErrorRepresentation must have a criticity level");
+        checkArgument(StringUtils.isNotBlank(code), "ErrorRepresentation must have an error code");
+        this.code = code;
+        checkArgument(StringUtils.isNotBlank(message), "ErrorRepresentation must have a human readable error message");
+        this.message = message;
+    }
 
-	@XmlElement(name = "message")
-	public String getMessage() {
-		return message;
-	}
+    @XmlElement(name = "level")
+    public Level getLevel() {
+        return level;
+    }
+
+    @XmlElement(name = "code")
+    public String getCode() {
+        return code;
+    }
+
+    @XmlElement(name = "message")
+    public String getMessage() {
+        return message;
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package io.tyoras.shopping.infra.config.guice;
 
@@ -20,13 +20,14 @@ package io.tyoras.shopping.infra.config.guice;
 
 /**
  * Guice Module to bootstrap swagger
+ *
  * @author yoan
  */
 public class SwaggerModule /*extends AbstractModule*/ {
-	
-	//TODO migrate swagger oauth2 authorization scheme
 
-	public static final String SECURITY_DEFINITION_OAUTH2 = "oauth2";
+    //TODO migrate swagger oauth2 authorization scheme
+
+    public static final String SECURITY_DEFINITION_OAUTH2 = "oauth2";
 //	private final ServletContext servletContext;
 //	private final Config configAppli;
 //	private final BuildInfo buildInfo;
@@ -49,11 +50,11 @@ public class SwaggerModule /*extends AbstractModule*/ {
 //		SecuritySchemeDefinition oauth2SecurityDefinition = new OAuth2Definition()
 //			//.implicit(authorizationURL) //to get directly the token from the authz endpoint
 //			.accessCode(authorizationURL, tokenURL);
-//		
+//
 //		swagger.securityDefinition(SECURITY_DEFINITION_OAUTH2, oauth2SecurityDefinition);
-//		
+//
 //		servletContext.setAttribute("swagger", swagger);
-//		
+//
 //		BeanConfig beanConfig = new BeanConfig();
 //        beanConfig.setVersion(buildInfo.getVersion());
 //        beanConfig.setSchemes(new String[]{configAppli.getApiScheme()});

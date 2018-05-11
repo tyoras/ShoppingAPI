@@ -1,15 +1,15 @@
 {
-    "version" : "0.2.3-SNAPSHOT",
-    "buildDate" : "2016-12-29T23:29:42.000",
-    "connectedUserId" : "ed2979db-21f5-4834-8449-417105e03e6a",
-    "links" : [
-        {
-            "href":"http://shopping-app.io",
-            "rel":"self"
-        },
-        {
-            "href":"http://www.google.com",
-            "rel":"google"
-        }
-    ]
+  "version": "0.2.3-SNAPSHOT",
+  "buildDate": "2016-12-29T23:29:42.000",
+  "connectedUserId": "ed2979db-21f5-4834-8449-417105e03e6a",
+  "links": [
+    {
+      "href": "http://shopping-app.io",
+      "rel": "self"
+    },
+    {
+      "href": "http://www.google.com",
+      "rel": "google"
+    }
+  ]
 }

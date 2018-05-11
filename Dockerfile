@@ -1,10 +1,10 @@
-FROM ubuntu:17.04
+FROM ubuntu:18.04
 MAINTAINER Tyoras <tyoras@gmail.com>
 LABEL Description="ShoppingAPI container" Version="0.3.1"
 
 RUN apt-get update && apt-get install -y \
   wget \
-  openjdk-8-jre-headless \
+  openjdk-11-jre-headless \
   gettext-base \
   unzip \
   && apt-get clean \
@@ -25,7 +25,7 @@ RUN update-ca-certificates -f
 
 # New Relic integration
 ARG NEWRELIC_KEY=default_key
-ENV NEWRELIC_APP_NAME Shopping_API 
+ENV NEWRELIC_APP_NAME Shopping_API
 
 RUN wget -q "https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip" -O /tmp/newrelic.zip && \
   unzip /tmp/newrelic.zip -d /opt/shopping_api/ && \

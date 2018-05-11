@@ -1,33 +1,33 @@
 package io.tyoras.shopping.authentication.resource;
 
-import java.util.List;
-import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Used only for testing OAuth2 on localhost
+ *
  * @author yoan
  */
 @Path("/public/redirect")
 public class RedirectResource {
-	@Context
+    @Context
     HttpHeaders httpHeaders;
-	@Context
+    @Context
     UriInfo uriInfo;
-    
-	@GET
+
+    @GET
     public String redirect() {
         JSONObject object = new JSONObject();
-        JSONObject headers = new JSONObject(); 
+        JSONObject headers = new JSONObject();
         JSONObject qp = new JSONObject();
         String json = "error!";
         try {

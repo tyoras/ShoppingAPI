@@ -1,18 +1,19 @@
 package io.tyoras.shopping.test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.oltu.oauth2.common.OAuth;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.oltu.oauth2.common.OAuth;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Mock an HTTP servlet request in a OAuth2 context
+ *
  * @author yoan
  */
 public class OauthMockRequestBuilder {
-	private HttpServletRequest request;
+    private HttpServletRequest request;
 
     public OauthMockRequestBuilder() {
         request = mock(HttpServletRequest.class);
