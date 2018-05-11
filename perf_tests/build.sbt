@@ -2,7 +2,7 @@ enablePlugins(GatlingPlugin)
 
 scalaVersion := "2.12.6"
 name := "docgen-load-tests"
-version := "0.3.1-SNAPSHOT"
+version := "0.3.2"
 
 scalacOptions := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",

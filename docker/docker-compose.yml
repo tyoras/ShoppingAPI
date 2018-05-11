@@ -14,12 +14,11 @@ mongo_shopping:
   command: mongod --smallfiles
 
 api_shopping:
-  image: tyoras/shopping_api:0.3.0
+  image: tyoras/shopping_api:0.3.2
   ports:
    - "8443:8443"
   links:
    - mongo_shopping
-   - graphite
    
 swagger_ui:
   container_name: swagger_ui

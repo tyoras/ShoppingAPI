@@ -5,7 +5,7 @@
 
     <groupId>Shopping</groupId>
     <artifactId>api</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.3.2</version>
     <name>Shopping API</name>
     <packaging>jar</packaging>
     <description>Shopping app core module</description>
