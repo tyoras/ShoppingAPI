@@ -1,7 +1,7 @@
 enablePlugins(GatlingPlugin)
 
 scalaVersion := "2.12.6"
-name := "docgen-load-tests"
+name := "perf_tests"
 version := "0.3.2"
 
 scalacOptions := Seq(
