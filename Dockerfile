@@ -1,6 +1,6 @@
-FROM ubuntu:18.04
+FROM ubuntu:18.10
 MAINTAINER Tyoras <tyoras@gmail.com>
-LABEL Description="ShoppingAPI container" Version="0.3.1"
+LABEL Description="ShoppingAPI container" Version="0.3.2"
 
 RUN apt-get update && apt-get install -y \
   wget \
