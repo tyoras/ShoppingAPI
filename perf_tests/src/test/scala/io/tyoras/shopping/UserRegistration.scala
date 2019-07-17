@@ -14,7 +14,7 @@ object UserRegistration extends UserFeeders {
       http("Register new user")
         .post("/public/user")
         .header("Accept", "application/json")
-        .body(ElFileBody("user/registration.json")).asJSON
+        .body(ElFileBody("user/registration.json")).asJson
         .check(status.is(201))
         .check(jsonPath("$..id").saveAs("user_id"))
 	)

@@ -5,7 +5,7 @@ import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
 
 abstract class ShoppingSimulation extends Simulation {
-  val httpConf: HttpProtocolBuilder = http.baseURL(baseUrl)
+  val httpConf: HttpProtocolBuilder = http.baseUrl(baseUrl)
   val nbUsers: Int = nbUsersAtOnce
   var nbTests: Int = nbRepeat
 }
